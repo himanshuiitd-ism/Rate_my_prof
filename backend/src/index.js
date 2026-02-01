@@ -10,7 +10,7 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "https://rate-my-prof-tau.vercel.app",
+    origin: ["http://localhost:5173", "https://rate-my-prof-tau.vercel.app"],
   },
 });
 
