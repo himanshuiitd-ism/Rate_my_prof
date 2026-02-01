@@ -536,7 +536,11 @@ export default function ProfList() {
       {/* Header */}
       <div className="hero">
         <div className="hero-content">
-          <h1 className="hero-title">Rate My Prof</h1>
+          <span className="ad">
+            {" "}
+            <span className="hero-title">Rate My Prof</span>{" "}
+          </span>
+
           <p className="hero-sub">
             Anonymous ratings & reviews for IIT (ISM) Dhanbad faculty
           </p>
@@ -569,6 +573,21 @@ export default function ProfList() {
           </div>
         </div>
       </div>
+      <span style={{ color: "black", fontSize: "16px", marginLeft: "0px" }}>
+        Planning trips with friends? We built TripiiTrip to split expenses, plan
+        routes & travel together 👀 👉{" "}
+        <a
+          href="https://tripii-trip-psi.vercel.app/"
+          target="blank"
+          style={{
+            textDecoration: "none",
+            color: "red",
+            fontSize: "20px",
+          }}
+        >
+          Tripiitrip
+        </a>
+      </span>
 
       {/* Content */}
       {loading ? (

@@ -607,8 +607,8 @@ const styles = `
 
   /* Star selector */
   .star-selector {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    display: flex;
+    flex-wrap:wrap;
     gap: 6px;
     justify-content: center;
     margin: 16px 0 10px;
@@ -623,7 +623,7 @@ const styles = `
   }
   
   .star-btn {
-    width: 100%;
+    max-width: 50px;
     aspect-ratio: 1;
     border-radius: 10px;
     border: 2px solid #e5e7eb;
@@ -1051,6 +1051,17 @@ export default function ProfPage() {
           </div>
         </div>
       </div>
+      <span style={{ color: "black", fontSize: "16px" }}>
+        Planning trips with friends? We built TripiiTrip to split expenses, plan
+        routes & travel together 👀 👉{" "}
+        <a
+          href="https://tripii-trip-psi.vercel.app/"
+          target="blank"
+          style={{ textDecoration: "none", color: "red", fontSize: "20px" }}
+        >
+          Tripiitrip
+        </a>
+      </span>
 
       {/* Main content */}
       <div className="content-wrap">
