@@ -5,10 +5,10 @@ import {
   loadProfessor,
   submitProfessorRating,
   updateProfessorOptimistically,
+  clearCurrentProfessor,
 } from "../redux/ProfessorSlice.js";
 import { socket, joinProf } from "../socket";
 import { updateLeaderboardFromProfessors } from "../redux/leaderboardSlice.js";
-// import { socket, joinProf } from "../socket";
 
 const MOODS = ["😭", "😠", "😟", "😕", "😐", "🙂", "😊", "😄", "😁", "🤩"];
 
@@ -943,11 +943,19 @@ export default function ProfPage() {
     }
   }, [messagesFromRedux]);
 
-  // Fetch professor data
+  // Fetch professor data - FIXED VERSION
   useEffect(() => {
     let mounted = true;
 
     if (id) {
+      // Clear previous professor and messages immediately when ID changes
+      dispatch(clearCurrentProfessor());
+      setMessages([]);
+      setRating(0);
+      setSubmitted(false);
+      setToast(false);
+
+      // Then load new professor
       dispatch(loadProfessor(id));
     }
 
@@ -1030,26 +1038,8 @@ export default function ProfPage() {
         <style>{styles}</style>
         <div style={{ textAlign: "center", color: "#6b7280" }}>
           <h3 style={{ fontSize: 24, marginBottom: 12, fontWeight: 700 }}>
-            Professor not found
+            Your lovely prof is loading...
           </h3>
-          <button
-            className="back-btn"
-            onClick={() => navigate("/")}
-            style={{ display: "inline-flex", marginTop: 20 }}
-          >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <line x1="19" y1="12" x2="5" y2="12" />
-              <polyline points="12 19 5 12 12 5" />
-            </svg>
-            Back to Professors
-          </button>
         </div>
       </div>
     );
