@@ -575,7 +575,7 @@ export default function ProfList() {
       </div>
       <span style={{ color: "black", fontSize: "16px", marginLeft: "0px" }}>
         Planning trips with friends? We built TripiiTrip to split expenses, plan
-        routes & travel together 👀 👉{" "}
+        routes & travel together 👀 Click👉{" "}
         <a
           href="https://tripii-trip-psi.vercel.app/"
           target="blank"
