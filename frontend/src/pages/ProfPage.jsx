@@ -1057,7 +1057,7 @@ export default function ProfPage() {
         <a
           href="https://tripii-trip-psi.vercel.app/"
           target="blank"
-          style={{ textDecoration: "none", color: "red", fontSize: "20px" }}
+          style={{ textDecoration: "none", color: "red", fontSize: "40px" }}
         >
           Tripiitrip
         </a>

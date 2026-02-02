@@ -582,7 +582,7 @@ export default function ProfList() {
           style={{
             textDecoration: "none",
             color: "red",
-            fontSize: "20px",
+            fontSize: "40px",
           }}
         >
           Tripiitrip
