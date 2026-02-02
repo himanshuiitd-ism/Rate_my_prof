@@ -1043,226 +1043,251 @@ export default function ProfPage() {
   const filledStars = avgRating ? Math.round(avgRating / 2) : 0;
 
   return (
-    <div className="prof-page">
-      <style>{styles}</style>
+    // <div className="prof-page">
+    //   <style>{styles}</style>
 
-      {/* Toast */}
-      <div className={`toast ${toast ? "" : "hidden"}`}>
-        ✓ Thanks for your rating!
-      </div>
+    //   {/* Toast */}
+    //   <div className={`toast ${toast ? "" : "hidden"}`}>
+    //     ✓ Thanks for your rating!
+    //   </div>
 
-      {/* Nav */}
-      <div className="top-nav">
-        <button className="back-btn" onClick={() => navigate("/")}>
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <line x1="19" y1="12" x2="5" y2="12" />
-            <polyline points="12 19 5 12 12 5" />
-          </svg>
-          Back to Professors
-        </button>
-      </div>
+    //   {/* Nav */}
+    //   <div className="top-nav">
+    //     <button className="back-btn" onClick={() => navigate("/")}>
+    //       <svg
+    //         viewBox="0 0 24 24"
+    //         fill="none"
+    //         stroke="currentColor"
+    //         strokeWidth="2.5"
+    //         strokeLinecap="round"
+    //         strokeLinejoin="round"
+    //       >
+    //         <line x1="19" y1="12" x2="5" y2="12" />
+    //         <polyline points="12 19 5 12 12 5" />
+    //       </svg>
+    //       Back to Professors
+    //     </button>
+    //   </div>
 
-      {/* Profile hero */}
-      <div className="profile-hero">
-        <div className="prof-photo-wrap">
-          {prof.photoUrl ? (
-            <img src={prof.photoUrl} alt={prof.name} />
-          ) : (
-            <div className="prof-photo-placeholder">
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-              >
-                <circle cx="12" cy="8" r="4" />
-                <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
-              </svg>
-            </div>
-          )}
-        </div>
+    //   {/* Profile hero */}
+    //   <div className="profile-hero">
+    //     <div className="prof-photo-wrap">
+    //       {prof.photoUrl ? (
+    //         <img src={prof.photoUrl} alt={prof.name} />
+    //       ) : (
+    //         <div className="prof-photo-placeholder">
+    //           <svg
+    //             viewBox="0 0 24 24"
+    //             fill="none"
+    //             stroke="currentColor"
+    //             strokeWidth="1.5"
+    //           >
+    //             <circle cx="12" cy="8" r="4" />
+    //             <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+    //           </svg>
+    //         </div>
+    //       )}
+    //     </div>
 
-        <div className="profile-info">
-          <h1 className="profile-name">{prof.name}</h1>
-          {prof.department && (
-            <div className="profile-dept">{prof.department}</div>
-          )}
+    //     <div className="profile-info">
+    //       <h1 className="profile-name">{prof.name}</h1>
+    //       {prof.department && (
+    //         <div className="profile-dept">{prof.department}</div>
+    //       )}
 
-          <div className="avg-rating-row">
-            <div className="avg-box">
-              <div className="avg-number-wrap">
-                <div className="avg-number">
-                  {avgRating != null ? avgRating.toFixed(1) : "—"}
-                </div>
-                <div className="avg-label">Average Rating</div>
-              </div>
+    //       <div className="avg-rating-row">
+    //         <div className="avg-box">
+    //           <div className="avg-number-wrap">
+    //             <div className="avg-number">
+    //               {avgRating != null ? avgRating.toFixed(1) : "—"}
+    //             </div>
+    //             <div className="avg-label">Average Rating</div>
+    //           </div>
 
-              <div className="avg-stars-wrap">
-                <div className="avg-stars">
-                  {[...Array(5)].map((_, i) => (
-                    <span
-                      key={i}
-                      style={{
-                        color: i < filledStars ? "#fbbf24" : "#e5e7eb",
-                      }}
-                    >
-                      ★
-                    </span>
-                  ))}
-                </div>
-                <div className="avg-count">
-                  {ratingCount} rating{ratingCount !== 1 ? "s" : ""}
-                </div>
-              </div>
+    //           <div className="avg-stars-wrap">
+    //             <div className="avg-stars">
+    //               {[...Array(5)].map((_, i) => (
+    //                 <span
+    //                   key={i}
+    //                   style={{
+    //                     color: i < filledStars ? "#fbbf24" : "#e5e7eb",
+    //                   }}
+    //                 >
+    //                   ★
+    //                 </span>
+    //               ))}
+    //             </div>
+    //             <div className="avg-count">
+    //               {ratingCount} rating{ratingCount !== 1 ? "s" : ""}
+    //             </div>
+    //           </div>
 
-              {avgMood && <div className="avg-mood">{avgMood}</div>}
-            </div>
-          </div>
-        </div>
-      </div>
+    //           {avgMood && <div className="avg-mood">{avgMood}</div>}
+    //         </div>
+    //       </div>
+    //     </div>
+    //   </div>
 
-      {/* Promo Banner */}
-      <div className="promo-banner">
-        <p className="promo-text">
-          Planning trips with friends? We built TripiiTrip to split expenses,
-          plan routes & travel together 👀 Click 👉{" "}
-          <a
-            href="https://tripii-trip-psi.vercel.app/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="promo-link"
-          >
-            Tripiitrip
-          </a>
-        </p>
-      </div>
+    //   {/* Promo Banner */}
+    //   <div className="promo-banner">
+    //     <p className="promo-text">
+    //       Planning trips with friends? We built TripiiTrip to split expenses,
+    //       plan routes & travel together 👀 Click 👉{" "}
+    //       <a
+    //         href="https://tripii-trip-psi.vercel.app/"
+    //         target="_blank"
+    //         rel="noopener noreferrer"
+    //         className="promo-link"
+    //       >
+    //         Tripiitrip
+    //       </a>
+    //     </p>
+    //   </div>
 
-      {/* Main content */}
-      <div className="content-wrap">
-        {/* Chat column */}
-        <div className="col-main">
-          <div className="section-head">
-            <span className="dot"></span>
-            Anonymous Chat
-          </div>
+    //   {/* Main content */}
+    //   <div className="content-wrap">
+    //     {/* Chat column */}
+    //     <div className="col-main">
+    //       <div className="section-head">
+    //         <span className="dot"></span>
+    //         Anonymous Chat
+    //       </div>
 
-          <div className="chat-box">
-            <div className="chat-messages">
-              {messages.length === 0 ? (
-                <div className="chat-empty">
-                  No messages yet. Be the first to chat!
-                </div>
-              ) : (
-                messages.map((m, i) => (
-                  <div className="chat-msg" key={i}>
-                    <div className="chat-msg-time">
-                      {new Date(m.createdAt).toLocaleTimeString()}
-                    </div>
-                    <div className="chat-msg-text">{m.message}</div>
-                  </div>
-                ))
-              )}
-            </div>
+    //       <div className="chat-box">
+    //         <div className="chat-messages">
+    //           {messages.length === 0 ? (
+    //             <div className="chat-empty">
+    //               No messages yet. Be the first to chat!
+    //             </div>
+    //           ) : (
+    //             messages.map((m, i) => (
+    //               <div className="chat-msg" key={i}>
+    //                 <div className="chat-msg-time">
+    //                   {new Date(m.createdAt).toLocaleTimeString()}
+    //                 </div>
+    //                 <div className="chat-msg-text">{m.message}</div>
+    //               </div>
+    //             ))
+    //           )}
+    //         </div>
 
-            <div className="chat-input-row">
-              <input
-                className="chat-input"
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Message anonymously... (Enter to send)"
-              />
-              <button className="send-btn" onClick={sendMsg}>
-                Send
-              </button>
-            </div>
-          </div>
-        </div>
+    //         <div className="chat-input-row">
+    //           <input
+    //             className="chat-input"
+    //             value={comment}
+    //             onChange={(e) => setComment(e.target.value)}
+    //             onKeyDown={handleKeyDown}
+    //             placeholder="Message anonymously... (Enter to send)"
+    //           />
+    //           <button className="send-btn" onClick={sendMsg}>
+    //             Send
+    //           </button>
+    //         </div>
+    //       </div>
+    //     </div>
 
-        {/* Rating column */}
-        <div className="col-side">
-          <div className="section-head">
-            <span className="dot"></span>
-            Rate This Professor
-          </div>
+    //     {/* Rating column */}
+    //     <div className="col-side">
+    //       <div className="section-head">
+    //         <span className="dot"></span>
+    //         Rate This Professor
+    //       </div>
 
-          <div className="rating-panel">
-            <div className="mood-label">
-              How do you feel about this professor?
-            </div>
+    //       <div className="rating-panel">
+    //         <div className="mood-label">
+    //           How do you feel about this professor?
+    //         </div>
 
-            <div
-              className="mood-display"
-              style={{ transform: rating ? "scale(1.15)" : "scale(1)" }}
-            >
-              {mood}
-            </div>
+    //         <div
+    //           className="mood-display"
+    //           style={{ transform: rating ? "scale(1.15)" : "scale(1)" }}
+    //         >
+    //           {mood}
+    //         </div>
 
-            <div className="star-selector">
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
-                <button
-                  key={n}
-                  className={`star-btn ${rating === n ? "active" : ""}`}
-                  onClick={() => {
-                    if (!submitted) setRating(n);
-                  }}
-                  disabled={submitted}
-                >
-                  {n}
-                </button>
-              ))}
-            </div>
+    //         <div className="star-selector">
+    //           {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
+    //             <button
+    //               key={n}
+    //               className={`star-btn ${rating === n ? "active" : ""}`}
+    //               onClick={() => {
+    //                 if (!submitted) setRating(n);
+    //               }}
+    //               disabled={submitted}
+    //             >
+    //               {n}
+    //             </button>
+    //           ))}
+    //         </div>
 
-            <div className="star-label-row">
-              <span className="star-label">😭 Awful</span>
-              <span className="star-label">🤩 Amazing</span>
-            </div>
+    //         <div className="star-label-row">
+    //           <span className="star-label">😭 Awful</span>
+    //           <span className="star-label">🤩 Amazing</span>
+    //         </div>
 
-            {rating > 0 && (
-              <div className="selected-score">
-                You selected: <span>{rating}/10</span> — {MOODS[rating - 1]}
-              </div>
-            )}
+    //         {rating > 0 && (
+    //           <div className="selected-score">
+    //             You selected: <span>{rating}/10</span> — {MOODS[rating - 1]}
+    //           </div>
+    //         )}
 
-            <button
-              className={`submit-btn ${submittingRating ? "loading" : ""}`}
-              onClick={rateNow}
-              disabled={!rating || submitted || submittingRating}
-            >
-              {submittingRating ? (
-                <>
-                  Submitting<span className="btn-spinner"></span>
-                </>
-              ) : submitted ? (
-                "Rating Submitted ✓"
-              ) : (
-                "Submit Rating"
-              )}
-            </button>
+    //         <button
+    //           className={`submit-btn ${submittingRating ? "loading" : ""}`}
+    //           onClick={rateNow}
+    //           disabled={!rating || submitted || submittingRating}
+    //         >
+    //           {submittingRating ? (
+    //             <>
+    //               Submitting<span className="btn-spinner"></span>
+    //             </>
+    //           ) : submitted ? (
+    //             "Rating Submitted ✓"
+    //           ) : (
+    //             "Submit Rating"
+    //           )}
+    //         </button>
 
-            {submitted && (
-              <div
-                style={{
-                  textAlign: "center",
-                  marginTop: 16,
-                  fontSize: 13,
-                  color: "#6b7280",
-                  fontWeight: 600,
-                }}
-              >
-                You've already rated this professor
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
+    //         {submitted && (
+    //           <div
+    //             style={{
+    //               textAlign: "center",
+    //               marginTop: 16,
+    //               fontSize: 13,
+    //               color: "#6b7280",
+    //               fontWeight: 600,
+    //             }}
+    //           >
+    //             You've already rated this professor
+    //           </div>
+    //         )}
+    //       </div>
+    //     </div>
+    //   </div>
+    // </div>
+    <center className="message">
+      I think we should stop this now, I will come back with better approach,
+      bcoz{" "}
+      <a
+        href="https://www.youtube.com/watch?v=vLm8NJfQ3uA"
+        target="blank"
+        style={{ color: "red", fontSize: "60px" }}
+      >
+        see this
+      </a>{" "}
+      btw don't forget to come and post on tripiitrip and also join the
+      tripiitrip community on it{" "}
+      <p className="promo-text">
+        <a
+          href="https://tripii-trip-psi.vercel.app/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="promo-link"
+          style={{ color: "red", fontSize: "60px" }}
+        >
+          Tripiitrip😉
+        </a>
+        and don't forget to reach me if you need anything
+      </p>
+    </center>
   );
 }
