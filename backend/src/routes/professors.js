@@ -22,12 +22,20 @@ router.get("/scrape", async (req, res) => {
 // GET /api/professors - list all with avg ratings
 router.get("/", async (req, res) => {
   try {
-    const profs = await Professor.find().sort({ name: 1 }).lean();
+    console.log(
+      "📋 GET /api/professors - Fetching all professors with ratings and message counts",
+    );
 
-    // Calculate average rating for each professor
+    const profs = await Professor.find().sort({ name: 1 }).lean();
+    console.log(`Found ${profs.length} professors in database`);
+
+    // Calculate average rating and message count for each professor
     const profsWithRatings = await Promise.all(
       profs.map(async (prof) => {
         const ratings = await Rating.find({ prof: prof._id });
+        const messageCount = await ChatMessage.countDocuments({
+          prof: prof._id,
+        });
 
         let avgRating = null;
         let totalScore = 0;
@@ -70,13 +78,29 @@ router.get("/", async (req, res) => {
           ...prof,
           avgRating,
           ratingCount: ratings.length,
+          commentCount: messageCount,
         };
       }),
     );
 
+    // Log summary statistics
+    const withComments = profsWithRatings.filter((p) => p.commentCount > 0);
+    console.log(`✅ Returning ${profsWithRatings.length} professors`);
+    console.log(`   - ${withComments.length} have comments`);
+    if (withComments.length > 0) {
+      const topCommented = [...withComments].sort(
+        (a, b) => b.commentCount - a.commentCount,
+      )[0];
+      console.log(
+        `   - Top: ${topCommented.name} with ${topCommented.commentCount} comments`,
+      );
+    } else {
+      console.log(`   ⚠️  NO PROFESSORS HAVE COMMENTS YET`);
+    }
+
     res.json(profsWithRatings);
   } catch (err) {
-    console.error("List professors error:", err);
+    console.error("❌ List professors error:", err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -85,14 +109,18 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
   try {
     const { id } = req.params;
+    console.log(`📖 GET /api/professors/${id} - Fetching professor details`);
+
     const prof = await Professor.findById(id).lean();
 
     if (!prof) {
+      console.log(`❌ Professor not found: ${id}`);
       return res.status(404).json({ message: "Professor not found" });
     }
 
     // Get all ratings
     const ratings = await Rating.find({ prof: prof._id });
+    const messageCount = await ChatMessage.countDocuments({ prof: prof._id });
 
     // Calculate average with better error handling
     let avgRating = null;
@@ -122,12 +150,6 @@ router.get("/:id", async (req, res) => {
           score = r.score;
         }
 
-        console.log(`Rating ${index + 1}:`, {
-          score,
-          categories: r.categories,
-          rawRating: r,
-        });
-
         if (score !== null && score !== undefined && !isNaN(score)) {
           totalScore += Number(score);
           validRatings++;
@@ -151,16 +173,19 @@ router.get("/:id", async (req, res) => {
       .sort({ createdAt: -1 })
       .limit(50);
 
+    console.log(`Found ${messages.length} messages for ${prof.name}`);
+
     res.json({
       prof: {
         ...prof,
         avgRating,
         ratingCount: ratings.length,
+        commentCount: messageCount,
       },
       messages: messages.reverse(),
     });
   } catch (err) {
-    console.error("Get professor error:", err);
+    console.error("❌ Get professor error:", err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -171,8 +196,11 @@ router.post("/:id/rate", async (req, res) => {
     const { id } = req.params;
     const { categories, comment } = req.body;
 
+    console.log(`⭐ POST /api/professors/${id}/rate - Submitting rating`);
+
     const prof = await Professor.findById(id);
     if (!prof) {
+      console.log(`❌ Professor not found: ${id}`);
       return res.status(404).json({ message: "Professor not found" });
     }
 
@@ -188,8 +216,7 @@ router.post("/:id/rate", async (req, res) => {
 
     console.log("Saving rating:", {
       profId: id,
-      categories,
-      comment,
+      profName: prof.name,
       score: categories.score,
     });
 
@@ -200,7 +227,7 @@ router.post("/:id/rate", async (req, res) => {
     });
     await rating.save();
 
-    console.log("Rating saved:", rating);
+    console.log("✅ Rating saved successfully");
 
     // Emit update via socket
     const io = req.app.get("io");
@@ -213,7 +240,7 @@ router.post("/:id/rate", async (req, res) => {
 
     res.json({ success: true, rating });
   } catch (err) {
-    console.error("Rate professor error:", err);
+    console.error("❌ Rate professor error:", err);
     res.status(500).json({ error: err.message });
   }
 });

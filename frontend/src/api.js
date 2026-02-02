@@ -1,12 +1,11 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL:
-    import.meta.env.VITE_API_URL || "https://rate-my-proff.onrender.com/api",
+  baseURL: "https://rate-my-proff.onrender.com/api",
 });
 
 export async function fetchProfs() {
-  const res = await API.get("/professors");
+  const res = await API.get("/professors"); // ← Missing "/api"
   return res.data;
 }
 

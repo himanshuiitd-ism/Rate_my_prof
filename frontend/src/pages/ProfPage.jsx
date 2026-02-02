@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { fetchProf, submitRating } from "../api";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  loadProfessor,
+  submitProfessorRating,
+  updateProfessorOptimistically,
+} from "../redux/ProfessorSlice.js";
 import { socket, joinProf } from "../socket";
+import { updateLeaderboardFromProfessors } from "../redux/leaderboardSlice.js";
+// import { socket, joinProf } from "../socket";
 
 const MOODS = ["😭", "😠", "😟", "😕", "😐", "🙂", "😊", "😄", "😁", "🤩"];
 
@@ -608,7 +615,7 @@ const styles = `
   /* Star selector */
   .star-selector {
     display: flex;
-    flex-wrap:wrap;
+    flex-wrap: wrap;
     gap: 6px;
     justify-content: center;
     margin: 16px 0 10px;
@@ -616,7 +623,6 @@ const styles = `
   
   @media (min-width: 768px) {
     .star-selector {
-      display: flex;
       gap: 8px;
       margin: 18px 0 10px;
     }
@@ -648,11 +654,16 @@ const styles = `
     }
   }
   
-  .star-btn:hover {
+  .star-btn:hover:not(:disabled) {
     border-color: #667eea;
     background: #ede9fe;
     transform: translateY(-3px);
     box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+  }
+  
+  .star-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
   }
   
   .star-btn.active {
@@ -744,6 +755,7 @@ const styles = `
     font-family: 'Plus Jakarta Sans', sans-serif;
     transition: all 0.3s;
     box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+    position: relative;
   }
   
   @media (min-width: 768px) {
@@ -755,19 +767,35 @@ const styles = `
     }
   }
   
-  .submit-btn:hover {
+  .submit-btn:hover:not(:disabled) {
     transform: translateY(-2px);
     box-shadow: 0 12px 32px rgba(102, 126, 234, 0.5);
   }
   
-  .submit-btn:active {
+  .submit-btn:active:not(:disabled) {
     transform: translateY(0);
   }
   
   .submit-btn:disabled {
-    opacity: 0.5;
+    opacity: 0.6;
     cursor: not-allowed;
     transform: none;
+  }
+
+  .submit-btn.loading {
+    cursor: wait;
+  }
+
+  .btn-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-left: 8px;
+    vertical-align: middle;
   }
 
   /* Toast */
@@ -837,46 +865,95 @@ const styles = `
       font-size: 16px;
     }
   }
+
+  .promo-banner {
+    background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%);
+    border: 2px solid #fb923c;
+    border-radius: 16px;
+    padding: 16px 20px;
+    margin: 0 20px 20px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(251, 146, 60, 0.2);
+  }
+
+  @media (min-width: 768px) {
+    .promo-banner {
+      padding: 20px 40px;
+      margin: 0 40px 30px;
+    }
+  }
+
+  .promo-text {
+    font-size: 14px;
+    color: #1a1a2e;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  @media (min-width: 768px) {
+    .promo-text {
+      font-size: 16px;
+    }
+  }
+
+  .promo-link {
+    color: #dc2626;
+    text-decoration: none;
+    font-weight: 800;
+    font-size: 24px;
+    transition: all 0.3s;
+    display: inline-block;
+  }
+
+  @media (min-width: 768px) {
+    .promo-link {
+      font-size: 32px;
+    }
+  }
+
+  .promo-link:hover {
+    transform: scale(1.05);
+    text-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+  }
 `;
 
 export default function ProfPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [prof, setProf] = useState(null);
+  const dispatch = useDispatch();
+
+  const {
+    currentProfessor: prof,
+    currentMessages: messagesFromRedux,
+    loading,
+    submittingRating,
+  } = useSelector((state) => state.professors);
+  const allProfessors = useSelector((state) => state.professors.list);
+
   const [messages, setMessages] = useState([]);
   const [comment, setComment] = useState("");
   const [rating, setRating] = useState(0);
   const [submitted, setSubmitted] = useState(false);
   const [toast, setToast] = useState(false);
-  const [loading, setLoading] = useState(true);
 
-  // Fetch professor data using URL parameter
+  // Initialize messages from Redux when they load
+  useEffect(() => {
+    if (messagesFromRedux && messagesFromRedux.length > 0) {
+      setMessages(messagesFromRedux);
+    }
+  }, [messagesFromRedux]);
+
+  // Fetch professor data
   useEffect(() => {
     let mounted = true;
 
-    const loadProfessor = async () => {
-      try {
-        setLoading(true);
-        const data = await fetchProf(id);
-        if (mounted) {
-          setProf(data.prof || data);
-          setMessages(data.messages || []);
-          setLoading(false);
-        }
-      } catch (err) {
-        console.error("Error loading professor:", err);
-        if (mounted) {
-          setLoading(false);
-        }
-      }
-    };
-
     if (id) {
-      loadProfessor();
+      dispatch(loadProfessor(id));
     }
 
     socket.connect();
     joinProf(id);
+
     socket.on("new_message", ({ profId, message, createdAt }) => {
       if (mounted && profId === id) {
         setMessages((m) => [...m, { message, createdAt }]);
@@ -888,7 +965,7 @@ export default function ProfPage() {
       socket.off("new_message");
       socket.disconnect();
     };
-  }, [id]);
+  }, [id, dispatch]);
 
   const sendMsg = () => {
     if (!comment.trim()) return;
@@ -904,22 +981,40 @@ export default function ProfPage() {
   };
 
   const rateNow = async () => {
-    if (!rating) return;
+    if (!rating || submittingRating) return;
+
+    // Optimistic update
+    const optimisticAvgRating = prof.avgRating
+      ? (prof.avgRating * (prof.ratingCount || 0) + rating) /
+        ((prof.ratingCount || 0) + 1)
+      : rating;
+    const optimisticRatingCount = (prof.ratingCount || 0) + 1;
+
+    dispatch(
+      updateProfessorOptimistically({
+        id,
+        avgRating: optimisticAvgRating,
+        ratingCount: optimisticRatingCount,
+      }),
+    );
+
     try {
-      await submitRating(id, { categories: { score: rating }, comment: "" });
+      await dispatch(submitProfessorRating({ id, rating })).unwrap();
+
       setSubmitted(true);
       setToast(true);
       setTimeout(() => setToast(false), 3000);
 
-      // Refresh professor data
-      const data = await fetchProf(id);
-      setProf(data.prof || data);
+      // Update leaderboard
+      dispatch(updateLeaderboardFromProfessors(allProfessors));
     } catch (err) {
-      console.error(err);
+      console.error("Rating submission failed:", err);
+      // Revert optimistic update on error
+      dispatch(loadProfessor(id));
     }
   };
 
-  if (loading) {
+  if (loading && !prof) {
     return (
       <div className="loading-screen">
         <style>{styles}</style>
@@ -1051,17 +1146,22 @@ export default function ProfPage() {
           </div>
         </div>
       </div>
-      <span style={{ color: "black", fontSize: "16px" }}>
-        Planning trips with friends? We built TripiiTrip to split expenses, plan
-        routes & travel together 👀 Click👉{" "}
-        <a
-          href="https://tripii-trip-psi.vercel.app/"
-          target="blank"
-          style={{ textDecoration: "none", color: "red", fontSize: "40px" }}
-        >
-          Tripiitrip
-        </a>
-      </span>
+
+      {/* Promo Banner */}
+      <div className="promo-banner">
+        <p className="promo-text">
+          Planning trips with friends? We built TripiiTrip to split expenses,
+          plan routes & travel together 👀 Click 👉{" "}
+          <a
+            href="https://tripii-trip-psi.vercel.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="promo-link"
+          >
+            Tripiitrip
+          </a>
+        </p>
+      </div>
 
       {/* Main content */}
       <div className="content-wrap">
@@ -1132,6 +1232,7 @@ export default function ProfPage() {
                   onClick={() => {
                     if (!submitted) setRating(n);
                   }}
+                  disabled={submitted}
                 >
                   {n}
                 </button>
@@ -1150,11 +1251,19 @@ export default function ProfPage() {
             )}
 
             <button
-              className="submit-btn"
+              className={`submit-btn ${submittingRating ? "loading" : ""}`}
               onClick={rateNow}
-              disabled={!rating || submitted}
+              disabled={!rating || submitted || submittingRating}
             >
-              {submitted ? "Rating Submitted ✓" : "Submit Rating"}
+              {submittingRating ? (
+                <>
+                  Submitting<span className="btn-spinner"></span>
+                </>
+              ) : submitted ? (
+                "Rating Submitted ✓"
+              ) : (
+                "Submit Rating"
+              )}
             </button>
 
             {submitted && (

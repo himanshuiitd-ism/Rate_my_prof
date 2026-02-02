@@ -1,6 +1,12 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { useAppContext } from "../Appcontext.jsx";
+import { useDispatch, useSelector } from "react-redux";
+import { loadProfessors, setScrollPosition } from "../redux/ProfessorSlice.js";
+import {
+  loadLeaderboard,
+  updateLeaderboardFromProfessors,
+} from "../redux/leaderboardSlice.js";
+import Leaderboard from "./Leaderboard.jsx";
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -495,33 +501,100 @@ const styles = `
       font-size: 16px;
     }
   }
+
+  .promo-banner {
+    background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%);
+    border: 2px solid #fb923c;
+    border-radius: 16px;
+    padding: 16px 20px;
+    margin: 20px 20px 0;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(251, 146, 60, 0.2);
+  }
+
+  @media (min-width: 768px) {
+    .promo-banner {
+      padding: 20px 40px;
+      margin: 30px 40px 0;
+    }
+  }
+
+  .promo-text {
+    font-size: 14px;
+    color: #1a1a2e;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  @media (min-width: 768px) {
+    .promo-text {
+      font-size: 16px;
+    }
+  }
+
+  .promo-link {
+    color: #dc2626;
+    text-decoration: none;
+    font-weight: 800;
+    font-size: 24px;
+    transition: all 0.3s;
+    display: inline-block;
+  }
+
+  @media (min-width: 768px) {
+    .promo-link {
+      font-size: 32px;
+    }
+  }
+
+  .promo-link:hover {
+    transform: scale(1.05);
+    text-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+  }
 `;
 
 export default function ProfList() {
-  const { professors, loading, error, scrollPosition, setScrollPosition } =
-    useAppContext();
+  const dispatch = useDispatch();
+  const {
+    list: professors,
+    loading,
+    error,
+    scrollPosition,
+  } = useSelector((state) => state.professors);
   const [search, setSearch] = useState("");
   const containerRef = useRef(null);
 
-  // Restore scroll position when component mounts
+  // Load professors on mount
+  useEffect(() => {
+    dispatch(loadProfessors());
+    dispatch(loadLeaderboard());
+  }, [dispatch]);
+
+  // Update leaderboard when professors change
+  useEffect(() => {
+    if (professors.length > 0) {
+      dispatch(updateLeaderboardFromProfessors(professors));
+    }
+  }, [professors, dispatch]);
+
+  // Restore scroll position
   useEffect(() => {
     if (scrollPosition && containerRef.current) {
-      // Use setTimeout to ensure DOM is ready
       setTimeout(() => {
         window.scrollTo(0, scrollPosition);
       }, 0);
     }
   }, [scrollPosition]);
 
-  // Save scroll position before navigating away
+  // Save scroll position
   useEffect(() => {
     const handleScroll = () => {
-      setScrollPosition(window.scrollY);
+      dispatch(setScrollPosition(window.scrollY));
     };
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [setScrollPosition]);
+  }, [dispatch]);
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim();
@@ -536,11 +609,7 @@ export default function ProfList() {
       {/* Header */}
       <div className="hero">
         <div className="hero-content">
-          <span className="ad">
-            {" "}
-            <span className="hero-title">Rate My Prof</span>{" "}
-          </span>
-
+          <h1 className="hero-title">Rate My Prof</h1>
           <p className="hero-sub">
             Anonymous ratings & reviews for IIT (ISM) Dhanbad faculty
           </p>
@@ -573,21 +642,25 @@ export default function ProfList() {
           </div>
         </div>
       </div>
-      <span style={{ color: "black", fontSize: "16px", marginLeft: "0px" }}>
-        Planning trips with friends? We built TripiiTrip to split expenses, plan
-        routes & travel together 👀 Click👉{" "}
-        <a
-          href="https://tripii-trip-psi.vercel.app/"
-          target="blank"
-          style={{
-            textDecoration: "none",
-            color: "red",
-            fontSize: "40px",
-          }}
-        >
-          Tripiitrip
-        </a>
-      </span>
+
+      {/* Promo Banner */}
+      <div className="promo-banner">
+        <p className="promo-text">
+          Planning trips with friends? We built TripiiTrip to split expenses,
+          plan routes & travel together 👀 Click 👉{" "}
+          <a
+            href="https://tripii-trip-psi.vercel.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="promo-link"
+          >
+            Tripiitrip
+          </a>
+        </p>
+      </div>
+
+      {/* Leaderboard */}
+      <Leaderboard />
 
       {/* Content */}
       {loading ? (
@@ -617,7 +690,6 @@ export default function ProfList() {
         <div className="prof-grid">
           {filtered.map((p) => {
             const avgRating = p.avgRating;
-            const ratingCount = p.ratingCount || 0;
 
             return (
               <Link key={p._id} to={`/prof/${p._id}`} className="prof-card">
@@ -638,7 +710,6 @@ export default function ProfList() {
                     </div>
                   )}
 
-                  {/* Rating badge */}
                   <div className="rating-badge">
                     {avgRating != null && avgRating > 0 ? (
                       <>

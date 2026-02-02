@@ -17,8 +17,19 @@ const io = new Server(server, {
 app.use(cors());
 app.use(json());
 
+// Add logging middleware to see ALL requests
+app.use((req, res, next) => {
+  console.log(
+    `📥 ${req.method} ${req.url} - ${new Date().toLocaleTimeString()}`,
+  );
+  next();
+});
+
 // Basic route
-app.get("/", (req, res) => res.send("rate_my_prof backend running"));
+app.get("/", (req, res) => {
+  console.log("🏠 Root route hit");
+  res.send("rate_my_prof backend running");
+});
 
 // Routes
 import profRoutes from "./routes/professors.js";
@@ -36,7 +47,7 @@ async function connectDb() {
       console.error(err);
       process.exit(1);
     });
-    console.log("Connected to MongoDB");
+    console.log("✅ Connected to MongoDB");
   } else {
     console.log(
       "No MONGO_URI provided — spinning up in-memory MongoDB for dev",
@@ -73,7 +84,11 @@ connectDb().then(() => {
 
     server.once("error", onError);
     server.listen(port, () => {
-      console.log(`Server running on port ${port}`);
+      console.log(`🚀 Server running on port ${port}`);
+      console.log(
+        `📍 API available at http://localhost:${port}/api/professors`,
+      );
+      console.log(`🏠 Root available at http://localhost:${port}/`);
     });
   };
 
