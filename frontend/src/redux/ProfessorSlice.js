@@ -54,10 +54,11 @@ const professorsSlice = createSlice({
     currentProfessor: null,
     currentMessages: [],
     loading: false,
+    professorLoading: false, // New: separate loading state for individual professor
     submittingRating: false,
     error: null,
     scrollPosition: 0,
-    listLoaded: false, // Track if list has been loaded
+    listLoaded: false,
   },
   reducers: {
     setScrollPosition: (state, action) => {
@@ -66,6 +67,7 @@ const professorsSlice = createSlice({
     clearCurrentProfessor: (state) => {
       state.currentProfessor = null;
       state.currentMessages = [];
+      state.professorLoading = true; // Set loading when clearing
     },
     updateProfessorOptimistically: (state, action) => {
       const { id, avgRating, ratingCount } = action.payload;
@@ -88,7 +90,6 @@ const professorsSlice = createSlice({
     builder
       // Load all professors
       .addCase(loadProfessors.pending, (state) => {
-        // Only show loading if list hasn't been loaded yet
         if (!state.listLoaded) {
           state.loading = true;
         }
@@ -97,7 +98,7 @@ const professorsSlice = createSlice({
       .addCase(loadProfessors.fulfilled, (state, action) => {
         state.loading = false;
         state.list = action.payload;
-        state.listLoaded = true; // Mark as loaded
+        state.listLoaded = true;
       })
       .addCase(loadProfessors.rejected, (state, action) => {
         state.loading = false;
@@ -106,10 +107,11 @@ const professorsSlice = createSlice({
 
       // Load single professor
       .addCase(loadProfessor.pending, (state) => {
-        // Don't set global loading for individual professor
+        state.professorLoading = true;
         state.error = null;
       })
       .addCase(loadProfessor.fulfilled, (state, action) => {
+        state.professorLoading = false;
         state.currentProfessor = action.payload.professor;
         state.currentMessages = action.payload.messages;
 
@@ -125,6 +127,7 @@ const professorsSlice = createSlice({
         }
       })
       .addCase(loadProfessor.rejected, (state, action) => {
+        state.professorLoading = false;
         state.error = action.payload;
       })
 

@@ -839,6 +839,7 @@ const styles = `
     justify-content: center;
     flex-direction: column;
     gap: 20px;
+    background: #f5f7fa;
   }
   
   .loader {
@@ -925,7 +926,7 @@ export default function ProfPage() {
   const {
     currentProfessor: prof,
     currentMessages: messagesFromRedux,
-    loading,
+    professorLoading,
     submittingRating,
   } = useSelector((state) => state.professors);
   const allProfessors = useSelector((state) => state.professors.list);
@@ -940,20 +941,22 @@ export default function ProfPage() {
   useEffect(() => {
     if (messagesFromRedux && messagesFromRedux.length > 0) {
       setMessages(messagesFromRedux);
+    } else {
+      setMessages([]);
     }
   }, [messagesFromRedux]);
 
-  // Fetch professor data - FIXED VERSION
+  // Fetch professor data - OPTIMIZED VERSION
   useEffect(() => {
     let mounted = true;
 
     if (id) {
-      // Clear previous professor and messages immediately when ID changes
+      // Clear immediately and set loading state
       dispatch(clearCurrentProfessor());
       setMessages([]);
       setRating(0);
       setSubmitted(false);
-      setToast(false);
+      setComment("");
 
       // Then load new professor
       dispatch(loadProfessor(id));
@@ -1022,25 +1025,13 @@ export default function ProfPage() {
     }
   };
 
-  if (loading && !prof) {
+  // Show loading screen while professor is loading
+  if (professorLoading || !prof) {
     return (
       <div className="loading-screen">
         <style>{styles}</style>
         <div className="loader"></div>
         <div className="loading-text">Loading professor...</div>
-      </div>
-    );
-  }
-
-  if (!prof) {
-    return (
-      <div className="loading-screen">
-        <style>{styles}</style>
-        <div style={{ textAlign: "center", color: "#6b7280" }}>
-          <h3 style={{ fontSize: 24, marginBottom: 12, fontWeight: 700 }}>
-            Your lovely prof is loading...
-          </h3>
-        </div>
       </div>
     );
   }
