@@ -1265,8 +1265,8 @@ export default function ProfPage() {
     //   </div>
     // </div>
     <center className="message">
-      I think we should stop this now, I will come back with better approach,
-      bcoz{" "}
+      I think we should stop this now, I will come back with better approach
+      (for all college as my friends loved this), bcoz{" "}
       <a
         href="https://www.youtube.com/watch?v=vLm8NJfQ3uA"
         target="blank"
