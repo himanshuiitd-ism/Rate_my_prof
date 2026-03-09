@@ -1,0 +1,152 @@
+[
+  {
+    "name": "Home",
+    "href": "https://hss.iitm.ac.in/",
+    "imgFound": false,
+    "imgSrc": "NONE",
+    "parentTag": "LI",
+    "parentCls": "menu-item menu-item-type-post_type menu-item-objec",
+    "gpTag": "UL",
+    "gpCls": "elementor-nav-menu"
+  },
+  {
+    "name": "Centre for Indian Knowledge Systems",
+    "href": "https://hss.iitm.ac.in/ciks/",
+    "imgFound": false,
+    "imgSrc": "NONE",
+    "parentTag": "LI",
+    "parentCls": "menu-item menu-item-type-custom menu-item-object-c",
+    "gpTag": "UL",
+    "gpCls": "sub-menu elementor-nav-menu--dropdown"
+  },
+  {
+    "name": "Center for Technology and Policy",
+    "href": "https://hss.iitm.ac.in/ctap/",
+    "imgFound": false,
+    "imgSrc": "NONE",
+    "parentTag": "LI",
+    "parentCls": "menu-item menu-item-type-custom menu-item-object-c",
+    "gpTag": "UL",
+    "gpCls": "sub-menu elementor-nav-menu--dropdown"
+  },
+  {
+    "name": "IITM-Kenyon Writing Workshop",
+    "href": "https://hss.iitm.ac.in/kenyon-iitm/",
+    "imgFound": false,
+    "imgSrc": "NONE",
+    "parentTag": "LI",
+    "parentCls": "menu-item menu-item-type-custom menu-item-object-c",
+    "gpTag": "UL",
+    "gpCls": "sub-menu elementor-nav-menu--dropdown"
+  },
+  {
+    "name": "Professor Emeritus",
+    "href": "https://hss.iitm.ac.in/muraleedharan-vr/",
+    "imgFound": false,
+    "imgSrc": "NONE",
+    "parentTag": "LI",
+    "parentCls": "menu-item menu-item-type-post_type menu-item-objec",
+    "gpTag": "UL",
+    "gpCls": "sub-menu elementor-nav-menu--dropdown"
+  },
+  {
+    "name": "Staff",
+    "href": "https://hss.iitm.ac.in/staff/",
+    "imgFound": false,
+    "imgSrc": "NONE",
+    "parentTag": "LI",
+    "parentCls": "menu-item menu-item-type-post_type menu-item-objec",
+    "gpTag": "UL",
+    "gpCls": "sub-menu elementor-nav-menu--dropdown"
+  },
+  {
+    "name": "Integrated M.A. 2022 Batch",
+    "href": "https://hss.iitm.ac.in/integrated-m-a-2022-batch/",
+    "imgFound": false,
+    "imgSrc": "NONE",
+    "parentTag": "LI",
+    "parentCls": "menu-item menu-item-type-post_type menu-item-objec",
+    "gpTag": "UL",
+    "gpCls": "sub-menu elementor-nav-menu--dropdown"
+  },
+  {
+    "name": "Integrated M.A. 2021 Batch",
+    "href": "https://hss.iitm.ac.in/integrated-m-a-2026-batch/",
+    "imgFound": false,
+    "imgSrc": "NONE",
+    "parentTag": "LI",
+    "parentCls": "menu-item menu-item-type-post_type menu-item-objec",
+    "gpTag": "UL",
+    "gpCls": "sub-menu elementor-nav-menu--dropdown"
+  },
+  {
+    "name": "Integrated M.A. 2020 Batch",
+    "href": "https://hss.iitm.ac.in/integrated-m-a-2025-batch/",
+    "imgFound": false,
+    "imgSrc": "NONE",
+    "parentTag": "LI",
+    "parentCls": "menu-item menu-item-type-post_type menu-item-objec",
+    "gpTag": "UL",
+    "gpCls": "sub-menu elementor-nav-menu--dropdown"
+  },
+  {
+    "name": "M.A. 2024 Batch",
+    "href": "https://hss.iitm.ac.in/m-a-2024-batch/",
+    "imgFound": false,
+    "imgSrc": "NONE",
+    "parentTag": "LI",
+    "parentCls": "menu-item menu-item-type-post_type menu-item-objec",
+    "gpTag": "UL",
+    "gpCls": "sub-menu elementor-nav-menu--dropdown"
+  },
+  {
+    "name": "M.A. 2023 Batch",
+    "href": "https://hss.iitm.ac.in/m-a-2023-batch/",
+    "imgFound": false,
+    "imgSrc": "NONE",
+    "parentTag": "LI",
+    "parentCls": "menu-item menu-item-type-post_type menu-item-objec",
+    "gpTag": "UL",
+    "gpCls": "sub-menu elementor-nav-menu--dropdown"
+  },
+  {
+    "name": "PhD Scholars",
+    "href": "https://hss.iitm.ac.in/phd-scholars/",
+    "imgFound": false,
+    "imgSrc": "NONE",
+    "parentTag": "LI",
+    "parentCls": "menu-item menu-item-type-post_type menu-item-objec",
+    "gpTag": "UL",
+    "gpCls": "sub-menu elementor-nav-menu--dropdown"
+  },
+  {
+    "name": "M.A. Programme",
+    "href": "https://hss.iitm.ac.in/m-a-programme/",
+    "imgFound": false,
+    "imgSrc": "NONE",
+    "parentTag": "LI",
+    "parentCls": "menu-item menu-item-type-post_type menu-item-objec",
+    "gpTag": "UL",
+    "gpCls": "sub-menu elementor-nav-menu--dropdown"
+  },
+  {
+    "name": "Ph.D. Programme",
+    "href": "https://hss.iitm.ac.in/ph-d-programme/",
+    "imgFound": false,
+    "imgSrc": "NONE",
+    "parentTag": "LI",
+    "parentCls": "menu-item menu-item-type-post_type menu-item-objec",
+    "gpTag": "UL",
+    "gpCls": "sub-menu elementor-nav-menu--dropdown"
+  },
+  {
+    "name": "Research Publication",
+    "href": "https://hss.iitm.ac.in/research-publication/",
+    "imgFound": false,
+    "imgSrc": "NONE",
+    "parentTag": "LI",
+    "parentCls": "menu-item menu-item-type-post_type menu-item-objec",
+    "gpTag": "UL",
+    "gpCls": "elementor-nav-menu"
+  }
+]

@@ -4,6 +4,26 @@ import Professor from "../models/Professor.js";
 import Rating from "../models/Rating.js";
 import ChatMessage from "../models/ChatMessage.js";
 import { upsertProfessors } from "../scrape.js";
+import axios from "axios";
+import https from "https";
+import { load } from "cheerio";
+
+// ── HSS image helpers ──────────────────────────────
+const _httpsAgent = new https.Agent({ rejectUnauthorized: false });
+const _axiosOpts = {
+  headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" },
+  httpsAgent: _httpsAgent,
+  timeout: 30000,
+};
+function _getImgSrc($img) {
+  if (!$img || !$img.length) return undefined;
+  return $img.attr("src") || $img.attr("data-src") || $img.attr("data-lazy-src") || $img.attr("data-srcset")?.split(" ")[0];
+}
+function _resolveUrl(src, base) {
+  if (!src || src.startsWith("data:")) return undefined;
+  if (src.startsWith("http")) return src;
+  try { return new URL(src, base).href; } catch { return undefined; }
+}
 
 // ⚠️ IMPORTANT: Put specific routes BEFORE parameterized routes!
 
@@ -19,86 +39,138 @@ router.get("/scrape", async (req, res) => {
   }
 });
 
+// GET /api/professors/update-hss-images - update HSS photo URLs using Elementor image-box parser
+router.get("/update-hss-images", async (req, res) => {
+  const HSS_URL = "https://hss.iitm.ac.in/faculty-members/";
+  const DEPT = "Humanities and Social Sciences";
+  const COLLEGE = "IIT Madras";
+
+  try {
+    console.log("🖼️  Fetching HSS faculty page...");
+    const { data } = await axios.get(HSS_URL, _axiosOpts);
+    const $ = load(data);
+
+    const scraped = [];
+    const seen = new Set();
+
+    // Each faculty card is an Elementor image-box widget
+    $('[data-widget_type="image-box.default"]').each((_, el) => {
+      const $card = $(el);
+      const $nameLink = $card.find("h3.elementor-image-box-title a").first();
+      let name = $nameLink.text().replace(/\s+/g, " ").trim();
+      if (!name || name.length < 3 || name.length > 80) return;
+
+      const ln = name.toLowerCase();
+      if (["faculty","department","centre","center","program","research","contact"]
+            .some(k => ln.includes(k))) return;
+      if (seen.has(name)) return;
+      seen.add(name);
+
+      const $img = $card.find("figure.elementor-image-box-img img").first();
+      const imgSrc = _getImgSrc($img);
+      const photoUrl = _resolveUrl(imgSrc, HSS_URL);
+
+      const $figLink = $card.find("figure.elementor-image-box-img a").first();
+      const href = $figLink.attr("href") || $nameLink.attr("href") || "";
+      const sourceUrl = _resolveUrl(href, HSS_URL);
+
+      scraped.push({ name, photoUrl, sourceUrl });
+    });
+
+    console.log(`  Found ${scraped.length} faculty cards`);
+
+    let updated = 0, notFound = 0, noImage = 0;
+    const details = [];
+
+    for (const { name, photoUrl, sourceUrl } of scraped) {
+      if (!photoUrl) { noImage++; details.push({ name, status: "no_image" }); continue; }
+
+      // Case-insensitive match
+      const doc = await Professor.findOne({
+        name: { $regex: new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "i") },
+        college: COLLEGE,
+        department: DEPT,
+      });
+
+      if (!doc) { notFound++; details.push({ name, status: "not_in_db" }); continue; }
+
+      await Professor.updateOne(
+        { _id: doc._id },
+        { $set: { photoUrl, ...(sourceUrl ? { sourceUrl } : {}) } }
+      );
+      updated++;
+      details.push({ name, status: "updated", photoUrl });
+    }
+
+    console.log(`  ✅ Updated: ${updated} | ❌ Not found: ${notFound} | ⚠️ No image: ${noImage}`);
+    res.json({ success: true, total: scraped.length, updated, notFound, noImage, details });
+  } catch (err) {
+    console.error("HSS image update error:", err);
+    res.status(500).json({ error: String(err.message) });
+  }
+});
+
 // GET /api/professors - list all with avg ratings
 router.get("/", async (req, res) => {
   try {
     console.log(
-      "📋 GET /api/professors - Fetching all professors with ratings and message counts",
+      "📋 GET /api/professors - Fetching all professors with ratings and message counts (OPTIMIZED)",
     );
 
-    const profs = await Professor.find().sort({ name: 1 }).lean();
-    console.log(`Found ${profs.length} professors in database`);
+    const profsWithStats = await Professor.aggregate([
+      // 1. Join with Ratings
+      {
+        $lookup: {
+          from: "ratings",
+          localField: "_id",
+          foreignField: "prof",
+          as: "ratings",
+        },
+      },
+      // 2. Join with ChatMessages
+      {
+        $lookup: {
+          from: "chatmessages",
+          localField: "_id",
+          foreignField: "prof",
+          as: "chatMessages",
+        },
+      },
+      // 3. Project/Calculate stats
+      {
+        $project: {
+          name: 1,
+          photoUrl: 1,
+          department: 1,
+          college: 1,
+          sourceUrl: 1,
+          lastScrapedAt: 1,
+          ratingCount: { $size: "$ratings" },
+          commentCount: { $size: "$chatMessages" },
+          // Calculate average score - handles nested categories.score or direct score
+          avgRating: {
+            $avg: {
+              $map: {
+                input: "$ratings",
+                as: "r",
+                in: {
+                  $cond: [
+                    { $gt: [{ $type: "$$r.categories.score" }, "missing"] },
+                    "$$r.categories.score",
+                    { $ifNull: ["$$r.score", 0] },
+                  ],
+                },
+              },
+            },
+          },
+        },
+      },
+      // 4. Sort by name
+      { $sort: { name: 1 } },
+    ]);
 
-    // Calculate average rating and message count for each professor
-    const profsWithRatings = await Promise.all(
-      profs.map(async (prof) => {
-        const ratings = await Rating.find({ prof: prof._id });
-        const messageCount = await ChatMessage.countDocuments({
-          prof: prof._id,
-        });
-
-        let avgRating = null;
-        let totalScore = 0;
-        let validRatings = 0;
-
-        if (ratings.length > 0) {
-          // Try multiple ways to get the score
-          ratings.forEach((r) => {
-            let score = null;
-
-            // Check different possible structures
-            if (r.categories) {
-              if (
-                typeof r.categories === "object" &&
-                r.categories.score !== undefined
-              ) {
-                score = r.categories.score;
-              } else if (r.categories instanceof Map) {
-                score = r.categories.get("score");
-              }
-            }
-
-            // Fallback: check if there's a direct score field
-            if (score === null && r.score !== undefined) {
-              score = r.score;
-            }
-
-            if (score !== null && score !== undefined && !isNaN(score)) {
-              totalScore += Number(score);
-              validRatings++;
-            }
-          });
-
-          if (validRatings > 0) {
-            avgRating = totalScore / validRatings;
-          }
-        }
-
-        return {
-          ...prof,
-          avgRating,
-          ratingCount: ratings.length,
-          commentCount: messageCount,
-        };
-      }),
-    );
-
-    // Log summary statistics
-    const withComments = profsWithRatings.filter((p) => p.commentCount > 0);
-    console.log(`✅ Returning ${profsWithRatings.length} professors`);
-    console.log(`   - ${withComments.length} have comments`);
-    if (withComments.length > 0) {
-      const topCommented = [...withComments].sort(
-        (a, b) => b.commentCount - a.commentCount,
-      )[0];
-      console.log(
-        `   - Top: ${topCommented.name} with ${topCommented.commentCount} comments`,
-      );
-    } else {
-      console.log(`   ⚠️  NO PROFESSORS HAVE COMMENTS YET`);
-    }
-
-    res.json(profsWithRatings);
+    console.log(`✅ Returning ${profsWithStats.length} professors`);
+    res.json(profsWithStats);
   } catch (err) {
     console.error("❌ List professors error:", err);
     res.status(500).json({ error: err.message });

@@ -1,5 +1,5 @@
-import React, { useState, useMemo, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useMemo, useEffect, useRef, memo } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { loadProfessors, setScrollPosition } from "../redux/ProfessorSlice.js";
 import {
@@ -7,741 +7,253 @@ import {
   updateLeaderboardFromProfessors,
 } from "../redux/leaderboardSlice.js";
 import Leaderboard from "./Leaderboard.jsx";
+import AdSidebar from "./AdSidebar.jsx";
+import "./ProfList.css";
 
-const styles = `
-  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+/* ── Prof Card ─────────────────────────────────────────── */
+const ProfCard = memo(({ p }) => {
+  const avg = p.avgRating;
+  const ratingColor = avg >= 8 ? "#22c55e" : avg >= 5 ? "#f59e0b" : avg > 0 ? "#ef4444" : null;
+  return (
+    <Link to={`/prof/${p._id}`} className="prof-card">
+      <div className="card-img-wrap">
+        {p.photoUrl ? (
+          <img src={p.photoUrl} alt={p.name} loading="lazy" />
+        ) : (
+          <div className="card-placeholder">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <circle cx="12" cy="8" r="4" />
+              <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+            </svg>
+          </div>
+        )}
+        <div className="rating-badge" style={ratingColor ? { background: ratingColor + "22", borderColor: ratingColor + "55" } : {}}>
+          {avg != null && avg > 0 ? (
+            <>
+              <span className="star" style={ratingColor ? { color: ratingColor } : {}}>★</span>
+              <span style={ratingColor ? { color: ratingColor } : {}}>{avg.toFixed(1)}</span>
+              <span style={{ fontSize: 11, color: "#9ca3af", fontWeight: 600 }}>/10</span>
+            </>
+          ) : (
+            <span className="no-rating">No ratings</span>
+          )}
+        </div>
+      </div>
+      <div className="card-body">
+        <div className="card-name">{p.name}</div>
+        {p.department && <div className="card-dept">{p.department}</div>}
+      </div>
+    </Link>
+  );
+});
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: #1a1a2e;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    min-height: 100vh;
-  }
-
-  .prof-list-root {
-    min-height: 100vh;
-    background: #f5f7fa;
-    padding: 0;
-  }
-
-  /* Hero / Header */
-  .hero {
-    position: relative;
-    padding: 60px 20px 40px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    overflow: hidden;
-  }
-  
-  @media (min-width: 768px) {
-    .hero {
-      padding: 80px 40px 60px;
-    }
-  }
-  
-  .hero::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -10%;
-    width: 300px;
-    height: 300px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 50%;
-    animation: float 8s ease-in-out infinite;
-  }
-  
-  @media (min-width: 768px) {
-    .hero::before {
-      width: 500px;
-      height: 500px;
-    }
-  }
-  
-  .hero::after {
-    content: '';
-    position: absolute;
-    bottom: -30%;
-    left: -5%;
-    width: 250px;
-    height: 250px;
-    background: rgba(255, 255, 255, 0.08);
-    border-radius: 50%;
-    animation: float 10s ease-in-out infinite reverse;
-  }
-  
-  @media (min-width: 768px) {
-    .hero::after {
-      width: 400px;
-      height: 400px;
-    }
-  }
-  
-  @keyframes float {
-    0%, 100% { transform: translateY(0) scale(1); }
-    50% { transform: translateY(-30px) scale(1.05); }
-  }
-  
-  .hero-content {
-    position: relative;
-    z-index: 1;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-  
-  .hero-title {
-    font-size: 36px;
-    font-weight: 800;
-    color: #ffffff;
-    margin-bottom: 12px;
-    letter-spacing: -1px;
-    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  }
-  
-  @media (min-width: 768px) {
-    .hero-title {
-      font-size: 64px;
-    }
-  }
-  
-  .hero-sub {
-    font-size: 14px;
-    color: rgba(255, 255, 255, 0.9);
-    font-weight: 500;
-    margin-bottom: 24px;
-  }
-  
-  @media (min-width: 768px) {
-    .hero-sub {
-      font-size: 18px;
-      margin-bottom: 32px;
-    }
-  }
-
-  /* Search */
-  .search-wrap {
-    position: relative;
-    max-width: 600px;
-    margin-bottom: 16px;
-  }
-  
-  @media (min-width: 768px) {
-    .search-wrap {
-      margin-bottom: 20px;
-    }
-  }
-  
-  .search-icon {
-    position: absolute;
-    left: 16px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #667eea;
-    width: 20px;
-    height: 20px;
-    pointer-events: none;
-  }
-  
-  @media (min-width: 768px) {
-    .search-icon {
-      left: 20px;
-      width: 22px;
-      height: 22px;
-    }
-  }
-  
-  .search-input {
-    width: 100%;
-    padding: 14px 20px 14px 48px;
-    background: #ffffff;
-    border: 2px solid transparent;
-    border-radius: 16px;
-    color: #1a1a2e;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 15px;
-    font-weight: 500;
-    outline: none;
-    transition: all 0.3s;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-  }
-  
-  @media (min-width: 768px) {
-    .search-input {
-      padding: 18px 24px 18px 56px;
-      font-size: 16px;
-    }
-  }
-  
-  .search-input::placeholder {
-    color: #9ca3af;
-  }
-  
-  .search-input:focus {
-    border-color: #667eea;
-    box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3), 0 0 0 4px rgba(102, 126, 234, 0.1);
-    transform: translateY(-2px);
-  }
-
-  /* Count badge */
-  .count-badge {
-    font-size: 13px;
-    color: rgba(255, 255, 255, 0.95);
-    font-weight: 600;
-  }
-  
-  @media (min-width: 768px) {
-    .count-badge {
-      font-size: 15px;
-    }
-  }
-  
-  .count-badge span {
-    color: #fbbf24;
-    font-weight: 800;
-  }
-
-  /* Grid */
-  .prof-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 20px;
-    padding: 30px 20px;
-    max-width: 1400px;
-    margin: 0 auto;
-  }
-  
-  @media (min-width: 768px) {
-    .prof-grid {
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 28px;
-      padding: 50px 40px;
-    }
-  }
-
-  /* Card */
-  .prof-card {
-    background: #ffffff;
-    border: 2px solid transparent;
-    border-radius: 20px;
-    overflow: hidden;
-    text-decoration: none;
-    color: inherit;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    position: relative;
-  }
-  
-  @media (min-width: 768px) {
-    .prof-card {
-      border-radius: 24px;
-    }
-  }
-  
-  .prof-card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: 20px;
-    padding: 2px;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    opacity: 0;
-    transition: opacity 0.4s;
-  }
-  
-  @media (min-width: 768px) {
-    .prof-card::before {
-      border-radius: 24px;
-    }
-  }
-  
-  .prof-card:hover::before {
-    opacity: 1;
-  }
-  
-  @media (hover: hover) {
-    .prof-card:hover {
-      transform: translateY(-8px) scale(1.02);
-      box-shadow: 0 20px 60px rgba(102, 126, 234, 0.3);
-    }
-  }
-
-  .card-img-wrap {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    overflow: hidden;
-    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-  }
-  
-  .card-img-wrap img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  
-  @media (hover: hover) {
-    .prof-card:hover .card-img-wrap img {
-      transform: scale(1.1);
-    }
-  }
-
-  /* Placeholder avatar */
-  .card-placeholder {
-    width: 100%;
-    aspect-ratio: 1/1;
-    background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .card-placeholder svg {
-    width: 60px;
-    height: 60px;
-    color: #667eea;
-    opacity: 0.4;
-  }
-  
-  @media (min-width: 768px) {
-    .card-placeholder svg {
-      width: 72px;
-      height: 72px;
-    }
-  }
-
-  /* Rating badge */
-  .rating-badge {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(12px);
-    border: 2px solid rgba(102, 126, 234, 0.3);
-    border-radius: 30px;
-    padding: 6px 12px;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 13px;
-    font-weight: 700;
-    color: #1a1a2e;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-    transition: all 0.3s;
-  }
-  
-  @media (min-width: 768px) {
-    .rating-badge {
-      top: 16px;
-      right: 16px;
-      padding: 8px 16px;
-      font-size: 15px;
-      gap: 6px;
-    }
-  }
-  
-  @media (hover: hover) {
-    .prof-card:hover .rating-badge {
-      transform: scale(1.05);
-      border-color: #667eea;
-    }
-  }
-  
-  .rating-badge .star {
-    color: #fbbf24;
-    font-size: 16px;
-    filter: drop-shadow(0 2px 4px rgba(251, 191, 36, 0.4));
-  }
-  
-  @media (min-width: 768px) {
-    .rating-badge .star {
-      font-size: 18px;
-    }
-  }
-  
-  .rating-badge .no-rating {
-    color: #6b7280;
-    font-size: 11px;
-    font-weight: 600;
-  }
-  
-  @media (min-width: 768px) {
-    .rating-badge .no-rating {
-      font-size: 12px;
-    }
-  }
-
-  /* Card body */
-  .card-body {
-    padding: 18px;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-  
-  @media (min-width: 768px) {
-    .card-body {
-      padding: 24px;
-    }
-  }
-  
-  .card-name {
-    font-size: 16px;
-    font-weight: 700;
-    color: #1a1a2e;
-    margin-bottom: 6px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    transition: color 0.3s;
-  }
-  
-  @media (min-width: 768px) {
-    .card-name {
-      font-size: 18px;
-    }
-  }
-  
-  @media (hover: hover) {
-    .prof-card:hover .card-name {
-      color: #667eea;
-    }
-  }
-  
-  .card-dept {
-    font-size: 13px;
-    color: #6b7280;
-    font-weight: 500;
-  }
-  
-  @media (min-width: 768px) {
-    .card-dept {
-      font-size: 14px;
-    }
-  }
-
-  /* Empty state */
-  .empty-state {
-    text-align: center;
-    padding: 80px 20px;
-    color: #6b7280;
-  }
-  
-  @media (min-width: 768px) {
-    .empty-state {
-      padding: 120px 40px;
-    }
-  }
-  
-  .empty-state h3 {
-    font-size: 20px;
-    color: #374151;
-    margin-bottom: 12px;
-    font-weight: 700;
-  }
-  
-  @media (min-width: 768px) {
-    .empty-state h3 {
-      font-size: 24px;
-    }
-  }
-  
-  .empty-state p {
-    font-size: 14px;
-    color: #6b7280;
-  }
-  
-  @media (min-width: 768px) {
-    .empty-state p {
-      font-size: 16px;
-    }
-  }
-
-  /* Loading state */
-  .loading-state {
-    text-align: center;
-    padding: 80px 20px;
-  }
-  
-  @media (min-width: 768px) {
-    .loading-state {
-      padding: 120px 40px;
-    }
-  }
-  
-  .loader {
-    width: 48px;
-    height: 48px;
-    border: 4px solid #e5e7eb;
-    border-top-color: #667eea;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin: 0 auto 20px;
-  }
-  
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
-  
-  .loading-text {
-    font-size: 14px;
-    color: #6b7280;
-    font-weight: 600;
-  }
-  
-  @media (min-width: 768px) {
-    .loading-text {
-      font-size: 16px;
-    }
-  }
-
-  .promo-banner {
-    background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%);
-    border: 2px solid #fb923c;
-    border-radius: 16px;
-    padding: 16px 20px;
-    margin: 20px 20px 0;
-    text-align: center;
-    box-shadow: 0 4px 20px rgba(251, 146, 60, 0.2);
-  }
-
-  @media (min-width: 768px) {
-    .promo-banner {
-      padding: 20px 40px;
-      margin: 30px 40px 0;
-    }
-  }
-
-  .promo-text {
-    font-size: 14px;
-    color: #1a1a2e;
-    font-weight: 600;
-    margin: 0;
-  }
-
-  @media (min-width: 768px) {
-    .promo-text {
-      font-size: 16px;
-    }
-  }
-
-  .promo-link {
-    color: #dc2626;
-    text-decoration: none;
-    font-weight: 800;
-    font-size: 24px;
-    transition: all 0.3s;
-    display: inline-block;
-  }
-
-  @media (min-width: 768px) {
-    .promo-link {
-      font-size: 32px;
-    }
-  }
-
-  .promo-link:hover {
-    transform: scale(1.05);
-    text-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
-  }
-`;
-
+/* ── Main Component ────────────────────────────────────── */
 export default function ProfList() {
   const dispatch = useDispatch();
-  const {
-    list: professors,
-    loading,
-    error,
-    scrollPosition,
-  } = useSelector((state) => state.professors);
-  const [search, setSearch] = useState("");
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const collegeId   = location.state?.collegeId   || "iit-ism";
+  const collegeName = location.state?.collegeName  || "IIT (ISM) Dhanbad";
+
+  const { list: professors, loading, error, scrollPosition } =
+    useSelector((state) => state.professors);
+
+  const [search,       setSearch]       = useState("");
+  const [activeDept,   setActiveDept]   = useState("All");
+  const [visibleCount, setVisibleCount] = useState(40);
   const containerRef = useRef(null);
 
-  // Load professors on mount
+  /* ── Load data ── */
   useEffect(() => {
     dispatch(loadProfessors());
     dispatch(loadLeaderboard());
   }, [dispatch]);
 
-  // Update leaderboard when professors change
   useEffect(() => {
-    if (professors.length > 0) {
-      dispatch(updateLeaderboardFromProfessors(professors));
-    }
+    if (professors.length > 0) dispatch(updateLeaderboardFromProfessors(professors));
   }, [professors, dispatch]);
 
-  // Restore scroll position
+  /* ── Scroll restore ── */
   useEffect(() => {
     if (scrollPosition && containerRef.current) {
-      setTimeout(() => {
-        window.scrollTo(0, scrollPosition);
-      }, 0);
+      setTimeout(() => window.scrollTo(0, scrollPosition), 0);
     }
   }, [scrollPosition]);
 
-  // Save scroll position
   useEffect(() => {
-    const handleScroll = () => {
-      dispatch(setScrollPosition(window.scrollY));
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    const h = () => dispatch(setScrollPosition(window.scrollY));
+    window.addEventListener("scroll", h);
+    return () => window.removeEventListener("scroll", h);
   }, [dispatch]);
 
+  /* ── Departments derived from data ── */
+  const departments = useMemo(() => {
+    const set = new Set(professors.map((p) => p.department).filter(Boolean));
+    return ["All", ...Array.from(set).sort()];
+  }, [professors]);
+
+  /* ── Filter chain ── */
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim();
-    if (!q) return professors;
-    return professors.filter((p) => p.name.toLowerCase().includes(q));
-  }, [professors, search]);
+    return professors.filter((p) => {
+      const matchSearch = !q || p.name.toLowerCase().includes(q);
+      const matchDept   = activeDept === "All" || p.department === activeDept;
+      return matchSearch && matchDept;
+    });
+  }, [professors, search, activeDept]);
+
+  /* ── Group by department for display ── */
+  const grouped = useMemo(() => {
+    if (activeDept !== "All") {
+      return [{ dept: activeDept, profs: filtered.slice(0, visibleCount) }];
+    }
+    // Group
+    const map = {};
+    filtered.forEach((p) => {
+      const d = p.department || "Other";
+      if (!map[d]) map[d] = [];
+      map[d].push(p);
+    });
+    return Object.keys(map).sort().map((dept) => ({ dept, profs: map[dept] }));
+  }, [filtered, activeDept, visibleCount]);
+
+  const totalVisible = grouped.reduce((s, g) => s + g.profs.length, 0);
 
   return (
     <div className="prof-list-root" ref={containerRef}>
-      <style>{styles}</style>
-
-      {/* Header */}
-      <div className="hero">
-        <div className="hero-content">
-          <h1 className="hero-title">Rate My Prof</h1>
-          <p className="hero-sub">
-            Anonymous ratings & reviews for IIT (ISM) Dhanbad faculty
-          </p>
-
-          <div className="search-wrap">
-            <svg
-              className="search-icon"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <circle cx="11" cy="11" r="8" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" />
-            </svg>
-            <input
-              className="search-input"
-              type="text"
-              placeholder="Search professors by name..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-
-          <div className="count-badge">
-            Showing <span>{filtered.length}</span> of{" "}
-            <span>{professors.length}</span> professors
-          </div>
-        </div>
+      {/* ─── Mobile top ads ─── */}
+      <div className="mobile-ads-top">
+        <AdSidebar page={collegeName} position="left" horizontal />
       </div>
 
-      {/* Promo Banner */}
-      <div className="promo-banner">
-        <p className="promo-text">
-          Planning trips with friends? We built TripiiTrip to split expenses,
-          plan routes & travel together 👀 Click 👉{" "}
-          <a
-            href="https://tripii-trip-psi.vercel.app/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="promo-link"
-          >
-            Tripiitrip
-          </a>
-        </p>
-      </div>
-
-      {/* Leaderboard */}
-      <Leaderboard />
-
-      {/* Content */}
-      {loading ? (
-        <div className="loading-state">
-          <div className="loader"></div>
-          <div className="loading-text">Loading professors...</div>
+      {/* ─── Page layout: sidebar | main | sidebar ─── */}
+      <div className="prof-list-layout">
+        {/* Left ad sidebar */}
+        <div className="prof-sidebar prof-sidebar--left">
+          <AdSidebar page={collegeName} position="left" />
         </div>
-      ) : error ? (
-        <div className="empty-state">
-          <h3>Error loading professors</h3>
-          <p>{error}</p>
-        </div>
-      ) : filtered.length === 0 ? (
-        <div className="empty-state">
-          <h3>
-            {professors.length === 0
-              ? "No professors loaded"
-              : "No results found"}
-          </h3>
-          <p>
-            {professors.length === 0
-              ? "Run the scraper first: npm run scrape"
-              : `No professor matching "${search}"`}
-          </p>
-        </div>
-      ) : (
-        <div className="prof-grid">
-          {filtered.map((p) => {
-            const avgRating = p.avgRating;
 
-            return (
-              <Link key={p._id} to={`/prof/${p._id}`} className="prof-card">
-                <div className="card-img-wrap">
-                  {p.photoUrl ? (
-                    <img src={p.photoUrl} alt={p.name} />
-                  ) : (
-                    <div className="card-placeholder">
-                      <svg
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                      >
-                        <circle cx="12" cy="8" r="4" />
-                        <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
-                      </svg>
-                    </div>
-                  )}
+        {/* ─── Main content ─── */}
+        <div className="prof-main">
+          {/* Header */}
+          <div className="hero">
+            <div className="hero-content">
+              <button className="back-link" onClick={() => navigate("/")}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <path d="M19 12H5M12 19l-7-7 7-7" />
+                </svg>
+                Change College
+              </button>
 
-                  <div className="rating-badge">
-                    {avgRating != null && avgRating > 0 ? (
-                      <>
-                        <span className="star">★</span>
-                        {avgRating.toFixed(1)}
-                        <span
-                          style={{
-                            fontSize: 12,
-                            color: "#9ca3af",
-                            fontWeight: 600,
-                          }}
-                        >
-                          /10
-                        </span>
-                      </>
-                    ) : (
-                      <span className="no-rating">No ratings</span>
-                    )}
+              <div className="hero-title-row">
+                <h1 className="hero-title">Rate My Prof</h1>
+                <span className="college-badge">{collegeName}</span>
+              </div>
+              <p className="hero-sub">Anonymous ratings &amp; reviews for {collegeName} faculty</p>
+
+              {/* Search */}
+              <div className="search-wrap">
+                <svg className="search-icon" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+                <input
+                  className="search-input"
+                  type="text"
+                  placeholder="Search professors by name…"
+                  value={search}
+                  onChange={(e) => { setSearch(e.target.value); setVisibleCount(40); }}
+                />
+              </div>
+
+              <div className="count-badge">
+                Showing <span>{totalVisible}</span> of <span>{filtered.length}</span> professors
+              </div>
+            </div>
+          </div>
+
+          {/* Department filter pills */}
+          {departments.length > 1 && (
+            <div className="dept-filter-wrap">
+              <div className="dept-filter">
+                {departments.map((d) => (
+                  <button
+                    key={d}
+                    className={`dept-pill${activeDept === d ? " dept-pill--active" : ""}`}
+                    onClick={() => { setActiveDept(d); setVisibleCount(40); }}
+                  >
+                    {d}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Promo banner */}
+          <div className="promo-banner">
+            <p className="promo-text">
+              Planning trips with friends? We built TripiiTrip to split expenses,
+              plan routes &amp; travel together 👀{" "}
+              <a href="https://tripii-trip-psi.vercel.app/" target="_blank"
+                 rel="noopener noreferrer" className="promo-link">
+                tripiitrip.com →
+              </a>
+            </p>
+          </div>
+
+          {/* Leaderboard */}
+          <Leaderboard />
+
+          {/* Content */}
+          {loading ? (
+            <div className="loading-state">
+              <div className="loader" />
+              <div className="loading-text">Loading professors…</div>
+            </div>
+          ) : error ? (
+            <div className="empty-state"><h3>Error</h3><p>{error}</p></div>
+          ) : filtered.length === 0 ? (
+            <div className="empty-state">
+              <h3>{professors.length === 0 ? "No professors loaded" : "No results found"}</h3>
+              <p>{professors.length === 0 ? "Run the scraper first." : `No professor matching "${search}"`}</p>
+            </div>
+          ) : (
+            <>
+              {grouped.map(({ dept, profs }) => (
+                <div key={dept} className="dept-section">
+                  <div className="dept-heading">
+                    <span className="dept-name">{dept}</span>
+                    <span className="dept-count">{profs.length} prof{profs.length !== 1 ? "s" : ""}</span>
+                  </div>
+                  <div className="prof-grid">
+                    {profs.map((p) => <ProfCard key={p._id} p={p} />)}
                   </div>
                 </div>
+              ))}
 
-                <div className="card-body">
-                  <div className="card-name">{p.name}</div>
-                  {p.department && (
-                    <div className="card-dept">{p.department}</div>
-                  )}
+              {activeDept === "All" && totalVisible < filtered.length && (
+                <div className="load-more-wrap">
+                  <button className="load-more-btn" onClick={() => setVisibleCount((v) => v + 40)}>
+                    Load More Professors
+                  </button>
                 </div>
-              </Link>
-            );
-          })}
+              )}
+            </>
+          )}
         </div>
-      )}
+
+        {/* Right ad sidebar */}
+        <div className="prof-sidebar prof-sidebar--right">
+          <AdSidebar page={collegeName} position="right" />
+        </div>
+      </div>
+
+      {/* ─── Mobile bottom ads ─── */}
+      <div className="mobile-ads-bottom">
+        <AdSidebar page={collegeName} position="right" horizontal />
+      </div>
     </div>
   );
 }

@@ -6,7 +6,7 @@ const API = axios.create({
 });
 
 export async function fetchProfs() {
-  const res = await API.get("/professors"); // ← Missing "/api"
+  const res = await API.get("/professors");
   return res.data;
 }
 
@@ -17,5 +17,10 @@ export async function fetchProf(id) {
 
 export async function submitRating(id, payload) {
   const res = await API.post(`/professors/${id}/rate`, payload);
+  return res.data;
+}
+
+export async function fetchAds(page = "home") {
+  const res = await API.get(`/ads?page=${encodeURIComponent(page)}`);
   return res.data;
 }

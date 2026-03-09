@@ -3,7 +3,8 @@ import { Schema, model } from "mongoose";
 const ProfessorSchema = new Schema({
   name: { type: String, required: true },
   photoUrl: { type: String },
-  department: { type: String },
+  department: { type: String, default: "" },
+  college: { type: String, default: "IIT ISM Dhanbad" },
   sourceUrl: { type: String },
   lastScrapedAt: { type: Date },
 });

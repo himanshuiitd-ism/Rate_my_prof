@@ -35,6 +35,9 @@ app.get("/", (req, res) => {
 import profRoutes from "./routes/professors.js";
 app.use("/api/professors", profRoutes);
 
+import adRoutes from "./routes/ads.js";
+app.use("/api/ads", adRoutes);
+
 // Socket handlers (will attach io to app)
 import socketHandler from "./socket.js";
 socketHandler(io);
