@@ -2,7 +2,7 @@ import axios from "axios";
 
 const API = axios.create({
   baseURL:
-    import.meta.env.VITE_API_URL || "https://rate-my-proff.onrender.com/api",
+    "http://localhost:4001/api" || "https://rate-my-prof.onrender.com/api",
 });
 
 export async function fetchProfs(college) {

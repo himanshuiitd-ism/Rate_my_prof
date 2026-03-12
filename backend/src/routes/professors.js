@@ -165,7 +165,7 @@ router.get("/", async (req, res) => {
     );
 
     // Build match stage to filter by college if provided
-    const matchStage = college ? { $match: { college: college } } : null;
+    const matchStage = college ? { $match: { college: college.trim() } } : null;
 
     const profsWithStats = await Professor.aggregate([
       ...(matchStage ? [matchStage] : []),
@@ -209,7 +209,8 @@ router.get("/", async (req, res) => {
                     input: "$ratings",
                     as: "r",
                     in: {
-                      $coalesce: ["$$r.categories.score", "$$r.score", 0],
+                      // use $ifNull to return first non-null score
+                      $ifNull: ["$$r.categories.score", "$$r.score"],
                     },
                   },
                 },
