@@ -7,7 +7,7 @@ import {
   updateProfessorOptimistically,
   clearCurrentProfessor,
 } from "../redux/ProfessorSlice.js";
-import { socket, joinProf } from "../socket";
+import { submitMessage } from "../api";
 import { updateLeaderboardFromProfessors } from "../redux/leaderboardSlice.js";
 import AdSidebar from "./AdSidebar.jsx";
 
@@ -1012,55 +1012,38 @@ export default function ProfPage() {
     }
   }, [messagesFromRedux]);
 
-  // Fetch professor data - OPTIMIZED VERSION
+  // Fetch professor data whenever the id changes
   useEffect(() => {
-    let mounted = true;
-
     if (id) {
-      // Clear immediately and set loading state
       dispatch(clearCurrentProfessor());
       setMessages([]);
       setRating(0);
       setSubmitted(false);
       setComment("");
-
-      // Then load new professor
       dispatch(loadProfessor(id));
     }
-
-    socket.connect();
-    joinProf(id);
-
-    socket.on("new_message", ({ profId, message, createdAt }) => {
-      if (mounted && profId === id) {
-        console.log("Received new message:", message);
-        setMessages((m) => [...m, { message, createdAt }]);
-      }
-    });
-
-    socket.on("message_error", ({ error }) => {
-      console.error("Message error:", error);
-      alert("Failed to send message: " + error);
-    });
-
-    return () => {
-      mounted = false;
-      socket.off("new_message");
-      socket.off("message_error");
-      socket.disconnect();
-    };
   }, [id, dispatch]);
 
-  const sendMsg = () => {
+  const sendMsg = async () => {
     if (!comment.trim()) return;
-    if (!socket.connected) {
-      console.error("Socket not connected!");
-      alert("Connection lost. Please refresh the page.");
-      return;
+    try {
+      console.log("Submitting message:", comment.trim());
+      const result = await submitMessage(id, comment.trim());
+      setComment("");
+      // reload messages via redux (will also update prof data)
+
+      if (result.success) {
+        console.log("Message submitted successfully");
+      }
+      if (result.error) {
+        console.error("Message submission error:", result.error);
+        alert("Failed to send message: " + result.error);
+      }
+      dispatch(loadProfessor(id));
+    } catch (err) {
+      console.error("Failed to post message", err);
+      alert("Failed to send message: " + (err.message || err));
     }
-    console.log("Sending message:", comment, "to prof:", id);
-    socket.emit("send_message", { profId: id, message: comment.trim() });
-    setComment("");
   };
 
   const handleKeyDown = (e) => {

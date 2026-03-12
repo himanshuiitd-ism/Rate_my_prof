@@ -16,8 +16,4 @@ API:
 - GET /api/professors/:id
 - POST /api/professors/:id/rate
 
-Socket events:
-
-- join_prof { profId }
-- send_message { profId, message }
-- send_rating { profId, categories, comment }
+Note: real-time socket support has been removed; messages are now posted via REST.

@@ -235,6 +235,23 @@ router.get("/", async (req, res) => {
   }
 });
 
+// POST /api/professors/:id/message - add a chat message
+router.post("/:id/message", async (req, res) => {
+  try {
+    const profId = req.params.id;
+    const { message } = req.body;
+    if (!message || typeof message !== "string" || !message.trim()) {
+      return res.status(400).json({ error: "Message text required" });
+    }
+    const msg = new ChatMessage({ prof: profId, message: message.trim() });
+    await msg.save();
+    res.status(201).json({ success: true, message: msg });
+  } catch (err) {
+    console.error("❌ Save message error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // GET /api/professors/:id - details + aggregated ratings + last messages
 router.get("/:id", async (req, res) => {
   try {
@@ -320,6 +337,23 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+// POST /api/professors/:id/message - add a chat message
+router.post("/:id/message", async (req, res) => {
+  try {
+    const profId = req.params.id;
+    const { message } = req.body;
+    if (!message || typeof message !== "string" || !message.trim()) {
+      return res.status(400).json({ error: "Message text required" });
+    }
+    const msg = new ChatMessage({ prof: profId, message: message.trim() });
+    await msg.save();
+    res.status(201).json({ success: true, message: msg });
+  } catch (err) {
+    console.error("❌ Save message error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // POST /api/professors/:id/rate - submit rating
 router.post("/:id/rate", async (req, res) => {
   try {
@@ -358,15 +392,6 @@ router.post("/:id/rate", async (req, res) => {
     await rating.save();
 
     console.log("✅ Rating saved successfully");
-
-    // Emit update via socket
-    const io = req.app.get("io");
-    if (io) {
-      io.to(`prof_${id}`).emit("prof_update", {
-        profId: id,
-        rating: rating,
-      });
-    }
 
     res.json({ success: true, rating });
   } catch (err) {

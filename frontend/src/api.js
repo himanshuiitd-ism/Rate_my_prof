@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:4001/api",
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:4000/api",
 });
 
 export async function fetchProfs(college) {
@@ -17,6 +17,11 @@ export async function fetchProf(id) {
 
 export async function submitRating(id, payload) {
   const res = await API.post(`/professors/${id}/rate`, payload);
+  return res.data;
+}
+
+export async function submitMessage(id, message) {
+  const res = await API.post(`/professors/${id}/message`, { message });
   return res.data;
 }
 
