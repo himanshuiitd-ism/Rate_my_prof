@@ -5,8 +5,6 @@ import cors from "cors";
 import { connect, disconnect } from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import { Server } from "socket.io";
-import fs from "fs";
-import path from "path";
 
 const app = express();
 const server = createServer(app);
@@ -40,12 +38,6 @@ app.use("/api/professors", profRoutes);
 import adRoutes from "./routes/ads.js";
 app.use("/api/ads", adRoutes);
 
-// serve frontend build if deployed together (optional)
-const buildDir = path.join(process.cwd(), "frontend", "dist");
-if (fs.existsSync(buildDir)) {
-  app.use(express.static(buildDir));
-}
-
 // Socket handlers (will attach io to app)
 import socketHandler from "./socket.js";
 socketHandler(io);
@@ -69,20 +61,6 @@ async function connectDb() {
     console.log("Connected to in-memory MongoDB");
   }
 }
-
-// catch-all for client-side routing (SPA) - prevents 404 on refresh
-app.get("*", (req, res) => {
-  if (!req.path.startsWith("/api")) {
-    const indexFile = path.join(buildDir, "index.html");
-    if (require("fs").existsSync(indexFile)) {
-      res.sendFile(indexFile);
-    } else {
-      res.status(404).send("Not found");
-    }
-  } else {
-    res.status(404).send("API route not found");
-  }
-});
 
 connectDb().then(() => {
   const DEFAULT_PORT = Number(process.env.PORT) || 4000;

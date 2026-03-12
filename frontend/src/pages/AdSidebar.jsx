@@ -68,19 +68,6 @@ const SPONSOR_ADS = {
 };
 
 function AdCard({ ad }) {
-  if (ad.placeholder) {
-    return (
-      <div
-        className="ad-card ad-placeholder"
-        style={{ cursor: "default", background: "rgba(255,255,255,0.08)" }}
-      >
-        <div className="ad-body">
-          <div className="ad-title">Your ad here</div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <a
       className="ad-card"
@@ -117,22 +104,13 @@ export default function AdSidebar({
   position = "left",
   horizontal = false,
 }) {
-  // compute list with placeholders
   const ads = useMemo(() => {
     const pageAds = SPONSOR_ADS[page] || [];
-    const filtered = pageAds.filter((a) => a.position === position);
-    const result = filtered.slice(0, 5);
-    while (result.length < 5) {
-      result.push({ _id: `ph-${result.length}`, placeholder: true });
-    }
-    return result;
+    return pageAds.filter((a) => a.position === position);
   }, [page, position]);
 
-  // duplicate for continuous scroll
-  const trackAds = useMemo(() => [...ads, ...ads], [ads]);
-
-  // Always render; placeholders ensure 5 slots
-  if (!ads) {
+  // Always show ads if available
+  if (!ads || ads.length === 0) {
     return null;
   }
 
@@ -141,11 +119,9 @@ export default function AdSidebar({
       className={`ad-sidebar ${horizontal ? "ad-sidebar--h" : "ad-sidebar--v"}`}
     >
       {ads.length > 0 && <div className="ad-sidebar-label">Sponsored</div>}
-      <div className="ad-track">
-        {trackAds.map((ad, idx) => (
-          <AdCard key={ad._id + "-" + idx} ad={ad} />
-        ))}
-      </div>
+      {ads.slice(0, 5).map((ad) => (
+        <AdCard key={ad._id} ad={ad} />
+      ))}
     </aside>
   );
 }
