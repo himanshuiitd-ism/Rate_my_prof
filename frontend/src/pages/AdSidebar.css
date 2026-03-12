@@ -4,6 +4,14 @@
   display: flex;
   gap: 10px;
   font-family: "Plus Jakarta Sans", "Inter", sans-serif;
+  z-index: 10000; /* ensure visible above other content */
+  overflow: hidden;
+  position: relative;
+}
+
+/* track wrapper for animation */
+.ad-track {
+  display: flex;
 }
 
 /* Vertical (desktop left / right column) */
@@ -15,21 +23,57 @@
   gap: 8px;
 }
 
+/* vertical scrolling animation */
+.ad-sidebar--v .ad-track {
+  animation: scroll-vert 30s linear infinite;
+}
+
 /* Horizontal (mobile top / bottom strip) */
 .ad-sidebar--h {
   flex-direction: row;
   flex-wrap: nowrap;
-  overflow-x: auto;
+  overflow: hidden;
   padding: 8px 0;
   width: 100%;
   scrollbar-width: none;
 }
+
+.ad-sidebar--h .ad-track {
+  animation: scroll-left 20s linear infinite;
+}
+
 .ad-sidebar--h::-webkit-scrollbar {
   display: none;
 }
 .ad-sidebar--h .ad-card {
-  min-width: 140px;
+  min-width: 120px;
   flex-shrink: 0;
+}
+
+/* hide image/desc on mobile strip to show only names */
+.ad-sidebar--h .ad-img,
+.ad-sidebar--h .ad-desc {
+  display: none;
+}
+
+/* vertical animation keyframes */
+@keyframes scroll-vert {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-50%);
+  }
+}
+
+/* horizontal animation keyframes */
+@keyframes scroll-left {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 /* Label */
