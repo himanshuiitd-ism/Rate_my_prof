@@ -8,18 +8,16 @@ const SPONSOR_ADS = {
       _id: "1",
       title: "Chargeback.io",
       description: "Prevent chargebacks on autopilot",
-      linkUrl:
-        "https://www.chargeback.io/?utm_source=trustmrr&utm_medium=referral&utm_campaign=sponsor_card",
-      position: "left",
+      linkUrl: "https://www.chargeback.io/...",
+      position: "left", // ✅ shows on left
       bgColor: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
     },
     {
       _id: "2",
       title: "ZeroLeaks",
       description: "Red-team your AI agents for prompt injection",
-      linkUrl:
-        "https://zeroleaks.ai/?utm_source=trustmrr&utm_medium=referral&utm_campaign=sponsor_card",
-      position: "left",
+      linkUrl: "https://zeroleaks.ai/...",
+      position: "right", // ✅ change to right so right sidebar gets ads too
       bgColor: "linear-gradient(135deg, #1f2937 0%, #111827 100%)",
     },
     {
@@ -33,11 +31,10 @@ const SPONSOR_ADS = {
   ],
   "IIT Madras": [
     {
-      _id: "4",
+      _id: "6",
       title: "GetLate.dev",
       description: "Find warm leads and book sales calls automatically",
-      linkUrl:
-        "https://getlate.dev/?utm_source=trustmrr&utm_medium=referral&utm_campaign=sponsor_card",
+      linkUrl: "https://getlate.dev/...",
       position: "left",
       bgColor: "linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)",
     },
