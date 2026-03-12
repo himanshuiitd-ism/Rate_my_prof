@@ -209,8 +209,11 @@ router.get("/", async (req, res) => {
                     input: "$ratings",
                     as: "r",
                     in: {
-                      // use $ifNull to return first non-null score
-                      $ifNull: ["$$r.categories.score", "$$r.score"],
+                      // use nested $ifNull to safely fallback to 0
+                      $ifNull: [
+                        "$$r.categories.score",
+                        { $ifNull: ["$$r.score", 0] },
+                      ],
                     },
                   },
                 },

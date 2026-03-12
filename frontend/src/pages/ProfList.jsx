@@ -79,8 +79,21 @@ export default function ProfList() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const collegeId = location.state?.collegeId || "iit-ism";
-  const collegeName = location.state?.collegeName || "IIT ISM Dhanbad";
+  // Get college from location state, localStorage, or defaults
+  const collegeName =
+    location.state?.collegeName ||
+    localStorage.getItem("selectedCollegeName") ||
+    "IIT ISM Dhanbad";
+  const collegeId =
+    location.state?.collegeId ||
+    localStorage.getItem("selectedCollegeId") ||
+    "iit-ism";
+
+  // Persist college selection to localStorage
+  React.useEffect(() => {
+    localStorage.setItem("selectedCollegeId", collegeId);
+    localStorage.setItem("selectedCollegeName", collegeName);
+  }, [collegeId, collegeName]);
 
   const {
     list: professors,

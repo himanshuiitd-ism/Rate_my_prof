@@ -9,6 +9,7 @@ import {
 } from "../redux/ProfessorSlice.js";
 import { socket, joinProf } from "../socket";
 import { updateLeaderboardFromProfessors } from "../redux/leaderboardSlice.js";
+import AdSidebar from "./AdSidebar.jsx";
 
 const MOODS = ["😭", "😠", "😟", "😕", "😐", "🙂", "😊", "😄", "😁", "🤩"];
 
@@ -944,6 +945,43 @@ const styles = `
     transform: scale(1.05);
     text-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
   }
+
+  /* Sidebar Layout */
+  .prof-layout-wrapper {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  @media (min-width: 768px) {
+    .prof-layout-wrapper {
+      gap: 30px;
+      padding: 30px 40px;
+    }
+  }
+
+  .prof-sidebar {
+    display: none;
+  }
+
+  @media (min-width: 1024px) {
+    .prof-sidebar {
+      display: flex;
+    }
+
+    .prof-sidebar--left,
+    .prof-sidebar--right {
+      width: 180px;
+      flex-shrink: 0;
+    }
+  }
+
+  .content-wrap {
+    flex: 1;
+    min-width: 0;
+  }
 `;
 
 export default function ProfPage() {
@@ -1081,7 +1119,19 @@ export default function ProfPage() {
 
       {/* Nav */}
       <div className="top-nav">
-        <button className="back-btn" onClick={() => navigate("/")}>
+        <button
+          className="back-btn"
+          onClick={() => {
+            const collegeId = localStorage.getItem("selectedCollegeId");
+            const collegeName = localStorage.getItem("selectedCollegeName");
+            navigate("/profs", {
+              state: {
+                collegeId: collegeId || "iit-ism",
+                collegeName: collegeName || "IIT ISM Dhanbad",
+              },
+            });
+          }}
+        >
           <svg
             viewBox="0 0 24 24"
             fill="none"
@@ -1198,123 +1248,136 @@ export default function ProfPage() {
         </p>
       </div>
 
-      {/* Main content */}
-      <div className="content-wrap">
-        {/* Chat column */}
-        <div className="col-main">
-          <div className="section-head">
-            <span className="dot"></span>
-            Anonymous Chat
-          </div>
+      {/* Sidebar layout */}
+      <div className="prof-layout-wrapper">
+        {/* Left ad sidebar */}
+        <div className="prof-sidebar prof-sidebar--left">
+          <AdSidebar page="IIT Madras" position="left" />
+        </div>
 
-          <div className="chat-box">
-            <div className="chat-messages">
-              {messages.length === 0 ? (
-                <div className="chat-empty">
-                  No messages yet. Be the first to chat!
-                </div>
-              ) : (
-                messages.map((m, i) => (
-                  <div className="chat-msg" key={i}>
-                    <div className="chat-msg-time">
-                      {new Date(m.createdAt).toLocaleTimeString()}
-                    </div>
-                    <div className="chat-msg-text">{m.message}</div>
-                  </div>
-                ))
-              )}
+        {/* Main content */}
+        <div className="content-wrap">
+          {/* Chat column */}
+          <div className="col-main">
+            <div className="section-head">
+              <span className="dot"></span>
+              Anonymous Chat
             </div>
 
-            <div className="chat-input-row">
-              <input
-                className="chat-input"
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Message anonymously... (Enter to send)"
-              />
-              <button className="send-btn" onClick={sendMsg}>
-                Send
+            <div className="chat-box">
+              <div className="chat-messages">
+                {messages.length === 0 ? (
+                  <div className="chat-empty">
+                    No messages yet. Be the first to chat!
+                  </div>
+                ) : (
+                  messages.map((m, i) => (
+                    <div className="chat-msg" key={i}>
+                      <div className="chat-msg-time">
+                        {new Date(m.createdAt).toLocaleTimeString()}
+                      </div>
+                      <div className="chat-msg-text">{m.message}</div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              <div className="chat-input-row">
+                <input
+                  className="chat-input"
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Message anonymously... (Enter to send)"
+                />
+                <button className="send-btn" onClick={sendMsg}>
+                  Send
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Rating column */}
+          <div className="col-side">
+            <div className="section-head">
+              <span className="dot"></span>
+              Rate This Professor
+            </div>
+
+            <div className="rating-panel">
+              <div className="mood-label">
+                How do you feel about this professor?
+              </div>
+
+              <div
+                className="mood-display"
+                style={{ transform: rating ? "scale(1.15)" : "scale(1)" }}
+              >
+                {mood}
+              </div>
+
+              <div className="star-selector">
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
+                  <button
+                    key={n}
+                    className={`star-btn ${rating === n ? "active" : ""}`}
+                    onClick={() => {
+                      if (!submitted) setRating(n);
+                    }}
+                    disabled={submitted}
+                  >
+                    {n}
+                  </button>
+                ))}
+              </div>
+
+              <div className="star-label-row">
+                <span className="star-label">😭 Awful</span>
+                <span className="star-label">🤩 Amazing</span>
+              </div>
+
+              {rating > 0 && (
+                <div className="selected-score">
+                  You selected: <span>{rating}/10</span> — {MOODS[rating - 1]}
+                </div>
+              )}
+
+              <button
+                className={`submit-btn ${submittingRating ? "loading" : ""}`}
+                onClick={rateNow}
+                disabled={!rating || submitted || submittingRating}
+              >
+                {submittingRating ? (
+                  <>
+                    Submitting<span className="btn-spinner"></span>
+                  </>
+                ) : submitted ? (
+                  "Rating Submitted ✓"
+                ) : (
+                  "Submit Rating"
+                )}
               </button>
+
+              {submitted && (
+                <div
+                  style={{
+                    textAlign: "center",
+                    marginTop: 16,
+                    fontSize: 13,
+                    color: "#6b7280",
+                    fontWeight: 600,
+                  }}
+                >
+                  You've already rated this professor
+                </div>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Rating column */}
-        <div className="col-side">
-          <div className="section-head">
-            <span className="dot"></span>
-            Rate This Professor
-          </div>
-
-          <div className="rating-panel">
-            <div className="mood-label">
-              How do you feel about this professor?
-            </div>
-
-            <div
-              className="mood-display"
-              style={{ transform: rating ? "scale(1.15)" : "scale(1)" }}
-            >
-              {mood}
-            </div>
-
-            <div className="star-selector">
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
-                <button
-                  key={n}
-                  className={`star-btn ${rating === n ? "active" : ""}`}
-                  onClick={() => {
-                    if (!submitted) setRating(n);
-                  }}
-                  disabled={submitted}
-                >
-                  {n}
-                </button>
-              ))}
-            </div>
-
-            <div className="star-label-row">
-              <span className="star-label">😭 Awful</span>
-              <span className="star-label">🤩 Amazing</span>
-            </div>
-
-            {rating > 0 && (
-              <div className="selected-score">
-                You selected: <span>{rating}/10</span> — {MOODS[rating - 1]}
-              </div>
-            )}
-
-            <button
-              className={`submit-btn ${submittingRating ? "loading" : ""}`}
-              onClick={rateNow}
-              disabled={!rating || submitted || submittingRating}
-            >
-              {submittingRating ? (
-                <>
-                  Submitting<span className="btn-spinner"></span>
-                </>
-              ) : submitted ? (
-                "Rating Submitted ✓"
-              ) : (
-                "Submit Rating"
-              )}
-            </button>
-
-            {submitted && (
-              <div
-                style={{
-                  textAlign: "center",
-                  marginTop: 16,
-                  fontSize: 13,
-                  color: "#6b7280",
-                  fontWeight: 600,
-                }}
-              >
-                You've already rated this professor
-              </div>
-            )}
-          </div>
+        {/* Right ad sidebar */}
+        <div className="prof-sidebar prof-sidebar--right">
+          <AdSidebar page="IIT Madras" position="right" />
         </div>
       </div>
     </div>

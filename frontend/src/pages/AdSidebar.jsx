@@ -1,6 +1,48 @@
-import React, { useEffect, useState } from "react";
-import { fetchAds } from "../api";
+import React, { useMemo } from "react";
 import "./AdSidebar.css";
+
+// Hardcoded sponsor ads
+const SPONSOR_ADS = {
+  home: [
+    {
+      _id: "1",
+      title: "Chargeback.io",
+      description: "Prevent chargebacks on autopilot",
+      linkUrl:
+        "https://www.chargeback.io/?utm_source=trustmrr&utm_medium=referral&utm_campaign=sponsor_card",
+      position: "left",
+      bgColor: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+    },
+    {
+      _id: "2",
+      title: "ZeroLeaks",
+      description: "Red-team your AI agents for prompt injection",
+      linkUrl:
+        "https://zeroleaks.ai/?utm_source=trustmrr&utm_medium=referral&utm_campaign=sponsor_card",
+      position: "left",
+      bgColor: "linear-gradient(135deg, #1f2937 0%, #111827 100%)",
+    },
+    {
+      _id: "3",
+      title: "Devbox",
+      description: "Instant dev environments with open source",
+      linkUrl: "https://devbox.gg/ui/",
+      position: "left",
+      bgColor: "linear-gradient(135deg, #065f46 0%, #064e3b 100%)",
+    },
+  ],
+  "IIT Madras": [
+    {
+      _id: "4",
+      title: "GetLate.dev",
+      description: "Find warm leads and book sales calls automatically",
+      linkUrl:
+        "https://getlate.dev/?utm_source=trustmrr&utm_medium=referral&utm_campaign=sponsor_card",
+      position: "left",
+      bgColor: "linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)",
+    },
+  ],
+};
 
 function AdCard({ ad }) {
   return (
@@ -39,63 +81,24 @@ export default function AdSidebar({
   position = "left",
   horizontal = false,
 }) {
-  const [ads, setAds] = useState([]);
-
-  useEffect(() => {
-    let cancelled = false;
-    fetchAds(page)
-      .then((all) => {
-        if (!cancelled) setAds(all.filter((a) => a.position === position));
-      })
-      .catch(() => {});
-    return () => {
-      cancelled = true;
-    };
+  const ads = useMemo(() => {
+    const pageAds = SPONSOR_ADS[page] || [];
+    return pageAds.filter((a) => a.position === position);
   }, [page, position]);
 
-  // if there are no real ads, render placeholder boxes
-  if (!ads.length) {
-    const placeholderColors = [
-      "rgba(248, 113, 113, 0.3)",
-      "rgba(251, 191, 36, 0.3)",
-      "rgba(52, 211, 153, 0.3)",
-      "rgba(96, 165, 250, 0.3)",
-      "rgba(167, 139, 250, 0.3)",
-    ];
-    return (
-      <aside
-        className={`ad-sidebar ${horizontal ? "ad-sidebar--h" : "ad-sidebar--v"}`}
-      >
-        {placeholderColors.map((bg, i) => (
-          <div
-            key={i}
-            className="ad-card"
-            style={{
-              background: bg,
-              cursor: "default",
-              border: "1.5px dashed rgba(255, 255, 255, 0.25)",
-            }}
-          >
-            <div className="ad-body">
-              <div className="ad-title">Your ad goes here</div>
-            </div>
-          </div>
-        ))}
-      </aside>
-    );
+  // Always show ads if available
+  if (!ads || ads.length === 0) {
+    return null;
   }
 
   return (
     <aside
       className={`ad-sidebar ${horizontal ? "ad-sidebar--h" : "ad-sidebar--v"}`}
     >
-      <div className="ad-sidebar-label">Sponsored</div>
+      {ads.length > 0 && <div className="ad-sidebar-label">Sponsored</div>}
       {ads.slice(0, 5).map((ad) => (
         <AdCard key={ad._id} ad={ad} />
       ))}
-      <div className="ad-spots-left">
-        Advertise · {5 - ads.length} spots left
-      </div>
     </aside>
   );
 }
