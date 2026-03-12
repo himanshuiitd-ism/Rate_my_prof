@@ -11,18 +11,30 @@ import { load } from "cheerio";
 // ── HSS image helpers ──────────────────────────────
 const _httpsAgent = new https.Agent({ rejectUnauthorized: false });
 const _axiosOpts = {
-  headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" },
+  headers: {
+    "User-Agent":
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+  },
   httpsAgent: _httpsAgent,
   timeout: 30000,
 };
 function _getImgSrc($img) {
   if (!$img || !$img.length) return undefined;
-  return $img.attr("src") || $img.attr("data-src") || $img.attr("data-lazy-src") || $img.attr("data-srcset")?.split(" ")[0];
+  return (
+    $img.attr("src") ||
+    $img.attr("data-src") ||
+    $img.attr("data-lazy-src") ||
+    $img.attr("data-srcset")?.split(" ")[0]
+  );
 }
 function _resolveUrl(src, base) {
   if (!src || src.startsWith("data:")) return undefined;
   if (src.startsWith("http")) return src;
-  try { return new URL(src, base).href; } catch { return undefined; }
+  try {
+    return new URL(src, base).href;
+  } catch {
+    return undefined;
+  }
 }
 
 // ⚠️ IMPORTANT: Put specific routes BEFORE parameterized routes!
@@ -61,8 +73,18 @@ router.get("/update-hss-images", async (req, res) => {
       if (!name || name.length < 3 || name.length > 80) return;
 
       const ln = name.toLowerCase();
-      if (["faculty","department","centre","center","program","research","contact"]
-            .some(k => ln.includes(k))) return;
+      if (
+        [
+          "faculty",
+          "department",
+          "centre",
+          "center",
+          "program",
+          "research",
+          "contact",
+        ].some((k) => ln.includes(k))
+      )
+        return;
       if (seen.has(name)) return;
       seen.add(name);
 
@@ -79,31 +101,55 @@ router.get("/update-hss-images", async (req, res) => {
 
     console.log(`  Found ${scraped.length} faculty cards`);
 
-    let updated = 0, notFound = 0, noImage = 0;
+    let updated = 0,
+      notFound = 0,
+      noImage = 0;
     const details = [];
 
     for (const { name, photoUrl, sourceUrl } of scraped) {
-      if (!photoUrl) { noImage++; details.push({ name, status: "no_image" }); continue; }
+      if (!photoUrl) {
+        noImage++;
+        details.push({ name, status: "no_image" });
+        continue;
+      }
 
       // Case-insensitive match
       const doc = await Professor.findOne({
-        name: { $regex: new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "i") },
+        name: {
+          $regex: new RegExp(
+            `^${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`,
+            "i",
+          ),
+        },
         college: COLLEGE,
         department: DEPT,
       });
 
-      if (!doc) { notFound++; details.push({ name, status: "not_in_db" }); continue; }
+      if (!doc) {
+        notFound++;
+        details.push({ name, status: "not_in_db" });
+        continue;
+      }
 
       await Professor.updateOne(
         { _id: doc._id },
-        { $set: { photoUrl, ...(sourceUrl ? { sourceUrl } : {}) } }
+        { $set: { photoUrl, ...(sourceUrl ? { sourceUrl } : {}) } },
       );
       updated++;
       details.push({ name, status: "updated", photoUrl });
     }
 
-    console.log(`  ✅ Updated: ${updated} | ❌ Not found: ${notFound} | ⚠️ No image: ${noImage}`);
-    res.json({ success: true, total: scraped.length, updated, notFound, noImage, details });
+    console.log(
+      `  ✅ Updated: ${updated} | ❌ Not found: ${notFound} | ⚠️ No image: ${noImage}`,
+    );
+    res.json({
+      success: true,
+      total: scraped.length,
+      updated,
+      notFound,
+      noImage,
+      details,
+    });
   } catch (err) {
     console.error("HSS image update error:", err);
     res.status(500).json({ error: String(err.message) });
@@ -113,11 +159,16 @@ router.get("/update-hss-images", async (req, res) => {
 // GET /api/professors - list all with avg ratings
 router.get("/", async (req, res) => {
   try {
+    const { college } = req.query;
     console.log(
-      "📋 GET /api/professors - Fetching all professors with ratings and message counts (OPTIMIZED)",
+      `📋 GET /api/professors - Fetching professors with ratings and message counts${college ? ` for college: ${college}` : " (all colleges)"}`,
     );
 
+    // Build match stage to filter by college if provided
+    const matchStage = college ? { $match: { college: college } } : null;
+
     const profsWithStats = await Professor.aggregate([
+      ...(matchStage ? [matchStage] : []),
       // 1. Join with Ratings
       {
         $lookup: {
@@ -147,21 +198,24 @@ router.get("/", async (req, res) => {
           lastScrapedAt: 1,
           ratingCount: { $size: "$ratings" },
           commentCount: { $size: "$chatMessages" },
-          // Calculate average score - handles nested categories.score or direct score
+          // Calculate average score: prefer categories.score, fall back to score
+          // Only calculate if there are ratings
           avgRating: {
-            $avg: {
-              $map: {
-                input: "$ratings",
-                as: "r",
-                in: {
-                  $cond: [
-                    { $gt: [{ $type: "$$r.categories.score" }, "missing"] },
-                    "$$r.categories.score",
-                    { $ifNull: ["$$r.score", 0] },
-                  ],
+            $cond: [
+              { $gt: [{ $size: "$ratings" }, 0] },
+              {
+                $avg: {
+                  $map: {
+                    input: "$ratings",
+                    as: "r",
+                    in: {
+                      $coalesce: ["$$r.categories.score", "$$r.score", 0],
+                    },
+                  },
                 },
               },
-            },
+              0,
+            ],
           },
         },
       },

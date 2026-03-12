@@ -4,9 +4,9 @@ import { fetchProfs, fetchProf, submitRating } from "../api";
 // Async thunks
 export const loadProfessors = createAsyncThunk(
   "professors/loadAll",
-  async (_, { rejectWithValue }) => {
+  async (college, { rejectWithValue }) => {
     try {
-      const data = await fetchProfs();
+      const data = await fetchProfs(college);
       return Array.isArray(data) ? data : data.professors || [];
     } catch (error) {
       return rejectWithValue(error.message);

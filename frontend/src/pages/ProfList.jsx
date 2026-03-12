@@ -12,8 +12,10 @@ import "./ProfList.css";
 
 /* ── Prof Card ─────────────────────────────────────────── */
 const ProfCard = memo(({ p }) => {
-  const avg = p.avgRating;
-  const ratingColor = avg >= 8 ? "#22c55e" : avg >= 5 ? "#f59e0b" : avg > 0 ? "#ef4444" : null;
+  const avg = p;
+  console.log(`Professor ${p.name} has average rating:`, avg);
+  const ratingColor =
+    avg >= 8 ? "#22c55e" : avg >= 5 ? "#f59e0b" : avg > 0 ? "#ef4444" : null;
   return (
     <Link to={`/prof/${p._id}`} className="prof-card">
       <div className="card-img-wrap">
@@ -21,18 +23,42 @@ const ProfCard = memo(({ p }) => {
           <img src={p.photoUrl} alt={p.name} loading="lazy" />
         ) : (
           <div className="card-placeholder">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+            >
               <circle cx="12" cy="8" r="4" />
               <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
             </svg>
           </div>
         )}
-        <div className="rating-badge" style={ratingColor ? { background: ratingColor + "22", borderColor: ratingColor + "55" } : {}}>
+        <div
+          className="rating-badge"
+          style={
+            ratingColor
+              ? {
+                  background: ratingColor + "22",
+                  borderColor: ratingColor + "55",
+                }
+              : {}
+          }
+        >
           {avg != null && avg > 0 ? (
             <>
-              <span className="star" style={ratingColor ? { color: ratingColor } : {}}>★</span>
-              <span style={ratingColor ? { color: ratingColor } : {}}>{avg.toFixed(1)}</span>
-              <span style={{ fontSize: 11, color: "#9ca3af", fontWeight: 600 }}>/10</span>
+              <span
+                className="star"
+                style={ratingColor ? { color: ratingColor } : {}}
+              >
+                ★
+              </span>
+              <span style={ratingColor ? { color: ratingColor } : {}}>
+                {avg.toFixed(1)}
+              </span>
+              <span style={{ fontSize: 11, color: "#9ca3af", fontWeight: 600 }}>
+                /10
+              </span>
             </>
           ) : (
             <span className="no-rating">No ratings</span>
@@ -53,25 +79,30 @@ export default function ProfList() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const collegeId   = location.state?.collegeId   || "iit-ism";
-  const collegeName = location.state?.collegeName  || "IIT (ISM) Dhanbad";
+  const collegeId = location.state?.collegeId || "iit-ism";
+  const collegeName = location.state?.collegeName || "IIT ISM Dhanbad";
 
-  const { list: professors, loading, error, scrollPosition } =
-    useSelector((state) => state.professors);
+  const {
+    list: professors,
+    loading,
+    error,
+    scrollPosition,
+  } = useSelector((state) => state.professors);
 
-  const [search,       setSearch]       = useState("");
-  const [activeDept,   setActiveDept]   = useState("All");
+  const [search, setSearch] = useState("");
+  const [activeDept, setActiveDept] = useState("All");
   const [visibleCount, setVisibleCount] = useState(40);
   const containerRef = useRef(null);
 
   /* ── Load data ── */
   useEffect(() => {
-    dispatch(loadProfessors());
+    dispatch(loadProfessors(collegeName));
     dispatch(loadLeaderboard());
-  }, [dispatch]);
+  }, [dispatch, collegeName]);
 
   useEffect(() => {
-    if (professors.length > 0) dispatch(updateLeaderboardFromProfessors(professors));
+    if (professors.length > 0)
+      dispatch(updateLeaderboardFromProfessors(professors));
   }, [professors, dispatch]);
 
   /* ── Scroll restore ── */
@@ -98,10 +129,11 @@ export default function ProfList() {
     const q = search.toLowerCase().trim();
     return professors.filter((p) => {
       const matchSearch = !q || p.name.toLowerCase().includes(q);
-      const matchDept   = activeDept === "All" || p.department === activeDept;
-      return matchSearch && matchDept;
+      const matchDept = activeDept === "All" || p.department === activeDept;
+      const matchCollege = p.college === collegeName;
+      return matchSearch && matchDept && matchCollege;
     });
-  }, [professors, search, activeDept]);
+  }, [professors, search, activeDept, collegeName]);
 
   /* ── Group by department for display ── */
   const grouped = useMemo(() => {
@@ -115,7 +147,9 @@ export default function ProfList() {
       if (!map[d]) map[d] = [];
       map[d].push(p);
     });
-    return Object.keys(map).sort().map((dept) => ({ dept, profs: map[dept] }));
+    return Object.keys(map)
+      .sort()
+      .map((dept) => ({ dept, profs: map[dept] }));
   }, [filtered, activeDept, visibleCount]);
 
   const totalVisible = grouped.reduce((s, g) => s + g.profs.length, 0);
@@ -140,7 +174,12 @@ export default function ProfList() {
           <div className="hero">
             <div className="hero-content">
               <button className="back-link" onClick={() => navigate("/")}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                >
                   <path d="M19 12H5M12 19l-7-7 7-7" />
                 </svg>
                 Change College
@@ -150,12 +189,21 @@ export default function ProfList() {
                 <h1 className="hero-title">Rate My Prof</h1>
                 <span className="college-badge">{collegeName}</span>
               </div>
-              <p className="hero-sub">Anonymous ratings &amp; reviews for {collegeName} faculty</p>
+              <p className="hero-sub">
+                Anonymous ratings &amp; reviews for {collegeName} faculty
+              </p>
 
               {/* Search */}
               <div className="search-wrap">
-                <svg className="search-icon" viewBox="0 0 24 24" fill="none"
-                     stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  className="search-icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <circle cx="11" cy="11" r="8" />
                   <line x1="21" y1="21" x2="16.65" y2="16.65" />
                 </svg>
@@ -164,12 +212,16 @@ export default function ProfList() {
                   type="text"
                   placeholder="Search professors by name…"
                   value={search}
-                  onChange={(e) => { setSearch(e.target.value); setVisibleCount(40); }}
+                  onChange={(e) => {
+                    setSearch(e.target.value);
+                    setVisibleCount(40);
+                  }}
                 />
               </div>
 
               <div className="count-badge">
-                Showing <span>{totalVisible}</span> of <span>{filtered.length}</span> professors
+                Showing <span>{totalVisible}</span> of{" "}
+                <span>{filtered.length}</span> professors
               </div>
             </div>
           </div>
@@ -182,7 +234,10 @@ export default function ProfList() {
                   <button
                     key={d}
                     className={`dept-pill${activeDept === d ? " dept-pill--active" : ""}`}
-                    onClick={() => { setActiveDept(d); setVisibleCount(40); }}
+                    onClick={() => {
+                      setActiveDept(d);
+                      setVisibleCount(40);
+                    }}
                   >
                     {d}
                   </button>
@@ -194,10 +249,14 @@ export default function ProfList() {
           {/* Promo banner */}
           <div className="promo-banner">
             <p className="promo-text">
-              Planning trips with friends? We built TripiiTrip to split expenses,
-              plan routes &amp; travel together 👀{" "}
-              <a href="https://tripii-trip-psi.vercel.app/" target="_blank"
-                 rel="noopener noreferrer" className="promo-link">
+              Planning trips with friends? We built TripiiTrip to split
+              expenses, plan routes &amp; travel together 👀{" "}
+              <a
+                href="https://tripii-trip-psi.vercel.app/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="promo-link"
+              >
                 tripiitrip.com →
               </a>
             </p>
@@ -213,11 +272,22 @@ export default function ProfList() {
               <div className="loading-text">Loading professors…</div>
             </div>
           ) : error ? (
-            <div className="empty-state"><h3>Error</h3><p>{error}</p></div>
+            <div className="empty-state">
+              <h3>Error</h3>
+              <p>{error}</p>
+            </div>
           ) : filtered.length === 0 ? (
             <div className="empty-state">
-              <h3>{professors.length === 0 ? "No professors loaded" : "No results found"}</h3>
-              <p>{professors.length === 0 ? "Run the scraper first." : `No professor matching "${search}"`}</p>
+              <h3>
+                {professors.length === 0
+                  ? "No professors loaded"
+                  : "No results found"}
+              </h3>
+              <p>
+                {professors.length === 0
+                  ? "Run the scraper first."
+                  : `No professor matching "${search}"`}
+              </p>
             </div>
           ) : (
             <>
@@ -225,17 +295,24 @@ export default function ProfList() {
                 <div key={dept} className="dept-section">
                   <div className="dept-heading">
                     <span className="dept-name">{dept}</span>
-                    <span className="dept-count">{profs.length} prof{profs.length !== 1 ? "s" : ""}</span>
+                    <span className="dept-count">
+                      {profs.length} prof{profs.length !== 1 ? "s" : ""}
+                    </span>
                   </div>
                   <div className="prof-grid">
-                    {profs.map((p) => <ProfCard key={p._id} p={p} />)}
+                    {profs.map((p) => (
+                      <ProfCard key={p._id} p={p} />
+                    ))}
                   </div>
                 </div>
               ))}
 
               {activeDept === "All" && totalVisible < filtered.length && (
                 <div className="load-more-wrap">
-                  <button className="load-more-btn" onClick={() => setVisibleCount((v) => v + 40)}>
+                  <button
+                    className="load-more-btn"
+                    onClick={() => setVisibleCount((v) => v + 40)}
+                  >
                     Load More Professors
                   </button>
                 </div>

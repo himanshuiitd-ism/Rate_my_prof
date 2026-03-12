@@ -34,29 +34,69 @@ function AdCard({ ad }) {
  * @param {"left"|"right"|"top"|"bottom"} position
  * @param {boolean} horizontal - render ads horizontally (for top/bottom mobile)
  */
-export default function AdSidebar({ page = "home", position = "left", horizontal = false }) {
+export default function AdSidebar({
+  page = "home",
+  position = "left",
+  horizontal = false,
+}) {
   const [ads, setAds] = useState([]);
 
   useEffect(() => {
     let cancelled = false;
     fetchAds(page)
       .then((all) => {
-        if (!cancelled)
-          setAds(all.filter((a) => a.position === position));
+        if (!cancelled) setAds(all.filter((a) => a.position === position));
       })
       .catch(() => {});
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [page, position]);
 
-  if (!ads.length) return null;
+  // if there are no real ads, render placeholder boxes
+  if (!ads.length) {
+    const placeholderColors = [
+      "rgba(248, 113, 113, 0.3)",
+      "rgba(251, 191, 36, 0.3)",
+      "rgba(52, 211, 153, 0.3)",
+      "rgba(96, 165, 250, 0.3)",
+      "rgba(167, 139, 250, 0.3)",
+    ];
+    return (
+      <aside
+        className={`ad-sidebar ${horizontal ? "ad-sidebar--h" : "ad-sidebar--v"}`}
+      >
+        <div className="ad-sidebar-label">Sponsored</div>
+        {placeholderColors.map((bg, i) => (
+          <div
+            key={i}
+            className="ad-card"
+            style={{
+              background: bg,
+              cursor: "default",
+              border: "1.5px dashed rgba(255, 255, 255, 0.25)",
+            }}
+          >
+            <div className="ad-body">
+              <div className="ad-title">Your ad goes here</div>
+            </div>
+          </div>
+        ))}
+      </aside>
+    );
+  }
 
   return (
-    <aside className={`ad-sidebar ${horizontal ? "ad-sidebar--h" : "ad-sidebar--v"}`}>
+    <aside
+      className={`ad-sidebar ${horizontal ? "ad-sidebar--h" : "ad-sidebar--v"}`}
+    >
       <div className="ad-sidebar-label">Sponsored</div>
       {ads.slice(0, 5).map((ad) => (
         <AdCard key={ad._id} ad={ad} />
       ))}
-      <div className="ad-spots-left">Advertise · {5 - ads.length} spots left</div>
+      <div className="ad-spots-left">
+        Advertise · {5 - ads.length} spots left
+      </div>
     </aside>
   );
 }

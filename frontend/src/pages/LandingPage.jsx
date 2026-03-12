@@ -4,22 +4,22 @@ import AdSidebar from "./AdSidebar";
 import "./LandingPage.css";
 
 const COLLEGES = [
-  { id: "iit-ism",    name: "IIT (ISM) Dhanbad" },
+  { id: "iit-ism", name: "IIT (ISM) Dhanbad" },
   { id: "iit-madras", name: "IIT Madras" },
-  { id: "iit-delhi",  name: "IIT Delhi" },
-  { id: "iit-bombay", name: "IIT Bombay" },
-  { id: "nit-trichy", name: "NIT Trichy" },
-  { id: "bits-pilani",name: "BITS Pilani" },
+  // { id: "iit-delhi",  name: "IIT Delhi" },
+  // { id: "iit-bombay", name: "IIT Bombay" },
+  // { id: "nit-trichy", name: "NIT Trichy" },
+  // { id: "bits-pilani",name: "BITS Pilani" },
 ];
 
 // Maps college id → display name used in the backend / DB
 export const COLLEGE_NAMES = {
-  "iit-ism":    "IIT (ISM) Dhanbad",
+  "iit-ism": "IIT ISM Dhanbad",
   "iit-madras": "IIT Madras",
-  "iit-delhi":  "IIT Delhi",
-  "iit-bombay": "IIT Bombay",
-  "nit-trichy": "NIT Trichy",
-  "bits-pilani":"BITS Pilani",
+  // "iit-delhi":  "IIT Delhi",
+  // "iit-bombay": "IIT Bombay",
+  // "nit-trichy": "NIT Trichy",
+  // "bits-pilani":"BITS Pilani",
 };
 
 export default function LandingPage() {
@@ -31,7 +31,7 @@ export default function LandingPage() {
     if (selectedCollege) {
       navigate("/profs", {
         state: {
-          collegeId:   selectedCollege,
+          collegeId: selectedCollege,
           collegeName: COLLEGE_NAMES[selectedCollege],
         },
       });
@@ -42,7 +42,7 @@ export default function LandingPage() {
     <div className="landing-root">
       {/* ── Mobile Top Ads ── */}
       <div className="mobile-ads-top">
-        <AdSidebar page="home" position="left"  horizontal />
+        <AdSidebar page="home" position="left" horizontal />
       </div>
 
       {/* ── Three-column layout ── */}
@@ -55,8 +55,14 @@ export default function LandingPage() {
         {/* Centre content */}
         <div className="landing-content">
           <div className="logo-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                 strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
               <path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5" />
             </svg>
@@ -64,7 +70,8 @@ export default function LandingPage() {
 
           <h1>Rate My Prof</h1>
           <p className="subtitle">
-            Real-time anonymous ratings, chat & reviews for India's top colleges.
+            Real-time anonymous ratings, chat & reviews for India's top
+            colleges.
           </p>
 
           <form className="selection-box" onSubmit={handleEnter}>
@@ -77,21 +84,40 @@ export default function LandingPage() {
                 onChange={(e) => setSelectedCollege(e.target.value)}
                 required
               >
-                <option value="" disabled>Select a college...</option>
+                <option value="" disabled>
+                  Select a college...
+                </option>
                 {COLLEGES.map((c) => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
                 ))}
               </select>
-              <svg className="select-arrow" viewBox="0 0 24 24"
-                   fill="none" stroke="currentColor" strokeWidth="2">
+              <svg
+                className="select-arrow"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
                 <path d="M6 9l6 6 6-6" />
               </svg>
             </div>
 
-            <button type="submit" className="enter-btn" disabled={!selectedCollege}>
+            <button
+              type="submit"
+              className="enter-btn"
+              disabled={!selectedCollege}
+            >
               Enter Campus
-              <svg width="20" height="20" viewBox="0 0 24 24"
-                   fill="none" stroke="currentColor" strokeWidth="2.5">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+              >
                 <path d="M5 12h14M12 5l7 7-7 7" />
               </svg>
             </button>

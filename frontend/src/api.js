@@ -5,8 +5,9 @@ const API = axios.create({
     import.meta.env.VITE_API_URL || "https://rate-my-proff.onrender.com/api",
 });
 
-export async function fetchProfs() {
-  const res = await API.get("/professors");
+export async function fetchProfs(college) {
+  const params = college ? { college } : {};
+  const res = await API.get("/professors", { params });
   return res.data;
 }
 
