@@ -1033,19 +1033,32 @@ export default function ProfPage() {
 
     socket.on("new_message", ({ profId, message, createdAt }) => {
       if (mounted && profId === id) {
+        console.log("Received new message:", message);
         setMessages((m) => [...m, { message, createdAt }]);
       }
+    });
+
+    socket.on("message_error", ({ error }) => {
+      console.error("Message error:", error);
+      alert("Failed to send message: " + error);
     });
 
     return () => {
       mounted = false;
       socket.off("new_message");
+      socket.off("message_error");
       socket.disconnect();
     };
   }, [id, dispatch]);
 
   const sendMsg = () => {
     if (!comment.trim()) return;
+    if (!socket.connected) {
+      console.error("Socket not connected!");
+      alert("Connection lost. Please refresh the page.");
+      return;
+    }
+    console.log("Sending message:", comment, "to prof:", id);
     socket.emit("send_message", { profId: id, message: comment.trim() });
     setComment("");
   };
