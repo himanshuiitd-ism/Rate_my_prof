@@ -66,7 +66,6 @@ export default function AdSidebar({
       <aside
         className={`ad-sidebar ${horizontal ? "ad-sidebar--h" : "ad-sidebar--v"}`}
       >
-        <div className="ad-sidebar-label">Sponsored</div>
         {placeholderColors.map((bg, i) => (
           <div
             key={i}
