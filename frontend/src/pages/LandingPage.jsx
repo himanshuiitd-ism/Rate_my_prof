@@ -38,11 +38,6 @@ export default function LandingPage() {
     }
   };
 
-  console.log("Ads for home page:", {
-    left: AdSidebar({ page: "home", position: "left" }),
-    right: AdSidebar({ page: "home", position: "right" }),
-  });
-
   return (
     <div className="landing-root">
       {/* ── Mobile Top Ads ── */}
