@@ -45,14 +45,14 @@ export default function LandingPage() {
     <div className="landing-root">
       {/* ── Mobile Top Ads ── */}
       <div className="mobile-ads-top">
-        <AdSidebar page="home" position="left" horizontal />
+        {/* <AdSidebar page="home" position="left" horizontal /> */}
       </div>
 
       {/* ── Three-column layout ── */}
       <div className="landing-layout">
         {/* Left ads – desktop only */}
         <div className="landing-sidebar landing-sidebar--left">
-          <AdSidebar page="home" position="left" />
+          {/* <AdSidebar page="home" position="left" /> */}
         </div>
 
         {/* Centre content */}
@@ -144,13 +144,13 @@ export default function LandingPage() {
 
         {/* Right ads – desktop only */}
         <div className="landing-sidebar landing-sidebar--right">
-          <AdSidebar page="home" position="right" />
+          {/* <AdSidebar page="home" position="right" /> */}
         </div>
       </div>
 
       {/* ── Mobile Bottom Ads ── */}
       <div className="mobile-ads-bottom">
-        <AdSidebar page="home" position="right" horizontal />
+        {/* <AdSidebar page="home" position="right" horizontal /> */}
       </div>
     </div>
   );
