@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React from "react";
 import "./AdSidebar.css";
 
 // Hardcoded sponsor ads
@@ -93,24 +93,17 @@ function AdCard({ ad }) {
   );
 }
 
-/**
- * AdSidebar
- * @param {string}  page       - "home" | college name
- * @param {"left"|"right"|"top"|"bottom"} position
- * @param {boolean} horizontal - render ads horizontally (for top/bottom mobile)
- */
 export default function AdSidebar({
   page = "home",
   position = "left",
   horizontal = false,
 }) {
-  const ads = useMemo(() => {
-    const pageAds = SPONSOR_ADS[page] || [];
-    return pageAds.filter((a) => a.position === position);
-  }, [page, position]);
+  // Get ads for this page and position
+  const pageAds = SPONSOR_ADS[page] || SPONSOR_ADS["home"] || [];
+  const ads = pageAds.filter((ad) => ad.position === position);
 
-  // Always show ads if available
-  if (!ads || ads.length === 0) {
+  // Don't render if no ads
+  if (ads.length === 0) {
     return null;
   }
 
@@ -118,8 +111,8 @@ export default function AdSidebar({
     <aside
       className={`ad-sidebar ${horizontal ? "ad-sidebar--h" : "ad-sidebar--v"}`}
     >
-      {ads.length > 0 && <div className="ad-sidebar-label">Sponsored</div>}
-      {ads.slice(0, 5).map((ad) => (
+      <div className="ad-sidebar-label">Sponsored</div>
+      {ads.map((ad) => (
         <AdCard key={ad._id} ad={ad} />
       ))}
     </aside>
