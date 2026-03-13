@@ -120,6 +120,7 @@ function AdCard({ ad, horizontal }) {
   };
 
   console.log("Rendering ad:", ad);
+  console.log("Ad card style:", adCardStyle);
   return (
     <a
       style={adCardStyle}
