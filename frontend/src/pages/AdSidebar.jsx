@@ -68,6 +68,7 @@ const SPONSOR_ADS = {
 };
 
 function AdCard({ ad }) {
+  console.log("Rendering ad:", ad);
   return (
     <a
       className="ad-card"
