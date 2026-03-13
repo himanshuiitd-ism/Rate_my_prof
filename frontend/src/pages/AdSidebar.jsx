@@ -67,25 +67,34 @@ const SPONSOR_ADS = {
 };
 
 function AdCard({ ad, horizontal }) {
+  const hasBgColor = !!ad.bgColor;
+  const textColor = hasBgColor ? "#f8fafc" : "#1a1a2e";
+  const descColor = hasBgColor
+    ? "rgba(255, 255, 255, 0.55)"
+    : "rgba(26, 26, 46, 0.7)";
+  const background = hasBgColor ? ad.bgColor : "rgba(0, 0, 0, 0.05)";
+  const borderColor = hasBgColor
+    ? "rgba(255, 255, 255, 0.12)"
+    : "rgba(0, 0, 0, 0.1)";
+
   const adCardStyle = {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
     gap: "8px",
-    background: "rgba(0, 0, 0, 0.05)",
-    border: "1px solid rgba(0, 0, 0, 0.1)",
+    background,
+    border: `1px solid ${borderColor}`,
     borderRadius: "12px",
     padding: "12px",
     textDecoration: "none",
-    color: "#1a1a2e",
+    color: textColor,
     transition: "transform 0.18s ease",
     position: "relative",
     overflow: "hidden",
     cursor: "pointer",
     minHeight: "120px",
     ...(horizontal ? { minWidth: "140px", flexShrink: 0 } : {}),
-    ...(ad.bgColor ? { background: ad.bgColor } : {}),
   };
 
   const adImgStyle = {
@@ -105,13 +114,13 @@ function AdCard({ ad, horizontal }) {
   const adTitleStyle = {
     fontSize: "13px",
     fontWeight: 700,
-    color: "#1a1a2e",
+    color: textColor,
     lineHeight: 1.3,
   };
 
   const adDescStyle = {
     fontSize: "11px",
-    color: "rgba(26, 26, 46, 0.7)",
+    color: descColor,
     lineHeight: 1.4,
     display: "-webkit-box",
     WebkitLineClamp: 3,
@@ -121,6 +130,7 @@ function AdCard({ ad, horizontal }) {
 
   console.log("Rendering ad:", ad);
   console.log("Ad card style:", adCardStyle);
+  console.log("hi man");
   return (
     <a
       style={adCardStyle}
