@@ -1,5 +1,4 @@
 import React from "react";
-import "./AdSidebar.css";
 
 // Hardcoded sponsor ads
 const SPONSOR_ADS = {
@@ -67,21 +66,63 @@ const SPONSOR_ADS = {
   ],
 };
 
-function AdCard({ ad }) {
+function AdCard({ ad, horizontal }) {
+  const adCardStyle = {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "8px",
+    background: "rgba(0, 0, 0, 0.05)",
+    border: "1px solid rgba(0, 0, 0, 0.1)",
+    borderRadius: "12px",
+    padding: "12px",
+    textDecoration: "none",
+    color: "#1a1a2e",
+    transition: "transform 0.18s ease",
+    position: "relative",
+    overflow: "hidden",
+    cursor: "pointer",
+    minHeight: "120px",
+    ...(horizontal ? { minWidth: "140px", flexShrink: 0 } : {}),
+    ...(ad.bgColor ? { background: ad.bgColor } : {}),
+  };
+
+  const adImgStyle = {
+    width: "36px",
+    height: "36px",
+    borderRadius: "8px",
+    objectFit: "cover",
+  };
+
+  const adBodyStyle = {
+    display: "flex",
+    flexDirection: "column",
+    gap: "4px",
+    textAlign: "center",
+  };
+
+  const adTitleStyle = {
+    fontSize: "13px",
+    fontWeight: 700,
+    color: "#1a1a2e",
+    lineHeight: 1.3,
+  };
+
+  const adDescStyle = {
+    fontSize: "11px",
+    color: "rgba(26, 26, 46, 0.7)",
+    lineHeight: 1.4,
+    display: "-webkit-box",
+    WebkitLineClamp: 3,
+    WebkitBoxOrient: "vertical",
+    overflow: "hidden",
+  };
+
   console.log("Rendering ad:", ad);
-  console.log("Hey himanshu");
   return (
     <a
-      style={{
-        textDecoration: "none",
-        color: "inherit",
-        background: ad.bgColor || "#f0f0f0",
-        height: "100px",
-        width: "100px",
-        borderRadius: "8px",
-        display: "block",
-        padding: "12px",
-      }}
+      style={adCardStyle}
       href={ad.linkUrl || "#"}
       target={ad.linkUrl && ad.linkUrl !== "#" ? "_blank" : "_self"}
       rel="noopener noreferrer"
@@ -91,16 +132,15 @@ function AdCard({ ad }) {
         <img
           src={ad.imageUrl}
           alt={ad.title}
-          className="ad-img"
+          style={adImgStyle}
           loading="lazy"
         />
       )}
-      <div className="ad-body">
-        <div className="ad-title">{ad.title}</div>
-        <div className="ad-desc">{ad.description}</div>
+      <div style={adBodyStyle}>
+        <div style={adTitleStyle}>{ad.title}</div>
+        <div style={adDescStyle}>{ad.description}</div>
       </div>
     </a>
-    // <p>Hi man</p>
   );
 }
 
@@ -118,11 +158,42 @@ export default function AdSidebar({
     return null;
   }
 
+  const asideStyle = {
+    display: "flex",
+    gap: "10px",
+    fontFamily: '"Plus Jakarta Sans", "Inter", sans-serif',
+    ...(horizontal
+      ? {
+          flexDirection: "row",
+          flexWrap: "nowrap",
+          overflowX: "auto",
+          padding: "8px 0",
+          width: "100%",
+          scrollbarWidth: "none",
+        }
+      : {
+          flexDirection: "column",
+          width: "160px",
+          minWidth: "160px",
+          flexShrink: 0,
+          gap: "8px",
+        }),
+  };
+
+  const labelStyle = {
+    fontSize: "10px",
+    letterSpacing: "1.2px",
+    textTransform: "uppercase",
+    color: "rgba(0, 0, 0, 0.25)",
+    fontWeight: 600,
+    padding: "0 2px",
+  };
+
   return (
-    <aside>
-      <div className="ad-sidebar-label">Sponsored</div>
+    <aside style={asideStyle}>
+      <div style={labelStyle}>Sponsored</div>
       {ads.map((ad) => (
-        <AdCard key={ad._id} ad={ad} />
+        <AdCard key={ad._id} ad={ad} horizontal={horizontal} />
       ))}
     </aside>
   );
