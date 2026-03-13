@@ -69,27 +69,28 @@ const SPONSOR_ADS = {
 
 function AdCard({ ad }) {
   return (
-    <a
-      className="ad-card"
-      href={ad.linkUrl || "#"}
-      target={ad.linkUrl && ad.linkUrl !== "#" ? "_blank" : "_self"}
-      rel="noopener noreferrer"
-      style={ad.bgColor ? { background: ad.bgColor } : {}}
-    >
-      {ad.badge && <span className="ad-badge">{ad.badge}</span>}
-      {ad.imageUrl && (
-        <img
-          src={ad.imageUrl}
-          alt={ad.title}
-          className="ad-img"
-          loading="lazy"
-        />
-      )}
-      <div className="ad-body">
-        <div className="ad-title">{ad.title}</div>
-        <div className="ad-desc">{ad.description}</div>
-      </div>
-    </a>
+    // <a
+    //   className="ad-card"
+    //   href={ad.linkUrl || "#"}
+    //   target={ad.linkUrl && ad.linkUrl !== "#" ? "_blank" : "_self"}
+    //   rel="noopener noreferrer"
+    //   style={ad.bgColor ? { background: ad.bgColor } : {}}
+    // >
+    //   {ad.badge && <span className="ad-badge">{ad.badge}</span>}
+    //   {ad.imageUrl && (
+    //     <img
+    //       src={ad.imageUrl}
+    //       alt={ad.title}
+    //       className="ad-img"
+    //       loading="lazy"
+    //     />
+    //   )}
+    //   <div className="ad-body">
+    //     <div className="ad-title">{ad.title}</div>
+    //     <div className="ad-desc">{ad.description}</div>
+    //   </div>
+    // </a>
+    <p>Himans</p>
   );
 }
 
@@ -108,14 +109,13 @@ export default function AdSidebar({
   }
 
   return (
-    // <aside
-    //   className={`ad-sidebar ${horizontal ? "ad-sidebar--h" : "ad-sidebar--v"}`}
-    // >
-    //   <div className="ad-sidebar-label">Sponsored</div>
-    //   {ads.map((ad) => (
-    //     <AdCard key={ad._id} ad={ad} />
-    //   ))}
-    // </aside>
-    <p>Rishav</p>
+    <aside
+      className={`ad-sidebar ${horizontal ? "ad-sidebar--h" : "ad-sidebar--v"}`}
+    >
+      <div className="ad-sidebar-label">Sponsored</div>
+      {ads.map((ad) => (
+        <AdCard key={ad._id} ad={ad} />
+      ))}
+    </aside>
   );
 }
