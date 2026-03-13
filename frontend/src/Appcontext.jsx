@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { fetchProfs } from "./api";
+import { Analytics } from "@vercel/analytics/next";
 
 const AppContext = createContext();
 
@@ -82,5 +83,11 @@ export const AppProvider = ({ children }) => {
     refreshProfessors,
   };
 
-  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
+  return (
+    <AppContext.Provider value={value}>
+      {" "}
+      {children}
+      <Analytics />
+    </AppContext.Provider>
+  );
 };
