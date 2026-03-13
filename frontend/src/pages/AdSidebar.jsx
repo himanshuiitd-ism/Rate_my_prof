@@ -91,6 +91,7 @@ function AdCard({ ad }) {
         <div className="ad-desc">{ad.description}</div>
       </div>
     </a>
+    // <p>Hi man</p>
   );
 }
 
