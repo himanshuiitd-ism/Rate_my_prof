@@ -69,13 +69,22 @@ const SPONSOR_ADS = {
 
 function AdCard({ ad }) {
   console.log("Rendering ad:", ad);
+  console.log("Hey himanshu");
   return (
     <a
-      className="ad-card"
+      style={{
+        textDecoration: "none",
+        color: "inherit",
+        background: ad.bgColor || "#f0f0f0",
+        height: "100px",
+        width: "100px",
+        borderRadius: "8px",
+        display: "block",
+        padding: "12px",
+      }}
       href={ad.linkUrl || "#"}
       target={ad.linkUrl && ad.linkUrl !== "#" ? "_blank" : "_self"}
       rel="noopener noreferrer"
-      style={ad.bgColor ? { background: ad.bgColor } : {}}
     >
       {ad.badge && <span className="ad-badge">{ad.badge}</span>}
       {ad.imageUrl && (
@@ -110,7 +119,7 @@ export default function AdSidebar({
   }
 
   return (
-    <aside className={`ad-sidebar`}>
+    <aside>
       <div className="ad-sidebar-label">Sponsored</div>
       {ads.map((ad) => (
         <AdCard key={ad._id} ad={ad} />
