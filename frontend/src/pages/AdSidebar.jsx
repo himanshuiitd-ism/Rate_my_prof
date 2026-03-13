@@ -108,13 +108,14 @@ export default function AdSidebar({
   }
 
   return (
-    <aside
-      className={`ad-sidebar ${horizontal ? "ad-sidebar--h" : "ad-sidebar--v"}`}
-    >
-      <div className="ad-sidebar-label">Sponsored</div>
-      {ads.map((ad) => (
-        <AdCard key={ad._id} ad={ad} />
-      ))}
-    </aside>
+    // <aside
+    //   className={`ad-sidebar ${horizontal ? "ad-sidebar--h" : "ad-sidebar--v"}`}
+    // >
+    //   <div className="ad-sidebar-label">Sponsored</div>
+    //   {ads.map((ad) => (
+    //     <AdCard key={ad._id} ad={ad} />
+    //   ))}
+    // </aside>
+    <p>Rishav</p>
   );
 }
