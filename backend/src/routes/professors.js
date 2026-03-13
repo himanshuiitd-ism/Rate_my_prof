@@ -165,7 +165,23 @@ router.get("/", async (req, res) => {
     );
 
     // Build match stage to filter by college if provided
-    const matchStage = college ? { $match: { college: college.trim() } } : null;
+    let matchStage = null;
+    if (college) {
+      const trimmedCollege = college.trim();
+      // Special handling for IIT Madras to match both formats
+      if (trimmedCollege === "IIT Madras") {
+        matchStage = {
+          $match: {
+            college: {
+              $regex: /IIT Madras|Indian Institute of Technology Madras/,
+              $options: "i",
+            },
+          },
+        };
+      } else {
+        matchStage = { $match: { college: trimmedCollege } };
+      }
+    }
 
     const profsWithStats = await Professor.aggregate([
       ...(matchStage ? [matchStage] : []),

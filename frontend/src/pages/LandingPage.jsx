@@ -21,6 +21,9 @@ export const COLLEGE_NAMES = {
   // "nit-trichy": "NIT Trichy",
   // "bits-pilani":"BITS Pilani",
 };
+// "iit-bombay": "IIT Bombay",
+// "nit-trichy": "NIT Trichy",
+// "bits-pilani":"BITS Pilani",
 
 export default function LandingPage() {
   const [selectedCollege, setSelectedCollege] = useState("");
