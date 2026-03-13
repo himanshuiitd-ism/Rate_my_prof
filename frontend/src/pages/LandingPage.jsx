@@ -144,7 +144,10 @@ export default function LandingPage() {
 
         {/* Right ads – desktop only */}
         <div className="landing-sidebar landing-sidebar--right">
-          {/* <AdSidebar page="home" position="right" /> */}
+          {/* <AdSidebar page="home" position="right" /> */}Hey himanshu, I have
+          commented out the ad sidebars for now to make the UI cleaner for
+          testing. You can uncomment them when you want to test the ad
+          functionality.
         </div>
       </div>
 
