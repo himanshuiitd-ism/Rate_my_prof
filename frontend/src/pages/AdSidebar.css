@@ -45,24 +45,6 @@
 /* Card */
 .ad-card {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 12px;
-  padding: 12px;
-  text-decoration: none;
-  color: #f8fafc;
-  transition:
-    transform 0.18s ease,
-    border-color 0.18s ease,
-    box-shadow 0.18s ease;
-  position: relative;
-  overflow: hidden;
-  cursor: pointer;
-  min-height: 120px; /* replace aspect-ratio with a min-height */
 }
 .ad-card:hover {
   transform: translateY(-2px);
