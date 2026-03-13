@@ -66,90 +66,28 @@ const SPONSOR_ADS = {
   ],
 };
 
-function AdCard({ ad, horizontal }) {
-  const hasBgColor = !!ad.bgColor;
-  const textColor = hasBgColor ? "#f8fafc" : "#1a1a2e";
-  const descColor = hasBgColor
-    ? "rgba(255, 255, 255, 0.55)"
-    : "rgba(26, 26, 46, 0.7)";
-  const background = hasBgColor ? ad.bgColor : "rgba(0, 0, 0, 0.05)";
-  const borderColor = hasBgColor
-    ? "rgba(255, 255, 255, 0.12)"
-    : "rgba(0, 0, 0, 0.1)";
-
-  const adCardStyle = {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "8px",
-    background,
-    border: `1px solid ${borderColor}`,
-    borderRadius: "12px",
-    padding: "12px",
-    textDecoration: "none",
-    color: textColor,
-    transition: "transform 0.18s ease",
-    position: "relative",
-    overflow: "hidden",
-    cursor: "pointer",
-    minHeight: "120px",
-    ...(horizontal ? { minWidth: "140px", flexShrink: 0 } : {}),
-  };
-
-  const adImgStyle = {
-    width: "36px",
-    height: "36px",
-    borderRadius: "8px",
-    objectFit: "cover",
-  };
-
-  const adBodyStyle = {
-    display: "flex",
-    flexDirection: "column",
-    gap: "4px",
-    textAlign: "center",
-  };
-
-  const adTitleStyle = {
-    fontSize: "13px",
-    fontWeight: 700,
-    color: textColor,
-    lineHeight: 1.3,
-  };
-
-  const adDescStyle = {
-    fontSize: "11px",
-    color: descColor,
-    lineHeight: 1.4,
-    display: "-webkit-box",
-    WebkitLineClamp: 3,
-    WebkitBoxOrient: "vertical",
-    overflow: "hidden",
-  };
-
-  console.log("Rendering ad:", ad);
-  console.log("Ad card style:", adCardStyle);
-  console.log("hi man");
+function AdCard({ ad }) {
+  console.log("Rendering ad:", ad.title);
   return (
     <a
-      style={adCardStyle}
+      className={`ad-card ${ad.bgColor ? "ad-card--colored" : ""}`}
       href={ad.linkUrl || "#"}
       target={ad.linkUrl && ad.linkUrl !== "#" ? "_blank" : "_self"}
       rel="noopener noreferrer"
+      style={ad.bgColor ? { background: ad.bgColor } : {}}
     >
       {ad.badge && <span className="ad-badge">{ad.badge}</span>}
       {ad.imageUrl && (
         <img
           src={ad.imageUrl}
           alt={ad.title}
-          style={adImgStyle}
+          className="ad-img"
           loading="lazy"
         />
       )}
-      <div style={adBodyStyle}>
-        <div style={adTitleStyle}>{ad.title}</div>
-        <div style={adDescStyle}>{ad.description}</div>
+      <div className="ad-body">
+        <div className="ad-title">{ad.title}</div>
+        <div className="ad-desc">{ad.description}</div>
       </div>
     </a>
   );
@@ -169,42 +107,13 @@ export default function AdSidebar({
     return null;
   }
 
-  const asideStyle = {
-    display: "flex",
-    gap: "10px",
-    fontFamily: '"Plus Jakarta Sans", "Inter", sans-serif',
-    ...(horizontal
-      ? {
-          flexDirection: "row",
-          flexWrap: "nowrap",
-          overflowX: "auto",
-          padding: "8px 0",
-          width: "100%",
-          scrollbarWidth: "none",
-        }
-      : {
-          flexDirection: "column",
-          width: "160px",
-          minWidth: "160px",
-          flexShrink: 0,
-          gap: "8px",
-        }),
-  };
-
-  const labelStyle = {
-    fontSize: "10px",
-    letterSpacing: "1.2px",
-    textTransform: "uppercase",
-    color: "rgba(0, 0, 0, 0.25)",
-    fontWeight: 600,
-    padding: "0 2px",
-  };
-
   return (
-    <aside style={asideStyle}>
-      <div style={labelStyle}>Sponsored</div>
+    <aside
+      className={`ad-sidebar ${horizontal ? "ad-sidebar--h" : "ad-sidebar--v"}`}
+    >
+      <div className="ad-sidebar-label">Sponsored</div>
       {ads.map((ad) => (
-        <AdCard key={ad._id} ad={ad} horizontal={horizontal} />
+        <AdCard key={ad._id} ad={ad} />
       ))}
     </aside>
   );
