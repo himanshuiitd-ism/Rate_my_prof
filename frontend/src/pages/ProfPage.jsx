@@ -9,7 +9,7 @@ import {
 } from "../redux/ProfessorSlice.js";
 import { submitMessage } from "../api";
 import { updateLeaderboardFromProfessors } from "../redux/leaderboardSlice.js";
-import AdSidebar from "./AdSidebar.jsx";
+// import AdSidebar from "./AdSidebar.jsx";
 
 const MOODS = ["😭", "😠", "😟", "😕", "😐", "🙂", "😊", "😄", "😁", "🤩"];
 
@@ -1247,9 +1247,9 @@ export default function ProfPage() {
       {/* Sidebar layout */}
       <div className="prof-layout-wrapper">
         {/* Left ad sidebar */}
-        <div className="prof-sidebar prof-sidebar--left">
+        {/* <div className="prof-sidebar prof-sidebar--left">
           <AdSidebar page="IIT Madras" position="left" />
-        </div>
+        </div> */}
 
         {/* Main content */}
         <div className="content-wrap">
@@ -1372,9 +1372,9 @@ export default function ProfPage() {
         </div>
 
         {/* Right ad sidebar */}
-        <div className="prof-sidebar prof-sidebar--right">
-          <AdSidebar page="IIT Madras" position="right" />
-        </div>
+        {/* <div className="prof-sidebar prof-sidebar--right">
+          <AdSidebar page="IIT Madras" position="right" /> */}
+        {/* </div> */}
       </div>
     </div>
     // <center className="message">
