@@ -69,27 +69,27 @@ const SPONSOR_ADS = {
 function AdCard({ ad }) {
   console.log("Rendering ad:", ad.title);
   return (
-    // <a
-    //   href={ad.linkUrl || "#"}
-    //   target={ad.linkUrl && ad.linkUrl !== "#" ? "_blank" : "_self"}
-    //   rel="noopener noreferrer"
-    //   style={ad.bgColor ? { background: ad.bgColor } : {}}
-    // >
-    //   {/* {ad.badge && <span className="ad-badge">{ad.badge}</span>}
-    //   {ad.imageUrl && (
-    //     <img
-    //       src={ad.imageUrl}
-    //       alt={ad.title}
-    //       className="ad-img"
-    //       loading="lazy"
-    //     />
-    //   )} */}
-    //   <div className="ad-body">
-    //     <div className="ad-title">{ad.title}</div>
-    //     <div className="ad-desc">{ad.description}</div>
-    //   </div>
-    // </a>
-    <p>Hi mans</p>
+    <a
+      href={ad.linkUrl || "#"}
+      target={ad.linkUrl && ad.linkUrl !== "#" ? "_blank" : "_self"}
+      rel="noopener noreferrer"
+      style={ad.bgColor ? { background: ad.bgColor } : {}}
+    >
+      {/* {ad.badge && <span className="ad-badge">{ad.badge}</span>}
+      {ad.imageUrl && (
+        <img
+          src={ad.imageUrl}
+          alt={ad.title}
+          className="ad-img"
+          loading="lazy"
+        />
+      )} */}
+      <p>Hey kaise ho</p>
+      {/* <div className="ad-body">
+        <div className="ad-title">{ad.title}</div>
+        <div className="ad-desc">{ad.description}</div>
+      </div> */}
+    </a>
   );
 }
 
