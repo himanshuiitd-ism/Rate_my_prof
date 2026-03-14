@@ -154,3 +154,17 @@ button {
   padding: 4px 0;
   letter-spacing: 0.5px;
 }
+
+.ads-title {
+  font-size: 16px;
+  color: white;
+  text-align: center;
+  padding: 2px 10px;
+}
+
+.ads-description {
+  font-size: 16px;
+  color: white;
+  text-align: center;
+  padding: 2px 10px;
+}
