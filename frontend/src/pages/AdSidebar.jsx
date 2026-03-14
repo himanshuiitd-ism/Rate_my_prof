@@ -84,11 +84,10 @@ function AdCard({ ad }) {
           loading="lazy"
         />
       )} */}
-      <p>Hey kaise ho</p>
-      {/* <div className="ad-body">
+      <div>
         <div className="ad-title">{ad.title}</div>
-        <div className="ad-desc">{ad.description}</div>
-      </div> */}
+        <div>{ad.description}</div>
+      </div>
     </a>
   );
 }
