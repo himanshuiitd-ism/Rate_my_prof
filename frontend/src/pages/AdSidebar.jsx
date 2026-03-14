@@ -69,7 +69,7 @@ const SPONSOR_ADS = {
 function AdCard({ ad }) {
   console.log("Rendering ad:", ad.title);
   return (
-    <div className="ads-card">
+    <div>
       {" "}
       <a
         href={ad.linkUrl || "#"}
