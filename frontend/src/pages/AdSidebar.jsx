@@ -266,46 +266,43 @@ export default function AdSidebar({
   position = "left",
   horizontal = false,
 }) {
-  // Get ads for this page and position
+  // Get ads for this page
   const pageAds = SPONSOR_ADS[page] || SPONSOR_ADS["home"] || [];
-  const ads = pageAds.filter((ad) => ad.position === position);
+  const ads = horizontal
+    ? pageAds
+    : pageAds.filter((ad) => ad.position === position);
 
-  // Create 5 slots: fill with actual ads, rest placeholders with different colors
-  const totalSlots = 5;
-  const placeholderColors = [
-    "#ff6b6b",
-    "#4ecdc4",
-    "#45b7d1",
-    "#f9ca24",
-    "#f0932b",
-  ];
-  const cards = [];
-  for (let i = 0; i < totalSlots; i++) {
-    if (i < ads.length) {
-      cards.push(
-        <AdCard key={ads[i]._id} ad={ads[i]} isHorizontal={horizontal} />,
-      );
-    } else {
-      cards.push(
-        <AdCard
-          key={`placeholder-${i}`}
-          isPlaceholder
-          placeholderColor={placeholderColors[i - ads.length]}
-          isHorizontal={horizontal}
-        />,
-      );
-    }
-  }
-
-  // For horizontal (mobile), add top and bottom placeholders
-  const topPlaceholders = 4;
-  const bottomPlaceholders = 5;
-  const allCards = [];
-  if (horizontal) {
-    allCards.push(...cards); // 5 cards for top
-  } else {
-    allCards.push(...cards);
-  }
+  // For desktop, create slots with placeholders; for mobile, just the ads
+  const allCards = horizontal
+    ? ads.map((ad) => <AdCard key={ad._id} ad={ad} isHorizontal={horizontal} />)
+    : (() => {
+        const totalSlots = 5;
+        const placeholderColors = [
+          "#ff6b6b",
+          "#4ecdc4",
+          "#45b7d1",
+          "#f9ca24",
+          "#f0932b",
+        ];
+        const cards = [];
+        for (let i = 0; i < totalSlots; i++) {
+          if (i < ads.length) {
+            cards.push(
+              <AdCard key={ads[i]._id} ad={ads[i]} isHorizontal={horizontal} />,
+            );
+          } else {
+            cards.push(
+              <AdCard
+                key={`placeholder-${i}`}
+                isPlaceholder
+                placeholderColor={placeholderColors[i - ads.length]}
+                isHorizontal={horizontal}
+              />,
+            );
+          }
+        }
+        return cards;
+      })();
 
   const isLeft = position === "left";
 
@@ -351,7 +348,6 @@ export default function AdSidebar({
       background: "rgba(15, 23, 42, 0.75)",
       backdropFilter: "blur(12px)",
       padding: "6px 0",
-      overflow: "hidden",
       border: "1px solid rgba(255, 255, 255, 0.25)",
       borderRadius: "999px",
     };
