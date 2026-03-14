@@ -68,6 +68,7 @@ const SPONSOR_ADS = {
 
 function AdCard({ ad }) {
   console.log("Rendering ad:", ad.title);
+  console.log("Ad link:", ad.linkUrl);
   return (
     <div
       style={{
