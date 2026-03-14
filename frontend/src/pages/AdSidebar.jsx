@@ -71,7 +71,6 @@ function AdCard({ ad }) {
   console.log("Ad details:", ad);
   return (
     <a
-      className={`ad-card ${ad.bgColor ? "ad-card--colored" : ""}`}
       href={ad.linkUrl || "#"}
       target={ad.linkUrl && ad.linkUrl !== "#" ? "_blank" : "_self"}
       rel="noopener noreferrer"
@@ -109,9 +108,7 @@ export default function AdSidebar({
   }
 
   return (
-    <aside
-      className={`ad-sidebar ${horizontal ? "ad-sidebar--h" : "ad-sidebar--v"}`}
-    >
+    <aside>
       <div className="ad-sidebar-label">Sponsored</div>
       {ads.map((ad) => (
         <AdCard key={ad._id} ad={ad} />
