@@ -74,7 +74,7 @@ function AdCard({ ad }) {
       target={ad.linkUrl && ad.linkUrl !== "#" ? "_blank" : "_self"}
       rel="noopener noreferrer"
       style={ad.bgColor ? { background: ad.bgColor } : {}}
-      className="ads-card"
+      // className="ads-card"
     >
       {/* {ad.badge && <span className="ad-badge">{ad.badge}</span>}
       {ad.imageUrl && (
