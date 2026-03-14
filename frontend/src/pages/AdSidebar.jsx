@@ -73,25 +73,34 @@ const SPONSOR_ADS = {
   ],
 };
 
-function AdCard({ ad, isPlaceholder = false, placeholderColor = "#ccc" }) {
+function AdCard({
+  ad,
+  isPlaceholder = false,
+  placeholderColor = "#ccc",
+  isHorizontal = false,
+}) {
   const cardStyle = {
     display: "flex",
-    flexDirection: "column",
+    flexDirection: isHorizontal ? "row" : "column",
     alignItems: "center",
     justifyContent: "center",
-    padding: "0.75rem",
-    borderRadius: "0.5rem",
+    padding: isHorizontal ? "0.25rem 0.5rem" : "0.5rem",
+    borderRadius: isHorizontal ? "999px" : "0.5rem",
     textDecoration: "none",
-    minHeight: "120px",
-    width: "120px", // Decreased width
+    minHeight: isHorizontal ? "32px" : "120px",
+    width: isHorizontal ? "120px" : "140px",
+    flex: isHorizontal ? "0 0 auto" : "none",
     color: "#fff",
     transition: "transform 0.15s ease",
-    boxShadow: "0 10px 15px rgba(0, 0, 0, 0.1)",
+    boxShadow: isHorizontal
+      ? "0 3px 8px rgba(0,0,0,0.15)"
+      : "0 10px 15px rgba(0, 0, 0, 0.1)",
     border: isPlaceholder ? `2px dashed ${placeholderColor}` : "none",
     background: isPlaceholder
       ? "rgba(0, 0, 0, 0.5)"
       : ad.bgColor || "rgba(0,0,0,0.05)",
     position: "relative",
+    scrollSnapAlign: isHorizontal ? "start" : "auto",
   };
 
   if (isPlaceholder) {
@@ -131,31 +140,56 @@ function AdCard({ ad, isPlaceholder = false, placeholderColor = "#ccc" }) {
       rel="noopener noreferrer"
       style={cardStyle}
     >
-      {ad.logoUrl && (
+      {ad.logoUrl ? (
         <img
           src={ad.logoUrl}
           alt={ad.title}
           style={{
-            width: "40px",
-            height: "40px",
-            borderRadius: "8px",
-            marginBottom: "0.5rem",
+            width: isHorizontal ? "24px" : "30px",
+            height: isHorizontal ? "24px" : "30px",
+            borderRadius: "6px",
+            marginRight: isHorizontal ? "0.5rem" : "0",
+            marginBottom: isHorizontal ? "0" : "0.5rem",
           }}
         />
-      )}
-      <div style={{ textAlign: "center" }}>
+      ) : (
         <div
           style={{
-            fontSize: "0.875rem",
+            width: isHorizontal ? "24px" : "30px",
+            height: isHorizontal ? "24px" : "30px",
+            borderRadius: "6px",
+            marginRight: isHorizontal ? "0.5rem" : "0",
+            marginBottom: isHorizontal ? "0" : "0.5rem",
+            background: "rgba(255,255,255,0.2)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: isHorizontal ? "13px" : "15px",
             fontWeight: "bold",
-            marginBottom: "0.25rem",
+            color: "#fff",
+          }}
+        >
+          {ad.title.charAt(0).toUpperCase()}
+        </div>
+      )}
+      <div style={{ textAlign: isHorizontal ? "left" : "center" }}>
+        <div
+          style={{
+            fontSize: isHorizontal ? "0.75rem" : "0.875rem",
+            fontWeight: "bold",
+            marginBottom: isHorizontal ? "0" : "0.25rem",
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
           }}
         >
           {ad.title}
         </div>
-        <div style={{ fontSize: "0.75rem", opacity: 0.9 }}>
-          {ad.description}
-        </div>
+        {!isHorizontal && (
+          <div style={{ fontSize: "0.75rem", opacity: 0.9 }}>
+            {ad.description}
+          </div>
+        )}
       </div>
     </a>
   );
@@ -182,16 +216,29 @@ export default function AdSidebar({
   const cards = [];
   for (let i = 0; i < totalSlots; i++) {
     if (i < ads.length) {
-      cards.push(<AdCard key={ads[i]._id} ad={ads[i]} />);
+      cards.push(
+        <AdCard key={ads[i]._id} ad={ads[i]} isHorizontal={horizontal} />,
+      );
     } else {
       cards.push(
         <AdCard
           key={`placeholder-${i}`}
           isPlaceholder
           placeholderColor={placeholderColors[i - ads.length]}
+          isHorizontal={horizontal}
         />,
       );
     }
+  }
+
+  // For horizontal (mobile), add top and bottom placeholders
+  const topPlaceholders = 4;
+  const bottomPlaceholders = 5;
+  const allCards = [];
+  if (horizontal) {
+    allCards.push(...cards); // 5 cards for top
+  } else {
+    allCards.push(...cards);
   }
 
   const isLeft = position === "left";
@@ -220,6 +267,45 @@ export default function AdSidebar({
         }),
   };
 
+  if (horizontal) {
+    const rowStyle = {
+      display: "flex",
+      alignItems: "center",
+      gap: "10px",
+      padding: "0 10px",
+      width: "max-content",
+      whiteSpace: "nowrap",
+    };
+
+    const barStyle = {
+      position: "fixed",
+      left: 0,
+      right: 0,
+      zIndex: 9999,
+      background: "rgba(15, 23, 42, 0.75)",
+      backdropFilter: "blur(12px)",
+      padding: "6px 0",
+      overflow: "hidden",
+    };
+
+    const scrollingAds = [...allCards, ...allCards];
+
+    return (
+      <>
+        <aside style={{ ...barStyle, top: 0 }}>
+          <div className="ad-scroll" style={rowStyle}>
+            {scrollingAds}
+          </div>
+        </aside>
+        <aside style={{ ...barStyle, bottom: 0 }}>
+          <div className="ad-scroll" style={rowStyle}>
+            {scrollingAds}
+          </div>
+        </aside>
+      </>
+    );
+  }
+
   return (
     <aside style={asideStyle} className="bg-transparent">
       <div
@@ -228,7 +314,7 @@ export default function AdSidebar({
       >
         Sponsored
       </div>
-      {cards}
+      {allCards}
     </aside>
   );
 }
