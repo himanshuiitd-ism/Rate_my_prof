@@ -155,6 +155,17 @@ button {
   letter-spacing: 0.5px;
 }
 
+.ads-card {
+  height: max-content;
+  width: max-content;
+  padding: 10px 20px;
+  border: 1px solid dashed;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .ads-title {
   font-size: 16px;
   color: white;
