@@ -69,14 +69,15 @@ const SPONSOR_ADS = {
 function AdCard({ ad }) {
   console.log("Rendering ad:", ad.title);
   return (
-    <a
-      href={ad.linkUrl || "#"}
-      target={ad.linkUrl && ad.linkUrl !== "#" ? "_blank" : "_self"}
-      rel="noopener noreferrer"
-      style={ad.bgColor ? { background: ad.bgColor } : {}}
-      // className="ads-card"
-    >
-      {/* {ad.badge && <span className="ad-badge">{ad.badge}</span>}
+    <div className="ads-card">
+      {" "}
+      <a
+        href={ad.linkUrl || "#"}
+        target={ad.linkUrl && ad.linkUrl !== "#" ? "_blank" : "_self"}
+        rel="noopener noreferrer"
+        style={ad.bgColor ? { background: ad.bgColor } : {}}
+      >
+        {/* {ad.badge && <span className="ad-badge">{ad.badge}</span>}
       {ad.imageUrl && (
         <img
           src={ad.imageUrl}
@@ -85,11 +86,12 @@ function AdCard({ ad }) {
           loading="lazy"
         />
       )} */}
-      <div>
-        <div className="ads-title">{ad.title}</div>
-        <div className="ads-description">{ad.description}</div>
-      </div>
-    </a>
+        <div>
+          <div className="ads-title">{ad.title}</div>
+          <div className="ads-description">{ad.description}</div>
+        </div>
+      </a>
+    </div>
   );
 }
 
