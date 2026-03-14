@@ -1,5 +1,3 @@
-import React from "react";
-
 // Hardcoded sponsor ads
 const SPONSOR_ADS = {
   home: [
@@ -66,56 +64,17 @@ const SPONSOR_ADS = {
   ],
 };
 
-function AdCard({ ad }) {
-  console.log("Rendering ad:", ad.title);
-  console.log("Ad details:", ad);
+const AdCard = ({ ad }) => {
   return (
     <a
-      className={`ad-card ${ad.bgColor ? "ad-card--colored" : ""}`}
-      href={ad.linkUrl || "#"}
-      target={ad.linkUrl && ad.linkUrl !== "#" ? "_blank" : "_self"}
+      href={ad.linkUrl}
+      target="_blank"
       rel="noopener noreferrer"
-      style={ad.bgColor ? { background: ad.bgColor } : {}}
+      className="ad-cards"
+      style={{ background: ad.bgColor }}
     >
-      {/* {ad.badge && <span className="ad-badge">{ad.badge}</span>}
-      {ad.imageUrl && (
-        <img
-          src={ad.imageUrl}
-          alt={ad.title}
-          className="ad-img"
-          loading="lazy"
-        />
-      )} */}
-      <div className="ad-body">
-        <div className="ad-title">{ad.title}</div>
-        <div className="ad-desc">{ad.description}</div>
-      </div>
+      <h3 className="ad-cards__title">{ad.title}</h3>
+      <p className="ad-cards__description">{ad.description}</p>
     </a>
   );
-}
-
-export default function AdSidebar({
-  page = "home",
-  position = "left",
-  horizontal = false,
-}) {
-  // Get ads for this page and position
-  const pageAds = SPONSOR_ADS[page] || SPONSOR_ADS["home"] || [];
-  const ads = pageAds.filter((ad) => ad.position === position);
-
-  // Don't render if no ads
-  if (ads.length === 0) {
-    return null;
-  }
-
-  return (
-    <aside
-      className={`ad-sidebar ${horizontal ? "ad-sidebar--h" : "ad-sidebar--v"}`}
-    >
-      <div className="ad-sidebar-label">Sponsored</div>
-      {ads.map((ad) => (
-        <AdCard key={ad._id} ad={ad} />
-      ))}
-    </aside>
-  );
-}
+};
