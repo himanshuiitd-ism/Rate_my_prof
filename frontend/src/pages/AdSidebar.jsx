@@ -73,11 +73,12 @@ function AdCard({ ad }) {
     <div
       style={{
         display: "flex",
-        height: "10vh",
-        width: "8vw",
+        height: "100%",
+        width: "100%",
         alignItems: "center",
         justifyContent: "center",
-        borderRadius: "20px",
+        borderRadius: "200px",
+        marginBottom: "20px",
       }}
     >
       {" "}
@@ -85,17 +86,25 @@ function AdCard({ ad }) {
         href={ad.linkUrl || "#"}
         target={ad.linkUrl && ad.linkUrl !== "#" ? "_blank" : "_self"}
         rel="noopener noreferrer"
-        style={ad.bgColor ? { background: ad.bgColor } : {}}
+        style={{
+          background: ad.bgColor || "transparent",
+          color: "white",
+          height: "100%",
+          width: "100%",
+          display: "flex",
+          borderRadius: "5px",
+          textDecoration: "none",
+        }}
       >
         {/* {ad.badge && <span className="ad-badge">{ad.badge}</span>}
-      {ad.imageUrl && (
-        <img
-          src={ad.imageUrl}
-          alt={ad.title}
-          className="ad-img"
-          loading="lazy"
-        />
-      )} */}
+        {ad.imageUrl && (
+          <img
+            src={ad.imageUrl}
+            alt={ad.title}
+            className="ad-img"
+            loading="lazy"
+          />
+        )} */}
         <div>
           <div className="ads-title">{ad.title}</div>
           <div className="ads-description">{ad.description}</div>
