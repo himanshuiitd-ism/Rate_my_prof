@@ -82,7 +82,7 @@ function AdCard({ ad, isPlaceholder = false, placeholderColor = "#ccc" }) {
     padding: "0.75rem",
     borderRadius: "0.5rem",
     textDecoration: "none",
-    minHeight: "100px",
+    minHeight: "120px",
     width: "120px", // Decreased width
     color: "#fff",
     transition: "transform 0.15s ease",
