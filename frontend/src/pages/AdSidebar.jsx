@@ -95,7 +95,7 @@ function AdCard({
     boxShadow: isHorizontal
       ? "0 3px 8px rgba(0,0,0,0.15)"
       : "0 10px 15px rgba(0, 0, 0, 0.1)",
-    border: isPlaceholder ? `2px dashed ${placeholderColor}` : "none",
+    border: isPlaceholder ? `1px solid ${placeholderColor}` : "none",
     background: isPlaceholder
       ? "rgba(0, 0, 0, 0.5)"
       : ad.bgColor || "rgba(0,0,0,0.05)",
@@ -195,6 +195,72 @@ function AdCard({
   );
 }
 
+function AutoScrollRow({ children, style, className }) {
+  const ref = React.useRef(null);
+  const pauseRef = React.useRef(false);
+  const timeoutRef = React.useRef();
+
+  React.useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    // When scroll reaches halfway (duplicate content), reset seamlessly.
+    const resetThreshold = () => el.scrollWidth / 2;
+
+    let raf = 0;
+    let lastTime = performance.now();
+
+    const step = (time) => {
+      const dt = time - lastTime;
+      lastTime = time;
+
+      if (!pauseRef.current) {
+        const speed = 0.04; // px per ms
+        el.scrollLeft += dt * speed;
+
+        const threshold = resetThreshold();
+        if (el.scrollLeft >= threshold) {
+          el.scrollLeft -= threshold;
+        }
+      }
+
+      raf = requestAnimationFrame(step);
+    };
+
+    const handleUserScroll = () => {
+      pauseRef.current = true;
+      window.clearTimeout(timeoutRef.current);
+      timeoutRef.current = window.setTimeout(() => {
+        pauseRef.current = false;
+      }, 1200);
+    };
+
+    el.addEventListener("scroll", handleUserScroll, { passive: true });
+    raf = requestAnimationFrame(step);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      el.removeEventListener("scroll", handleUserScroll);
+      window.clearTimeout(timeoutRef.current);
+    };
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      className={className}
+      style={{
+        ...style,
+        overflowX: "auto",
+        overflowY: "hidden",
+        scrollBehavior: "smooth",
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
 export default function AdSidebar({
   page = "home",
   position = "left",
@@ -286,6 +352,8 @@ export default function AdSidebar({
       backdropFilter: "blur(12px)",
       padding: "6px 0",
       overflow: "hidden",
+      border: "1px solid rgba(255, 255, 255, 0.25)",
+      borderRadius: "999px",
     };
 
     const scrollingAds = [...allCards, ...allCards];
@@ -293,14 +361,14 @@ export default function AdSidebar({
     return (
       <>
         <aside style={{ ...barStyle, top: 0 }}>
-          <div className="ad-scroll" style={rowStyle}>
+          <AutoScrollRow className="ad-scroll" style={rowStyle}>
             {scrollingAds}
-          </div>
+          </AutoScrollRow>
         </aside>
         <aside style={{ ...barStyle, bottom: 0 }}>
-          <div className="ad-scroll" style={rowStyle}>
+          <AutoScrollRow className="ad-scroll" style={rowStyle}>
             {scrollingAds}
-          </div>
+          </AutoScrollRow>
         </aside>
       </>
     );
