@@ -69,7 +69,16 @@ const SPONSOR_ADS = {
 function AdCard({ ad }) {
   console.log("Rendering ad:", ad.title);
   return (
-    <div>
+    <div
+      style={{
+        display: "flex",
+        height: "10vh",
+        width: "8vw",
+        alignItems: "center",
+        justifyContent: "center",
+        borderRadius: "20px",
+      }}
+    >
       {" "}
       <a
         href={ad.linkUrl || "#"}
