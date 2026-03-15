@@ -6,6 +6,7 @@ import ProfPage from "./pages/ProfPage";
 import LandingPage from "./pages/LandingPage";
 import { store } from "./redux/store";
 import Footer from "./Footer";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 
 export default function App() {
   return (
@@ -16,6 +17,7 @@ export default function App() {
             <Routes>
               <Route path="/" element={<LandingPage />} />
               <Route path="/profs" element={<ProfList />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/prof/:id" element={<ProfPage />} />
             </Routes>
           </div>
