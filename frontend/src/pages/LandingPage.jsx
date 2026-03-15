@@ -76,6 +76,21 @@ export default function LandingPage() {
             Real-time anonymous ratings, chat & reviews for India's top
             colleges.
           </p>
+          <p>
+            contact us for your ads:{" "}
+            <a href="mailto:startupfactory303@gmail.com">
+              startupfactory303@gmail.com
+            </a>
+            or insta{" "}
+            <a
+              href="https://www.instagram.com/startup.factory_iit/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {" "}
+              @ratemyprof
+            </a>
+          </p>
 
           <form className="selection-box" onSubmit={handleEnter}>
             <label htmlFor="college-select">Choose your institution</label>
