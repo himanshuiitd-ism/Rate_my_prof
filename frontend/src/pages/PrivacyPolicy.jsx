@@ -61,6 +61,10 @@ const sections = [
       "Personal attacks unrelated to academic performance or teaching quality",
       "Discriminatory content based on gender, religion, caste, race, or nationality",
       "Content that violates any applicable law",
+      "We do not prompte or censor specific opinions about professors, but we reserve the right to remove content that violates our guidelines or is reported by users as harmful or abusive.",
+      "We encourage users to focus their feedback on academic aspects such as teaching style, grading patterns, course difficulty, and overall learning experience rather than personal characteristics or unrelated matters.",
+      "If you see content that you believe violates our guidelines, please report it to us so we can review and take appropriate action.",
+      "We are not responsible for the content posted by users, but we reserve the right to remove any content that violates our guidelines.",
     ],
     footer:
       "Criticism of teaching style, grading patterns, course difficulty, or academic conduct is entirely within the scope of this platform. The distinction we draw is between honest academic feedback and malicious personal targeting.",

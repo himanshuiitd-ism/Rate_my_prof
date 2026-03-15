@@ -13,6 +13,35 @@ import { updateLeaderboardFromProfessors } from "../redux/leaderboardSlice.js";
 
 const MOODS = ["😭", "😠", "😟", "😕", "😐", "🙂", "😊", "😄", "😁", "🤩"];
 
+// Abuse filter
+const ABUSE_LIST = [
+  "madherchod",
+  "chutiya",
+  "muthi",
+  "takle",
+  "takla",
+  "biwi",
+  "pati",
+  "harami",
+  "betichod",
+  "bhosda",
+  "mkc",
+  "btc",
+];
+
+function censorText(text) {
+  if (!text) return text;
+  let result = text;
+  ABUSE_LIST.forEach((word) => {
+    const regex = new RegExp(word, "gi");
+    result = result.replace(regex, (match) => {
+      if (match.length <= 2) return match;
+      return match[0] + "*".repeat(match.length - 2) + match[match.length - 1];
+    });
+  });
+  return result;
+}
+
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
@@ -1273,7 +1302,9 @@ export default function ProfPage() {
                       <div className="chat-msg-time">
                         {new Date(m.createdAt).toLocaleTimeString()}
                       </div>
-                      <div className="chat-msg-text">{m.message}</div>
+                      <div className="chat-msg-text">
+                        {censorText(m.message)}
+                      </div>
                     </div>
                   ))
                 )}
