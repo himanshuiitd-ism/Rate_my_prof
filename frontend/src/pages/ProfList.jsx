@@ -169,6 +169,13 @@ export default function ProfList() {
 
   return (
     <div className="prof-list-root" ref={containerRef}>
+      <head>
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9347303906353013"
+          crossorigin="anonymous"
+        ></script>
+      </head>
       {/* ─── Mobile top ads ─── */}
       <div className="mobile-ads-top">
         <AdSidebar page={collegeName} position="left" horizontal />
