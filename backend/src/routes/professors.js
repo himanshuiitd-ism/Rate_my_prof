@@ -130,7 +130,7 @@ router.get("/update-hss-images", async (req, res) => {
         details.push({ name, status: "not_in_db" });
         continue;
       }
-
+      // This is just a test
       await Professor.updateOne(
         { _id: doc._id },
         { $set: { photoUrl, ...(sourceUrl ? { sourceUrl } : {}) } },
