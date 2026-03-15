@@ -37,7 +37,7 @@ function censorText(text) {
     const regex = new RegExp(word, "gi");
     result = result.replace(regex, (match) => {
       if (match.length <= 2) return match;
-      return match[0] + "*".repeat(match.length - 2) + match[match.length - 1];
+      return match[0] + "*".repeat(match.length - 1);
     });
   });
   return result;
