@@ -27,6 +27,7 @@ const ABUSE_LIST = [
   "bhosda",
   "mkc",
   "btc",
+  "sala",
 ];
 
 function censorText(text) {
