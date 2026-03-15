@@ -256,13 +256,6 @@ function AutoScrollRow({ children, style, className }) {
         scrollBehavior: "smooth",
       }}
     >
-      <head>
-        <script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9347303906353013"
-          crossorigin="anonymous"
-        ></script>
-      </head>
       ;{children}
     </div>
   );

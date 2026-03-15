@@ -43,13 +43,6 @@ export default function LandingPage() {
 
   return (
     <div className="landing-root">
-      <head>
-        <script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9347303906353013"
-          crossorigin="anonymous"
-        ></script>
-      </head>
       {/* ── Mobile Top Ads ── */}
       <div className="mobile-ads-top">
         <AdSidebar page="home" position="left" horizontal />
