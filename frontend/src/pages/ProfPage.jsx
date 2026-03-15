@@ -1257,7 +1257,8 @@ export default function ProfPage() {
           <div className="col-main">
             <div className="section-head">
               <span className="dot"></span>
-              Anonymous Chat
+              Anonymous Chat (Suvival guide against this prof for your
+              descendents)
             </div>
 
             <div className="chat-box">
