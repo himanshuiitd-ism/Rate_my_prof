@@ -28,6 +28,8 @@ const ABUSE_LIST = [
   "mkc",
   "btc",
   "sala",
+  "tharki",
+  "buddha",
 ];
 
 function censorText(text) {
