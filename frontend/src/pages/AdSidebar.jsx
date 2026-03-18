@@ -30,6 +30,15 @@ const SPONSOR_ADS = {
       bgColor: "linear-gradient(135deg, #1f2937 0%, #111827 100%)",
       logoUrl: "https://via.placeholder.com/40x40?text=Z",
     },
+    {
+      _id: "8",
+      title: "himanshu.dev",
+      description: "Join the entrepreneurship journey with me",
+      linkUrl: "https://himanshuiid-ism.vercel.app/",
+      position: "left",
+      bgColor: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+      logoUrl: null,
+    },
   ],
   "IIT ISM Dhanbad": [
     {
@@ -50,6 +59,15 @@ const SPONSOR_ADS = {
       bgColor: "linear-gradient(135deg, #1f2937 0%, #111827 100%)",
       logoUrl: "https://via.placeholder.com/40x40?text=Z",
     },
+    {
+      _id: "9",
+      title: "himanshu.dev",
+      description: "Join the entrepreneurship journey with me",
+      linkUrl: "https://himanshuiid-ism.vercel.app/",
+      position: "left",
+      bgColor: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+      logoUrl: null,
+    },
   ],
   "IIT Madras": [
     {
@@ -69,6 +87,15 @@ const SPONSOR_ADS = {
       position: "right",
       bgColor: "linear-gradient(135deg, #065f46 0%, #064e3b 100%)",
       logoUrl: "https://via.placeholder.com/40x40?text=D",
+    },
+    {
+      _id: "10",
+      title: "himanshu.dev",
+      description: "Join the entrepreneurship journey with me",
+      linkUrl: "https://himanshuiid-ism.vercel.app/",
+      position: "left",
+      bgColor: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+      logoUrl: null,
     },
   ],
 };
