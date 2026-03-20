@@ -170,7 +170,7 @@ function AdCard({
         style={{ ...cardStyle, cursor: "pointer" }}
         onClick={handleSlotClick}
       >
-        <div
+        {/* <div
           style={{
             position: "absolute",
             top: "6px",
@@ -185,7 +185,7 @@ function AdCard({
           }}
         >
           {slotId}
-        </div>
+        </div> */}
         <div
           style={{
             position: "absolute",
@@ -225,7 +225,7 @@ function AdCard({
         handleSlotClick();
       }}
     >
-      <div
+      {/* <div
         style={{
           position: "absolute",
           top: "6px",
@@ -240,7 +240,7 @@ function AdCard({
         }}
       >
         {slotId}
-      </div>
+      </div> */}
       {ad.logoUrl ? (
         <img
           src={ad.logoUrl}
