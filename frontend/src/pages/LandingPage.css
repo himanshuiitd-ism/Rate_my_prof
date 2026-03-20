@@ -288,6 +288,13 @@ label {
 }
 
 /* ── Responsive ────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Add padding-top to account for fixed top mobile ad bar */
+  .landing-root {
+    padding-top: 80px;
+  }
+}
+
 @media (max-width: 900px) {
   /* Hide desktop sidebars */
   .landing-sidebar {

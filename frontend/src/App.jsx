@@ -34,7 +34,7 @@ function Shell({ children }) {
 
   return (
     <div className="min-h-screen flex flex-col bg-white text-gray-900">
-      <header className="w-full border-b border-gray-200 bg-white/80 backdrop-blur z-20">
+      <header className="hidden md:block w-full border-b border-gray-200 bg-white/80 backdrop-blur z-20">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <div className="font-semibold text-lg tracking-tight">
             Rate My Prof &amp; College Media
@@ -76,7 +76,28 @@ function Shell({ children }) {
           </div>
         </div>
       </header>
-      <div className="flex-grow">{children}</div>
+      <div className="flex-grow pb-0 md:pb-0" style={{ marginTop: "30px" }}>
+        {children}
+      </div>
+
+      {/* Mobile Navigation Bar */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 w-full border-t border-gray-200 bg-white">
+        <div className="flex gap-2 px-3 py-3">
+          <Link
+            to="/"
+            className="flex-1 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg text-center hover:bg-blue-700 transition"
+          >
+            🏠 Home
+          </Link>
+          <Link
+            to="/media"
+            className="flex-1 px-4 py-2 bg-green-600 text-white font-medium rounded-lg text-center hover:bg-green-700 transition"
+          >
+            💬 About Community
+          </Link>
+        </div>
+      </div>
+
       <Footer />
     </div>
   );
