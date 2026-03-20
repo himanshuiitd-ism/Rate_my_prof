@@ -1,4 +1,16 @@
 import React from "react";
+import axios from "axios";
+
+const API = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:4000/api",
+});
+
+const duplicateCardsForScroll = (cards, suffix) => [
+  ...cards,
+  ...cards.map((card, idx) =>
+    React.cloneElement(card, { key: `${suffix}-${idx}` }),
+  ),
+];
 
 // Hardcoded sponsor ads
 const SPONSOR_ADS = {
@@ -105,7 +117,29 @@ function AdCard({
   isPlaceholder = false,
   placeholderColor = "#ccc",
   isHorizontal = false,
+  slotId = "",
+  slotPosition = "left",
+  slotIndex = 0,
+  page = "home",
+  onSlotClick = null,
 }) {
+  // Handle click on any slot (filled or empty)
+  const handleSlotClick = async () => {
+    if (onSlotClick && slotId) {
+      await onSlotClick({
+        slotId,
+        page,
+        position: slotPosition,
+        slotIndex,
+        adId: ad?._id || null,
+      });
+    }
+    // If this is a real ad, open the link
+    if (!isPlaceholder && ad?.linkUrl && ad.linkUrl !== "#") {
+      window.open(ad.linkUrl, "_blank");
+    }
+  };
+
   const cardStyle = {
     display: "flex",
     flexDirection: isHorizontal ? "row" : "column",
@@ -132,7 +166,26 @@ function AdCard({
 
   if (isPlaceholder) {
     return (
-      <div style={cardStyle}>
+      <div
+        style={{ ...cardStyle, cursor: "pointer" }}
+        onClick={handleSlotClick}
+      >
+        <div
+          style={{
+            position: "absolute",
+            top: "6px",
+            left: "6px",
+            zIndex: 2,
+            fontSize: "10px",
+            padding: "2px 6px",
+            borderRadius: "999px",
+            background: "rgba(255,255,255,0.2)",
+            color: "#fff",
+            border: "1px solid rgba(255,255,255,0.4)",
+          }}
+        >
+          {slotId}
+        </div>
         <div
           style={{
             position: "absolute",
@@ -165,8 +218,29 @@ function AdCard({
       href={ad.linkUrl || "#"}
       target={ad.linkUrl && ad.linkUrl !== "#" ? "_blank" : "_self"}
       rel="noopener noreferrer"
-      style={cardStyle}
+      data-slot-id={slotId}
+      style={{ ...cardStyle, cursor: "pointer" }}
+      onClick={(e) => {
+        e.preventDefault();
+        handleSlotClick();
+      }}
     >
+      <div
+        style={{
+          position: "absolute",
+          top: "6px",
+          left: "6px",
+          zIndex: 2,
+          fontSize: "10px",
+          padding: "2px 6px",
+          borderRadius: "999px",
+          background: "rgba(255,255,255,0.2)",
+          color: "#fff",
+          border: "1px solid rgba(255,255,255,0.4)",
+        }}
+      >
+        {slotId}
+      </div>
       {ad.logoUrl ? (
         <img
           src={ad.logoUrl}
@@ -293,43 +367,98 @@ export default function AdSidebar({
   position = "left",
   horizontal = false,
 }) {
+  // Handle slot click and track it
+  const handleSlotClick = async ({
+    slotId,
+    page,
+    position,
+    slotIndex,
+    adId,
+  }) => {
+    try {
+      await API.post("/ads/slots/click", {
+        page,
+        position,
+        slotIndex,
+        slotId,
+        adId: adId || null,
+      });
+      console.log(`📊 Tracked click on slot: ${slotId}`);
+    } catch (err) {
+      console.error("Failed to track slot click:", err);
+    }
+  };
+
   // Get ads for this page
   const pageAds = SPONSOR_ADS[page] || SPONSOR_ADS["home"] || [];
   const ads = horizontal
     ? pageAds
     : pageAds.filter((ad) => ad.position === position);
 
-  // For desktop, create slots with placeholders; for mobile, just the ads
-  const allCards = horizontal
-    ? ads.map((ad) => <AdCard key={ad._id} ad={ad} isHorizontal={horizontal} />)
-    : (() => {
-        const totalSlots = 5;
-        const placeholderColors = [
-          "#ff6b6b",
-          "#4ecdc4",
-          "#45b7d1",
-          "#f9ca24",
-          "#f0932b",
-        ];
-        const cards = [];
-        for (let i = 0; i < totalSlots; i++) {
-          if (i < ads.length) {
-            cards.push(
-              <AdCard key={ads[i]._id} ad={ads[i]} isHorizontal={horizontal} />,
-            );
-          } else {
-            cards.push(
-              <AdCard
-                key={`placeholder-${i}`}
-                isPlaceholder
-                placeholderColor={placeholderColors[i - ads.length]}
-                isHorizontal={horizontal}
-              />,
-            );
-          }
+  const buildCardsForLane = (lanePosition, isHorizontalLane) => {
+    if (isHorizontalLane) {
+      return ads.map((ad, idx) => (
+        <AdCard
+          key={`${lanePosition}-${ad._id}-${idx}`}
+          ad={ad}
+          isHorizontal
+          slotId={`${page}:${lanePosition}:${idx}`}
+          slotPosition={lanePosition}
+          slotIndex={idx}
+          page={page}
+          onSlotClick={handleSlotClick}
+        />
+      ));
+    }
+
+    return (() => {
+      const totalSlots = 5;
+      const placeholderColors = [
+        "#ff6b6b",
+        "#4ecdc4",
+        "#45b7d1",
+        "#f9ca24",
+        "#f0932b",
+      ];
+      const cards = [];
+      for (let i = 0; i < totalSlots; i++) {
+        if (i < ads.length) {
+          cards.push(
+            <AdCard
+              key={`${lanePosition}-${ads[i]._id}`}
+              ad={ads[i]}
+              isHorizontal={false}
+              slotId={`${page}:${lanePosition}:${i}`}
+              slotPosition={lanePosition}
+              slotIndex={i}
+              page={page}
+              onSlotClick={handleSlotClick}
+            />,
+          );
+        } else {
+          cards.push(
+            <AdCard
+              key={`${lanePosition}-placeholder-${i}`}
+              isPlaceholder
+              placeholderColor={placeholderColors[i - ads.length]}
+              isHorizontal={false}
+              slotId={`${page}:${lanePosition}:${i}`}
+              slotPosition={lanePosition}
+              slotIndex={i}
+              page={page}
+              onSlotClick={handleSlotClick}
+            />,
+          );
         }
-        return cards;
-      })();
+      }
+      return cards;
+    })();
+  };
+
+  // For desktop, create slots with placeholders; for mobile, use unique lanes for top and bottom bars
+  const allCards = horizontal
+    ? buildCardsForLane("top", true)
+    : buildCardsForLane(position, false);
 
   const isLeft = position === "left";
 
@@ -379,18 +508,24 @@ export default function AdSidebar({
       borderRadius: "999px",
     };
 
-    const scrollingAds = [...allCards, ...allCards];
+    const topCards = buildCardsForLane("top", true);
+    const bottomCards = buildCardsForLane("bottom", true);
+    const scrollingTopAds = duplicateCardsForScroll(topCards, "top-dup");
+    const scrollingBottomAds = duplicateCardsForScroll(
+      bottomCards,
+      "bottom-dup",
+    );
 
     return (
       <>
         <aside style={{ ...barStyle, top: 0 }}>
           <AutoScrollRow className="ad-scroll" style={rowStyle}>
-            {scrollingAds}
+            {scrollingTopAds}
           </AutoScrollRow>
         </aside>
         <aside style={{ ...barStyle, bottom: 0 }}>
           <AutoScrollRow className="ad-scroll" style={rowStyle}>
-            {scrollingAds}
+            {scrollingBottomAds}
           </AutoScrollRow>
         </aside>
       </>

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AdSidebar from "./AdSidebar";
+import MobileAdCarousel from "./MobileAdCarousel";
 import "./LandingPage.css";
 
 const COLLEGES = [
@@ -14,7 +15,7 @@ const COLLEGES = [
 
 // Maps college id → display name used in the backend / DB
 export const COLLEGE_NAMES = {
-  "iit-ism": "IIT ISM Dhanbad",
+  "iit-ism": "IIT (ISM) Dhanbad",
   "iit-madras": "IIT Madras",
   // "iit-delhi":  "IIT Delhi",
   // "iit-bombay": "IIT Bombay",
@@ -44,8 +45,8 @@ export default function LandingPage() {
   return (
     <div className="landing-root">
       {/* ── Mobile Top Ads ── */}
-      <div className="mobile-ads-top">
-        <AdSidebar page="home" position="left" horizontal />
+      <div className="md:hidden">
+        <MobileAdCarousel page="home" position="top" />
       </div>
 
       {/* ── Three-column layout ── */}
@@ -164,8 +165,8 @@ export default function LandingPage() {
       </div>
 
       {/* ── Mobile Bottom Ads ── */}
-      <div className="mobile-ads-bottom">
-        <AdSidebar page="home" position="right" horizontal />
+      <div className="md:hidden">
+        <MobileAdCarousel page="home" position="bottom" />
       </div>
     </div>
   );

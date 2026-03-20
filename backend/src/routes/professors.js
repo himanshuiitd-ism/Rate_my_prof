@@ -168,17 +168,29 @@ router.get("/", async (req, res) => {
     let matchStage = null;
     if (college) {
       const trimmedCollege = college.trim();
+
       // Special handling for IIT Madras to match both formats
       if (trimmedCollege === "IIT Madras") {
         matchStage = {
           $match: {
             college: {
-              $regex: /IIT Madras|Indian Institute of Technology Madras/,
-              $options: "i",
+              $regex: /IIT Madras|Indian Institute of Technology Madras/i,
+            },
+          },
+        };
+      }
+      // Special handling for IIT (ISM) Dhanbad / IIT ISM Dhanbad / IIT Dhanbad
+      else if (/dhanbad/i.test(trimmedCollege)) {
+        matchStage = {
+          $match: {
+            college: {
+              $regex:
+                /IIT.*Dhanbad|Indian Institute of Technology.*Dhanbad|ISM Dhanbad/i,
             },
           },
         };
       } else {
+        // Fallback: exact college string match
         matchStage = { $match: { college: trimmedCollege } };
       }
     }

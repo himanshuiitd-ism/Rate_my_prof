@@ -27,9 +27,10 @@ const AdSchema = new Schema(
     order: { type: Number, default: 0 }, // display order within column
     isActive: { type: Boolean, default: true },
     bgColor: { type: String, default: "" }, // optional custom bg hex, e.g. "#1e293b"
-    badge: { type: String, default: "" },  // small label like "SALE", "NEW", etc.
+    badge: { type: String, default: "" }, // small label like "SALE", "NEW", etc.
+    clickCount: { type: Number, default: 0 }, // track number of clicks
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 AdSchema.index({ page: 1, position: 1, order: 1 });

@@ -8,6 +8,7 @@ import {
 } from "../redux/leaderboardSlice.js";
 import Leaderboard from "./Leaderboard.jsx";
 import AdSidebar from "./AdSidebar.jsx";
+import MobileAdCarousel from "./MobileAdCarousel.jsx";
 import "./ProfList.css";
 
 /* ── Prof Card ─────────────────────────────────────────── */
@@ -80,10 +81,14 @@ export default function ProfList() {
   const navigate = useNavigate();
 
   // Get college from location state, localStorage, or defaults
+  let storedCollegeName = localStorage.getItem("selectedCollegeName");
+  // Migrate old stored name without parentheses to the new standard
+  if (storedCollegeName === "IIT ISM Dhanbad") {
+    storedCollegeName = "IIT (ISM) Dhanbad";
+  }
+
   const collegeName =
-    location.state?.collegeName ||
-    localStorage.getItem("selectedCollegeName") ||
-    "IIT ISM Dhanbad";
+    location.state?.collegeName || storedCollegeName || "IIT (ISM) Dhanbad";
   const collegeId =
     location.state?.collegeId ||
     localStorage.getItem("selectedCollegeId") ||
@@ -109,9 +114,10 @@ export default function ProfList() {
 
   /* ── Load data ── */
   useEffect(() => {
-    dispatch(loadProfessors(collegeName));
+    // Load all professors once; filtering by college is handled on the frontend.
+    dispatch(loadProfessors());
     dispatch(loadLeaderboard());
-  }, [dispatch, collegeName]);
+  }, [dispatch]);
 
   useEffect(() => {
     if (professors.length > 0)
@@ -143,7 +149,20 @@ export default function ProfList() {
     return professors.filter((p) => {
       const matchSearch = !q || p.name.toLowerCase().includes(q);
       const matchDept = activeDept === "All" || p.department === activeDept;
-      const matchCollege = p.college === collegeName;
+
+      // Frontend-only college filter based on selected college name
+      const collegeLower = (p.college || "").toLowerCase();
+      const selectedLower = collegeName.toLowerCase();
+      let matchCollege = true;
+
+      if (selectedLower.includes("dhanbad")) {
+        // Handles "IIT ISM Dhanbad", "IIT (ISM) Dhanbad", etc.
+        matchCollege =
+          collegeLower.includes("dhanbad") || collegeLower.includes("ism");
+      } else if (selectedLower.includes("madras")) {
+        matchCollege = collegeLower.includes("madras");
+      }
+
       return matchSearch && matchDept && matchCollege;
     });
   }, [professors, search, activeDept, collegeName]);
@@ -170,8 +189,8 @@ export default function ProfList() {
   return (
     <div className="prof-list-root" ref={containerRef}>
       {/* ─── Mobile top ads ─── */}
-      <div className="mobile-ads-top">
-        <AdSidebar page={collegeName} position="left" horizontal />
+      <div className="md:hidden">
+        <MobileAdCarousel page={collegeName} position="top" />
       </div>
 
       {/* ─── Page layout: sidebar | main | sidebar ─── */}
@@ -341,8 +360,8 @@ export default function ProfList() {
       </div>
 
       {/* ─── Mobile bottom ads ─── */}
-      <div className="mobile-ads-bottom">
-        <AdSidebar page={collegeName} position="right" horizontal />
+      <div className="md:hidden">
+        <MobileAdCarousel page={collegeName} position="bottom" />
       </div>
     </div>
   );
