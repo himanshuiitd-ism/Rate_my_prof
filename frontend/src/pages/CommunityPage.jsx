@@ -1,6 +1,12 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { Link, useParams, useLocation } from "react-router-dom";
-import { useUser, useAuth, SignedIn, SignedOut } from "@clerk/clerk-react";
+import {
+  useUser,
+  useAuth,
+  SignedIn,
+  SignedOut,
+  SignInButton,
+} from "@clerk/clerk-react";
 import {
   fetchCommunities,
   fetchCommunityMessages,
@@ -360,9 +366,14 @@ export default function CommunityPage() {
                     )}
                   </SignedIn>
                   <SignedOut>
-                    <span className="inline-flex items-center rounded-full bg-gray-100 px-3 py-1.5 text-xs font-semibold text-gray-600 border border-gray-300">
-                      Sign in and join to start messaging
-                    </span>
+                    <SignInButton mode="modal">
+                      <button
+                        type="button"
+                        className="inline-flex items-center rounded-full bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 transition"
+                      >
+                        Sign in and join to start messaging
+                      </button>
+                    </SignInButton>
                   </SignedOut>
                 </div>
               </header>
