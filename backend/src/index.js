@@ -23,6 +23,7 @@ app.use(
       "http://localhost:5173",
       "http://localhost:4001",
       "https://rate-my-prof-mu.vercel.app",
+      "https://ratemyprof.dev/",
       // add any other Vercel URLs you use
     ],
     credentials: true,
