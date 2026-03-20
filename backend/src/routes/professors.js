@@ -164,16 +164,6 @@ router.get("/", async (req, res) => {
       `📋 GET /api/professors - Fetching professors with ratings and message counts${college ? ` for college: ${college}` : " (all colleges)"}`,
     );
 
-    // Check if database is connected
-    if (
-      !Professor.collection.db.client.serverConfig ||
-      !Professor.collection.db.client.serverConfig.s?.topologyVersion
-    ) {
-      console.warn(
-        "⚠️  Database connection status unclear, attempting query anyway",
-      );
-    }
-
     // Build match stage to filter by college if provided
     let matchStage = null;
     if (college) {

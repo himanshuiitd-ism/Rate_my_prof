@@ -12,6 +12,10 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Global database readiness flag
+let dbReady = false;
+export { dbReady };
+
 // ✅ Fix CORS - allow your Vercel domain
 app.use(
   cors({
@@ -51,7 +55,21 @@ app.get("/health", (req, res) => {
     timestamp: new Date().toISOString(),
     mongoUri: process.env.MONGO_URI ? "✅ set" : "❌ NOT SET",
     port: process.env.PORT || 4000,
+    dbReady,
   });
+});
+
+// 🛡️ Database readiness middleware – guard all /api routes
+app.use("/api", (req, res, next) => {
+  if (!dbReady) {
+    console.warn(`⚠️ DB not ready, blocking ${req.method} ${req.url}`);
+    return res.status(503).json({
+      error: "Database service unavailable",
+      message: "Backend is initializing. Please try again in a few seconds.",
+      status: "initializing",
+    });
+  }
+  next();
 });
 
 // Routes
@@ -420,19 +438,32 @@ async function seedAds() {
 async function connectDb() {
   const mongoUri = process.env.MONGO_URI;
   if (mongoUri) {
-    await connect(mongoUri).catch((err) => {
-      console.error(err);
+    try {
+      await connect(mongoUri);
+      console.log("✅ Connected to MongoDB");
+      dbReady = true;
+      return;
+    } catch (err) {
+      console.error("❌ MongoDB connection failed:", err.message);
+      console.error(
+        "Make sure MONGO_URI is set correctly in environment variables",
+      );
       process.exit(1);
-    });
-    console.log("✅ Connected to MongoDB");
+    }
   } else {
     console.log(
       "No MONGO_URI provided — spinning up in-memory MongoDB for dev",
     );
-    const mongod = await MongoMemoryServer.create();
-    const uri = mongod.getUri();
-    await connect(uri);
-    console.log("✅ Connected to in-memory MongoDB");
+    try {
+      const mongod = await MongoMemoryServer.create();
+      const uri = mongod.getUri();
+      await connect(uri);
+      console.log("✅ Connected to in-memory MongoDB");
+      dbReady = true;
+    } catch (err) {
+      console.error("❌ In-memory MongoDB connection failed:", err.message);
+      process.exit(1);
+    }
   }
 
   // Seed ads if database is empty
