@@ -4,6 +4,16 @@ const API = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "http://localhost:4000/api",
 });
 
+function getAuthConfig(token) {
+  if (!token) {
+    return { withCredentials: true };
+  }
+  return {
+    withCredentials: true,
+    headers: { Authorization: `Bearer ${token}` },
+  };
+}
+
 export async function fetchProfs(college) {
   const params = college ? { college } : {};
   const res = await API.get("/professors", { params });
@@ -42,17 +52,17 @@ export async function fetchCommunities(params = {}) {
   return res.data; // { joined, others }
 }
 
-export async function createCommunity(payload) {
-  const res = await API.post("/communities", payload, {
-    withCredentials: true,
-  });
+export async function createCommunity(payload, token) {
+  const res = await API.post("/communities", payload, getAuthConfig(token));
   return res.data;
 }
 
-export async function joinCommunity(id) {
-  const res = await API.post(`/communities/${id}/join`, null, {
-    withCredentials: true,
-  });
+export async function joinCommunity(id, token) {
+  const res = await API.post(
+    `/communities/${id}/join`,
+    null,
+    getAuthConfig(token),
+  );
   return res.data;
 }
 
@@ -64,54 +74,60 @@ export async function fetchCommunityMessages(id, { cursor, limit = 50 } = {}) {
   return res.data; // { community, messages, nextCursor }
 }
 
-export async function sendCommunityMessage(id, payload) {
-  const res = await API.post(`/communities/${id}/messages`, payload, {
-    withCredentials: true,
-  });
+export async function sendCommunityMessage(id, payload, token) {
+  const res = await API.post(
+    `/communities/${id}/messages`,
+    payload,
+    getAuthConfig(token),
+  );
   return res.data;
 }
 
-export async function likeCommunityMessage(communityId, messageId) {
+export async function likeCommunityMessage(communityId, messageId, token) {
   const res = await API.post(
     `/communities/${communityId}/messages/${messageId}/like`,
     null,
-    { withCredentials: true },
+    getAuthConfig(token),
   );
   return res.data;
 }
 
-export async function reportCommunityMessage(communityId, messageId) {
+export async function reportCommunityMessage(communityId, messageId, token) {
   const res = await API.post(
     `/communities/${communityId}/messages/${messageId}/report`,
     null,
-    { withCredentials: true },
+    getAuthConfig(token),
   );
   return res.data;
 }
 
-export async function deleteCommunityMessage(communityId, messageId) {
+export async function deleteCommunityMessage(communityId, messageId, token) {
   const res = await API.delete(
     `/communities/${communityId}/messages/${messageId}`,
-    { withCredentials: true },
+    getAuthConfig(token),
   );
   return res.data;
 }
 
-export async function removeCommunityMember(communityId, memberId) {
+export async function removeCommunityMember(communityId, memberId, token) {
   const res = await API.post(
     `/communities/${communityId}/remove-member`,
     { memberId },
-    { withCredentials: true },
+    getAuthConfig(token),
   );
   return res.data;
 }
 
-export async function uploadCommunityFile(communityId, file) {
+export async function uploadCommunityFile(communityId, file, token) {
   const formData = new FormData();
   formData.append("file", file);
+  const config = getAuthConfig(token);
+  config.headers = {
+    ...(config.headers || {}),
+    "Content-Type": "multipart/form-data",
+  };
   const res = await API.post(`/communities/${communityId}/upload`, formData, {
-    withCredentials: true,
-    headers: { "Content-Type": "multipart/form-data" },
+    ...config,
   });
   return res.data; // { fileUrl }
 }

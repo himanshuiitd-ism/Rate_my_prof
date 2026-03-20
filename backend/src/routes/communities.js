@@ -74,14 +74,23 @@ router.get("/", async (req, res) => {
 router.post("/", requireAuth(), async (req, res) => {
   try {
     const auth = getAuth(req);
-    const userId = auth.userId;
+    const userId = auth?.userId;
     const { name, description, collegeId } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
 
     if (!name || typeof name !== "string" || !name.trim()) {
       return res.status(400).json({ error: "Name is required" });
     }
 
     const baseSlug = slugify(name);
+    if (!baseSlug) {
+      return res
+        .status(400)
+        .json({ error: "Name must include letters or numbers" });
+    }
     let slug = baseSlug;
     let counter = 1;
     // Ensure unique slug
@@ -102,6 +111,11 @@ router.post("/", requireAuth(), async (req, res) => {
     res.status(201).json(community);
   } catch (err) {
     console.error("❌ Create community error:", err);
+    if (err?.code === 11000) {
+      return res
+        .status(409)
+        .json({ error: "A community with this name already exists" });
+    }
     res.status(500).json({ error: err.message });
   }
 });

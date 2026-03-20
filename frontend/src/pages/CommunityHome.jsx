@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { useUser, SignedIn, SignedOut } from "@clerk/clerk-react";
+import { useUser, useAuth, SignedIn, SignedOut } from "@clerk/clerk-react";
 import { fetchCommunities, createCommunity } from "../api";
 
 export default function CommunityHome() {
   const location = useLocation();
   const { user } = useUser();
+  const { getToken } = useAuth();
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -57,10 +58,14 @@ export default function CommunityHome() {
     if (!createForm.name.trim()) return;
     try {
       setLoading(true);
-      const created = await createCommunity({
-        ...createForm,
-        collegeId: collegeIdFromState || null,
-      });
+      const token = await getToken();
+      const created = await createCommunity(
+        {
+          ...createForm,
+          collegeId: collegeIdFromState || null,
+        },
+        token,
+      );
       setJoined((prev) => [created, ...prev]);
       setShowCreate(false);
       setCreateForm({ name: "", description: "" });

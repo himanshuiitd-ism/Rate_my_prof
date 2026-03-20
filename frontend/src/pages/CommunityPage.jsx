@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { Link, useParams, useLocation } from "react-router-dom";
-import { useUser, SignedIn, SignedOut } from "@clerk/clerk-react";
+import { useUser, useAuth, SignedIn, SignedOut } from "@clerk/clerk-react";
 import {
   fetchCommunities,
   fetchCommunityMessages,
@@ -12,6 +12,7 @@ export default function CommunityPage() {
   const { id } = useParams();
   const location = useLocation();
   const { user } = useUser();
+  const { getToken } = useAuth();
 
   const [communitiesJoined, setCommunitiesJoined] = useState([]);
   const [communitiesOthers, setCommunitiesOthers] = useState([]);
@@ -93,7 +94,8 @@ export default function CommunityPage() {
 
   const handleJoin = async () => {
     try {
-      const updated = await joinCommunity(id);
+      const token = await getToken();
+      const updated = await joinCommunity(id, token);
       setCommunity(updated);
       setCommunitiesJoined((prev) => {
         if (prev.find((c) => c._id === updated._id)) return prev;
@@ -115,7 +117,8 @@ export default function CommunityPage() {
 
       if (file) {
         const { uploadCommunityFile } = await import("../api");
-        const { fileUrl } = await uploadCommunityFile(id, file);
+        const token = await getToken();
+        const { fileUrl } = await uploadCommunityFile(id, file, token);
         payload = {
           contentType: "file",
           fileUrl,
@@ -130,7 +133,8 @@ export default function CommunityPage() {
         };
       }
 
-      const msg = await sendCommunityMessage(id, payload);
+      const token = await getToken();
+      const msg = await sendCommunityMessage(id, payload, token);
       setMessages((prev) => [msg, ...prev]);
       setText("");
       setFile(null);
@@ -144,7 +148,8 @@ export default function CommunityPage() {
   const handleLike = async (messageId) => {
     try {
       const { likeCommunityMessage } = await import("../api");
-      const updated = await likeCommunityMessage(id, messageId);
+      const token = await getToken();
+      const updated = await likeCommunityMessage(id, messageId, token);
       setMessages((prev) =>
         prev.map((m) => (m._id === updated._id ? updated : m)),
       );
@@ -156,7 +161,8 @@ export default function CommunityPage() {
   const handleReport = async (messageId) => {
     try {
       const { reportCommunityMessage } = await import("../api");
-      const updated = await reportCommunityMessage(id, messageId);
+      const token = await getToken();
+      const updated = await reportCommunityMessage(id, messageId, token);
       setMessages((prev) =>
         prev.map((m) => (m._id === updated._id ? updated : m)),
       );
@@ -168,7 +174,8 @@ export default function CommunityPage() {
   const handleDeleteMessage = async (messageId) => {
     try {
       const { deleteCommunityMessage } = await import("../api");
-      await deleteCommunityMessage(id, messageId);
+      const token = await getToken();
+      await deleteCommunityMessage(id, messageId, token);
       setMessages((prev) => prev.filter((m) => m._id !== messageId));
     } catch (err) {
       setError(err.message || "Failed to delete message");
@@ -178,7 +185,8 @@ export default function CommunityPage() {
   const handleRemoveMember = async (memberId) => {
     try {
       const { removeCommunityMember } = await import("../api");
-      const updated = await removeCommunityMember(id, memberId);
+      const token = await getToken();
+      const updated = await removeCommunityMember(id, memberId, token);
       setCommunity(updated);
     } catch (err) {
       setError(err.message || "Failed to remove member");
@@ -224,7 +232,8 @@ export default function CommunityPage() {
         text: messageText,
         authorDisplayName: user?.fullName || "Anonymous",
       };
-      const msg = await sendCommunityMessage(id, payload);
+      const token = await getToken();
+      const msg = await sendCommunityMessage(id, payload, token);
       setMessages((prev) => [msg, ...prev]);
       setShowGifPicker(false);
       setGifResults([]);
