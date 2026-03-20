@@ -76,9 +76,7 @@ function Shell({ children }) {
           </div>
         </div>
       </header>
-      <div className="flex-grow pb-0 md:pb-0" style={{ marginTop: "30px" }}>
-        {children}
-      </div>
+      <div className="flex-grow pb-0 md:pb-0">{children}</div>
 
       {/* Mobile Navigation Bar */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 w-full border-t border-gray-200 bg-white">
