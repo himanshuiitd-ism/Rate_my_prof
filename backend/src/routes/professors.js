@@ -164,6 +164,16 @@ router.get("/", async (req, res) => {
       `📋 GET /api/professors - Fetching professors with ratings and message counts${college ? ` for college: ${college}` : " (all colleges)"}`,
     );
 
+    // Check if database is connected
+    if (
+      !Professor.collection.db.client.serverConfig ||
+      !Professor.collection.db.client.serverConfig.s?.topologyVersion
+    ) {
+      console.warn(
+        "⚠️  Database connection status unclear, attempting query anyway",
+      );
+    }
+
     // Build match stage to filter by college if provided
     let matchStage = null;
     if (college) {
@@ -253,13 +263,19 @@ router.get("/", async (req, res) => {
       },
       // 4. Sort by name
       { $sort: { name: 1 } },
-    ]);
+    ]).catch((err) => {
+      throw new Error(`Aggregation failed: ${err.message}`);
+    });
 
     console.log(`✅ Returning ${profsWithStats.length} professors`);
     res.json(profsWithStats);
   } catch (err) {
-    console.error("❌ List professors error:", err);
-    res.status(500).json({ error: err.message });
+    console.error("❌ List professors error:", err.message);
+    console.error("Full error:", err);
+    res.status(500).json({
+      error: err.message,
+      hint: "Check if MONGO_URI is set in backend environment variables",
+    });
   }
 });
 

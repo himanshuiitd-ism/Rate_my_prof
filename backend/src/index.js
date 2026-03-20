@@ -44,6 +44,16 @@ app.get("/", (req, res) => {
   res.send("rate_my_prof backend running");
 });
 
+// Health check endpoint
+app.get("/health", (req, res) => {
+  res.json({
+    status: "ok",
+    timestamp: new Date().toISOString(),
+    mongoUri: process.env.MONGO_URI ? "✅ set" : "❌ NOT SET",
+    port: process.env.PORT || 4000,
+  });
+});
+
 // Routes
 import profRoutes from "./routes/professors.js";
 app.use("/api/professors", profRoutes);
