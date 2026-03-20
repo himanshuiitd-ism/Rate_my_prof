@@ -46,7 +46,7 @@ const ProfCard = memo(({ p }) => {
               : {}
           }
         >
-          {avg != null && avg > 0 ? (
+          {avg.avgRating != null && avg.avgRating > 0 ? (
             <>
               <span
                 className="star"
@@ -55,7 +55,7 @@ const ProfCard = memo(({ p }) => {
                 ★
               </span>
               <span style={ratingColor ? { color: ratingColor } : {}}>
-                {avg.toFixed(1)}
+                {avg.avgRating.toFixed(1)}
               </span>
               <span style={{ fontSize: 11, color: "#9ca3af", fontWeight: 600 }}>
                 /10
