@@ -37,6 +37,16 @@ function _resolveUrl(src, base) {
   }
 }
 
+function getRatingVoterKey(req) {
+  const forwarded = req.headers["x-forwarded-for"];
+  const ip =
+    typeof forwarded === "string"
+      ? forwarded.split(",")[0].trim()
+      : req.ip || "unknown";
+  const userAgent = req.headers["user-agent"] || "unknown";
+  return `guest:${ip}:${String(userAgent).slice(0, 80)}`;
+}
+
 // ⚠️ IMPORTANT: Put specific routes BEFORE parameterized routes!
 
 // GET /api/professors/scrape - admin: run scraper
@@ -393,6 +403,7 @@ router.post("/:id/rate", async (req, res) => {
   try {
     const { id } = req.params;
     const { categories, comment } = req.body;
+    const voterKey = getRatingVoterKey(req);
 
     console.log(`⭐ POST /api/professors/${id}/rate - Submitting rating`);
 
@@ -412,6 +423,17 @@ router.post("/:id/rate", async (req, res) => {
       return res.status(400).json({ message: "Invalid score value" });
     }
 
+    const existingRating = await Rating.findOne({
+      prof: prof._id,
+      voterKey,
+    }).lean();
+    if (existingRating) {
+      return res.status(409).json({
+        message:
+          "You have already rated this professor from this device/network.",
+      });
+    }
+
     console.log("Saving rating:", {
       profId: id,
       profName: prof.name,
@@ -421,6 +443,7 @@ router.post("/:id/rate", async (req, res) => {
     const rating = new Rating({
       prof: prof._id,
       categories,
+      voterKey,
       comment: comment || "",
     });
     await rating.save();

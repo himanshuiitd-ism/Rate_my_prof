@@ -83,6 +83,9 @@ app.use("/api/ads", adRoutes);
 import communityRoutes from "./routes/communities.js";
 app.use("/api/communities", communityRoutes);
 
+import featureSuggestionRoutes from "./routes/featureSuggestions.js";
+app.use("/api/feature-suggestions", featureSuggestionRoutes);
+
 // Serve uploaded files
 app.use("/uploads", express.static(path.join(__dirname, "..", "uploads")));
 

@@ -12,6 +12,7 @@ const RatingSchema = new Schema({
     type: Object,
     default: {},
   },
+  voterKey: { type: String, index: true },
   comment: { type: String },
   createdAt: { type: Date, default: Date.now },
 });

@@ -75,7 +75,7 @@ router.post("/", requireAuth(), async (req, res) => {
   try {
     const auth = getAuth(req);
     const userId = auth?.userId;
-    const { name, description, collegeId } = req.body;
+    const { name, description, collegeId, creatorDisplayName } = req.body;
 
     if (!userId) {
       return res.status(401).json({ error: "Unauthorized" });
@@ -104,6 +104,15 @@ router.post("/", requireAuth(), async (req, res) => {
       description: (description || "").trim(),
       collegeId: collegeId || null,
       memberIds: [userId],
+      memberProfiles: [
+        {
+          userId,
+          displayName:
+            typeof creatorDisplayName === "string" && creatorDisplayName.trim()
+              ? creatorDisplayName.trim().slice(0, 40)
+              : "Creator",
+        },
+      ],
       memberCount: 1,
       createdBy: userId,
     });
@@ -126,15 +135,42 @@ router.post("/:id/join", requireAuth(), async (req, res) => {
     const auth = getAuth(req);
     const userId = auth.userId;
     const { id } = req.params;
+    const { displayName } = req.body || {};
+
+    const resolvedDisplayName =
+      typeof displayName === "string" && displayName.trim()
+        ? displayName.trim().slice(0, 40)
+        : "Anonymous";
 
     const community = await Community.findById(id);
     if (!community) {
       return res.status(404).json({ error: "Community not found" });
     }
 
+    if (!Array.isArray(community.memberProfiles)) {
+      community.memberProfiles = [];
+    }
+
     if (!community.memberIds.includes(userId)) {
       community.memberIds.push(userId);
+      community.memberProfiles.push({
+        userId,
+        displayName: resolvedDisplayName,
+      });
       community.memberCount = community.memberIds.length;
+      await community.save();
+    } else if (typeof displayName === "string" && displayName.trim()) {
+      const existingProfile = community.memberProfiles.find(
+        (profile) => profile.userId === userId,
+      );
+      if (existingProfile) {
+        existingProfile.displayName = resolvedDisplayName;
+      } else {
+        community.memberProfiles.push({
+          userId,
+          displayName: resolvedDisplayName,
+        });
+      }
       await community.save();
     }
 
@@ -205,6 +241,10 @@ router.post("/:id/messages", requireAuth(), async (req, res) => {
       return res.status(404).json({ error: "Community not found" });
     }
 
+    if (!Array.isArray(community.memberProfiles)) {
+      community.memberProfiles = [];
+    }
+
     const isMember = community.memberIds.includes(userId);
     if (!isMember) {
       return res
@@ -223,10 +263,26 @@ router.post("/:id/messages", requireAuth(), async (req, res) => {
         .json({ error: "Message must include text, GIF, emoji, or a file" });
     }
 
+    const memberProfile = community.memberProfiles?.find(
+      (profile) => profile.userId === userId,
+    );
+    const resolvedDisplayName =
+      memberProfile?.displayName?.trim() ||
+      (typeof authorDisplayName === "string" ? authorDisplayName.trim() : "") ||
+      "Anonymous";
+
+    if (!memberProfile) {
+      community.memberProfiles.push({
+        userId,
+        displayName: resolvedDisplayName,
+      });
+      await community.save();
+    }
+
     const message = await CommunityMessage.create({
       communityId: community._id,
       authorId: userId,
-      authorDisplayName: authorDisplayName || "Anonymous",
+      authorDisplayName: resolvedDisplayName,
       contentType,
       text: hasText ? text.trim() : "",
       gifUrl: gifUrl || "",
@@ -366,7 +422,14 @@ router.post("/:id/remove-member", requireAuth(), async (req, res) => {
         .json({ error: "Only the community creator can remove members" });
     }
 
+    if (!Array.isArray(community.memberProfiles)) {
+      community.memberProfiles = [];
+    }
+
     community.memberIds = community.memberIds.filter((m) => m !== memberId);
+    community.memberProfiles = community.memberProfiles.filter(
+      (profile) => profile.userId !== memberId,
+    );
     community.memberCount = community.memberIds.length;
     await community.save();
 

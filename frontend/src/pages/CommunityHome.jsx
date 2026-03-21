@@ -63,6 +63,7 @@ export default function CommunityHome() {
         {
           ...createForm,
           collegeId: collegeIdFromState || null,
+          creatorDisplayName: user?.fullName || user?.username || "Creator",
         },
         token,
       );

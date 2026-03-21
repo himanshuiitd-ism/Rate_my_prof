@@ -1,11 +1,11 @@
-import React, { useEffect, useState, useMemo } from "react";
-import { Link, useParams, useLocation } from "react-router-dom";
+import React, { useEffect, useMemo, useState } from "react";
+import { Link, useLocation, useParams } from "react-router-dom";
 import {
-  useUser,
-  useAuth,
+  SignInButton,
   SignedIn,
   SignedOut,
-  SignInButton,
+  useAuth,
+  useUser,
 } from "@clerk/clerk-react";
 import {
   fetchCommunities,
@@ -13,6 +13,16 @@ import {
   joinCommunity,
   sendCommunityMessage,
 } from "../api";
+
+function formatMessageTime(dateString) {
+  const date = new Date(dateString);
+  return date.toLocaleString(undefined, {
+    hour: "2-digit",
+    minute: "2-digit",
+    day: "2-digit",
+    month: "short",
+  });
+}
 
 export default function CommunityPage() {
   const { id } = useParams();
@@ -25,61 +35,140 @@ export default function CommunityPage() {
   const [community, setCommunity] = useState(null);
   const [messages, setMessages] = useState([]);
   const [nextCursor, setNextCursor] = useState(null);
+
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState(null);
+
   const [text, setText] = useState("");
   const [file, setFile] = useState(null);
+
   const [gifResults, setGifResults] = useState([]);
   const [gifQuery, setGifQuery] = useState("");
   const [showGifPicker, setShowGifPicker] = useState(false);
 
-  const GIPHY_KEY = import.meta.env.VITE_GIPHY_API_KEY;
+  const [showJoinDialog, setShowJoinDialog] = useState(false);
+  const [joinDisplayName, setJoinDisplayName] = useState("");
+  const [joining, setJoining] = useState(false);
 
+  const GIPHY_KEY = import.meta.env.VITE_GIPHY_API_KEY;
   const collegeIdFromState = location.state?.collegeId || null;
 
   useEffect(() => {
     let cancelled = false;
+
     async function loadCommunitiesAndMessages() {
       try {
         setError(null);
         setLoadingMessages(true);
+
         const [communityList, messageData] = await Promise.all([
           fetchCommunities({
             collegeId: collegeIdFromState || undefined,
           }),
           fetchCommunityMessages(id, { limit: 50 }),
         ]);
+
         if (cancelled) return;
+
         setCommunitiesJoined(communityList.joined || []);
         setCommunitiesOthers(communityList.others || []);
         setCommunity(messageData.community || null);
         setMessages(messageData.messages || []);
         setNextCursor(messageData.nextCursor || null);
-      } catch (err) {
+      } catch (loadError) {
         if (!cancelled) {
-          setError(err.message || "Failed to load community");
+          setError(loadError.message || "Failed to load community");
         }
       } finally {
         if (!cancelled) setLoadingMessages(false);
       }
     }
+
     loadCommunitiesAndMessages();
+
     return () => {
       cancelled = true;
     };
   }, [id, collegeIdFromState]);
+
+  useEffect(() => {
+    if (!user) return;
+    setJoinDisplayName(user.fullName || user.username || "Anonymous");
+  }, [user]);
 
   const isMember = useMemo(() => {
     if (!user || !community) return false;
     return community.memberIds?.includes(user.id);
   }, [user, community]);
 
+  const isOwner = useMemo(() => {
+    if (!user || !community) return false;
+    return community.createdBy === user.id;
+  }, [user, community]);
+
+  const memberDisplayName = useMemo(() => {
+    if (!user || !community?.memberProfiles?.length) return "";
+    const profile = community.memberProfiles.find(
+      (entry) => entry.userId === user.id,
+    );
+    return profile?.displayName || "";
+  }, [user, community]);
+
   const allCommunities = useMemo(
     () => [...communitiesJoined, ...communitiesOthers],
     [communitiesJoined, communitiesOthers],
   );
+
+  const topCurators = useMemo(() => {
+    const counts = new Map();
+    for (const message of messages) {
+      const name = message.authorDisplayName || "Anonymous";
+      counts.set(name, (counts.get(name) || 0) + 1);
+    }
+
+    return [...counts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([name, count]) => ({ name, count }));
+  }, [messages]);
+
+  const openJoinDialog = () => {
+    setJoinDisplayName(
+      memberDisplayName || user?.fullName || user?.username || "Anonymous",
+    );
+    setShowJoinDialog(true);
+  };
+
+  const handleJoinWithName = async () => {
+    try {
+      setJoining(true);
+      setError(null);
+      const token = await getToken();
+      const updated = await joinCommunity(id, token, {
+        displayName: joinDisplayName,
+      });
+
+      setCommunity(updated);
+      setCommunitiesJoined((prev) => {
+        if (prev.find((entry) => entry._id === updated._id)) {
+          return prev.map((entry) =>
+            entry._id === updated._id ? updated : entry,
+          );
+        }
+        return [updated, ...prev];
+      });
+      setCommunitiesOthers((prev) =>
+        prev.filter((entry) => entry._id !== updated._id),
+      );
+      setShowJoinDialog(false);
+    } catch (joinError) {
+      setError(joinError.message || "Failed to join community");
+    } finally {
+      setJoining(false);
+    }
+  };
 
   const handleLoadMore = async () => {
     if (!nextCursor || loadingMore) return;
@@ -91,35 +180,23 @@ export default function CommunityPage() {
       });
       setMessages((prev) => [...prev, ...(data.messages || [])]);
       setNextCursor(data.nextCursor || null);
-    } catch (err) {
-      setError(err.message || "Failed to load more messages");
+    } catch (loadMoreError) {
+      setError(loadMoreError.message || "Failed to load more messages");
     } finally {
       setLoadingMore(false);
-    }
-  };
-
-  const handleJoin = async () => {
-    try {
-      const token = await getToken();
-      const updated = await joinCommunity(id, token);
-      setCommunity(updated);
-      setCommunitiesJoined((prev) => {
-        if (prev.find((c) => c._id === updated._id)) return prev;
-        return [updated, ...prev];
-      });
-      setCommunitiesOthers((prev) => prev.filter((c) => c._id !== updated._id));
-    } catch (err) {
-      setError(err.message || "Failed to join community");
     }
   };
 
   const handleSend = async (e) => {
     e.preventDefault();
     if ((!text.trim() && !file) || sending) return;
+
     try {
       setSending(true);
       let payload;
       const messageText = text.trim();
+      const currentName =
+        memberDisplayName || user?.fullName || user?.username || "Anonymous";
 
       if (file) {
         const { uploadCommunityFile } = await import("../api");
@@ -129,13 +206,13 @@ export default function CommunityPage() {
           contentType: "file",
           fileUrl,
           text: messageText,
-          authorDisplayName: user?.fullName || "Anonymous",
+          authorDisplayName: currentName,
         };
       } else {
         payload = {
           contentType: "text",
           text: messageText,
-          authorDisplayName: user?.fullName || "Anonymous",
+          authorDisplayName: currentName,
         };
       }
 
@@ -144,8 +221,8 @@ export default function CommunityPage() {
       setMessages((prev) => [msg, ...prev]);
       setText("");
       setFile(null);
-    } catch (err) {
-      setError(err.message || "Failed to send message");
+    } catch (sendError) {
+      setError(sendError.message || "Failed to send message");
     } finally {
       setSending(false);
     }
@@ -157,10 +234,10 @@ export default function CommunityPage() {
       const token = await getToken();
       const updated = await likeCommunityMessage(id, messageId, token);
       setMessages((prev) =>
-        prev.map((m) => (m._id === updated._id ? updated : m)),
+        prev.map((entry) => (entry._id === updated._id ? updated : entry)),
       );
-    } catch (err) {
-      setError(err.message || "Failed to like message");
+    } catch (likeError) {
+      setError(likeError.message || "Failed to like message");
     }
   };
 
@@ -170,10 +247,10 @@ export default function CommunityPage() {
       const token = await getToken();
       const updated = await reportCommunityMessage(id, messageId, token);
       setMessages((prev) =>
-        prev.map((m) => (m._id === updated._id ? updated : m)),
+        prev.map((entry) => (entry._id === updated._id ? updated : entry)),
       );
-    } catch (err) {
-      setError(err.message || "Failed to report message");
+    } catch (reportError) {
+      setError(reportError.message || "Failed to report message");
     }
   };
 
@@ -182,27 +259,11 @@ export default function CommunityPage() {
       const { deleteCommunityMessage } = await import("../api");
       const token = await getToken();
       await deleteCommunityMessage(id, messageId, token);
-      setMessages((prev) => prev.filter((m) => m._id !== messageId));
-    } catch (err) {
-      setError(err.message || "Failed to delete message");
+      setMessages((prev) => prev.filter((entry) => entry._id !== messageId));
+    } catch (deleteError) {
+      setError(deleteError.message || "Failed to delete message");
     }
   };
-
-  const handleRemoveMember = async (memberId) => {
-    try {
-      const { removeCommunityMember } = await import("../api");
-      const token = await getToken();
-      const updated = await removeCommunityMember(id, memberId, token);
-      setCommunity(updated);
-    } catch (err) {
-      setError(err.message || "Failed to remove member");
-    }
-  };
-
-  const isOwner = useMemo(() => {
-    if (!user || !community) return false;
-    return community.createdBy === user.id;
-  }, [user, community]);
 
   const searchGifs = async () => {
     if (!GIPHY_KEY || !gifQuery.trim()) {
@@ -223,7 +284,7 @@ export default function CommunityPage() {
       );
       const json = await res.json();
       setGifResults(json.data || []);
-    } catch (err) {
+    } catch {
       setError("Failed to search GIFs");
     }
   };
@@ -231,12 +292,13 @@ export default function CommunityPage() {
   const sendGif = async (gifUrl) => {
     try {
       setSending(true);
-      const messageText = text.trim();
+      const currentName =
+        memberDisplayName || user?.fullName || user?.username || "Anonymous";
       const payload = {
         contentType: "gif",
         gifUrl,
-        text: messageText,
-        authorDisplayName: user?.fullName || "Anonymous",
+        text: text.trim(),
+        authorDisplayName: currentName,
       };
       const token = await getToken();
       const msg = await sendCommunityMessage(id, payload, token);
@@ -245,177 +307,161 @@ export default function CommunityPage() {
       setGifResults([]);
       setGifQuery("");
       setText("");
-    } catch (err) {
-      setError(err.message || "Failed to send GIF");
+    } catch (sendError) {
+      setError(sendError.message || "Failed to send GIF");
     } finally {
       setSending(false);
     }
   };
 
   return (
-    <div className="min-h-[80vh] bg-gradient-to-b from-black to-black text-black">
-      <div className="mx-auto flex max-w-6xl gap-4 px-4 py-6">
-        {/* Left sidebar: all communities */}
-        <aside className="hidden w-64 flex-shrink-0 rounded-lg bg-white border border-gray-200 p-4 shadow-sm md:block sticky top-0 max-h-screen overflow-y-auto">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-xs font-bold uppercase tracking-wide text-gray-700">
-              Communities
-            </h2>
-            <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] text-gray-600 font-medium">
-              {allCommunities.length}
-            </span>
-          </div>
-          <nav className="space-y-1 text-xs">
-            {communitiesJoined.length > 0 && (
-              <>
-                <p className="px-2 pb-2 text-[11px] font-bold uppercase tracking-wide text-gray-600">
-                  Joined
-                </p>
-                {communitiesJoined.map((c) => (
-                  <Link
-                    key={c._id}
-                    to={`/media/community/${c._id}`}
-                    className={`flex items-center justify-between rounded-md px-2 py-2 ${
-                      c._id === id
-                        ? "bg-amber-100 text-gray-900 border border-amber-300"
-                        : "text-gray-700 hover:bg-gray-50"
+    <div className="min-h-[80vh] bg-gradient-to-b from-slate-100 via-slate-50 to-white text-slate-900">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-5 px-4 py-6 md:grid-cols-[230px_minmax(0,1fr)_250px]">
+        <aside className="hidden md:sticky md:top-6 md:flex md:h-[calc(100vh-7rem)] md:flex-col md:rounded-3xl md:border md:border-slate-200 md:bg-slate-50 md:p-4 md:shadow-sm">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Your Communities
+          </p>
+          <nav className="flex flex-1 flex-col gap-1 overflow-y-auto pr-1">
+            {allCommunities.map((entry) => {
+              const selected = entry._id === id;
+              const joined = communitiesJoined.some((j) => j._id === entry._id);
+              return (
+                <Link
+                  key={entry._id}
+                  to={`/media/community/${entry._id}`}
+                  className={`flex items-center justify-between rounded-2xl px-3 py-2.5 text-sm transition ${
+                    selected
+                      ? "bg-blue-600 text-white shadow-md"
+                      : "text-slate-700 hover:bg-white"
+                  }`}
+                >
+                  <span className="truncate font-medium">{entry.name}</span>
+                  <span
+                    className={`ml-2 rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                      selected
+                        ? "bg-white/20 text-white"
+                        : joined
+                          ? "bg-emerald-100 text-emerald-700"
+                          : "bg-slate-200 text-slate-600"
                     }`}
                   >
-                    <span className="truncate font-medium">{c.name}</span>
-                    {c.memberCount ? (
-                      <span className="ml-2 text-[10px] text-gray-500">
-                        {c.memberCount}
-                      </span>
-                    ) : null}
-                  </Link>
-                ))}
-              </>
-            )}
-            {communitiesOthers.length > 0 && (
-              <>
-                <p className="px-2 pt-3 pb-2 text-[11px] font-bold uppercase tracking-wide text-gray-600">
-                  Discover
-                </p>
-                {communitiesOthers.map((c) => (
-                  <Link
-                    key={c._id}
-                    to={`/media/community/${c._id}`}
-                    className={`flex items-center justify-between rounded-md px-2 py-2 ${
-                      c._id === id
-                        ? "bg-blue-100 text-gray-900 border border-blue-300"
-                        : "text-gray-700 hover:bg-gray-50"
-                    }`}
-                  >
-                    <span className="truncate font-medium">{c.name}</span>
-                    {c.memberCount ? (
-                      <span className="ml-2 text-[10px] text-gray-500">
-                        {c.memberCount}
-                      </span>
-                    ) : null}
-                  </Link>
-                ))}
-              </>
-            )}
+                    {joined ? "Joined" : "New"}
+                  </span>
+                </Link>
+              );
+            })}
           </nav>
+          <Link
+            to="/media"
+            className="mt-auto inline-flex items-center justify-center rounded-full bg-emerald-400 px-4 py-2 text-sm font-semibold text-emerald-950 hover:bg-emerald-300"
+          >
+            Join New Community
+          </Link>
         </aside>
 
-        {/* Main content */}
-        <main className="flex-1">
+        <main>
           {error && (
-            <div className="mb-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+            <div className="mb-3 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
               {error}
             </div>
           )}
 
           {!community && !loadingMessages && (
-            <div className="py-10 text-center text-sm text-gray-500">
+            <div className="rounded-2xl border border-slate-200 bg-white px-5 py-8 text-center text-sm text-slate-500">
               Community not found.
             </div>
           )}
 
           {community && (
             <>
-              <header className="mb-6 border-b-2 border-gray-300 pb-4">
-                <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-                  {community.name}
-                </h1>
-                <p className="mt-2 text-sm text-gray-600">
-                  {community.description || "No description yet."}
-                </p>
-                <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-gray-500">
-                  <span className="font-medium">
-                    {community.memberCount || 0} members
-                  </span>
-                  <span className="font-medium">
-                    {community.collegeId || "All colleges"}
-                  </span>
-                  <SignedIn>
-                    {!isMember && (
-                      <button
-                        type="button"
-                        onClick={handleJoin}
-                        className="inline-flex items-center rounded-full bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 transition"
-                      >
-                        Join community to message
-                      </button>
-                    )}
-                    {isMember && (
-                      <span className="inline-flex items-center rounded-full bg-green-50 px-3 py-1.5 text-xs font-semibold text-green-700 border border-green-300">
-                        ✓ Joined – you can message
+              <section className="mb-4 rounded-3xl border border-slate-200 bg-white px-5 py-5 shadow-sm">
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                  <div>
+                    <h1 className="text-4xl font-semibold tracking-tight text-slate-900">
+                      {community.name}
+                    </h1>
+                    <p className="mt-2 max-w-2xl text-base text-slate-600">
+                      {community.description ||
+                        "A space for sharing and discussing ideas in this community."}
+                    </p>
+                    <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-slate-600">
+                      <span className="font-semibold">
+                        {community.memberCount || 0} members
                       </span>
-                    )}
-                  </SignedIn>
-                  <SignedOut>
-                    <SignInButton mode="modal">
-                      <button
-                        type="button"
-                        className="inline-flex items-center rounded-full bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 transition"
-                      >
-                        Sign in and join to start messaging
-                      </button>
-                    </SignInButton>
-                  </SignedOut>
-                </div>
-              </header>
+                      <span className="h-1 w-1 rounded-full bg-slate-400" />
+                      <span>{community.collegeId || "All colleges"}</span>
+                      {isMember && memberDisplayName && (
+                        <>
+                          <span className="h-1 w-1 rounded-full bg-slate-400" />
+                          <span className="font-medium text-blue-700">
+                            Posting as {memberDisplayName}
+                          </span>
+                        </>
+                      )}
+                    </div>
+                  </div>
 
-              {/* Composer at top */}
-              <section className="mb-4 border border-gray-300 bg-white px-4 py-4 rounded-lg shadow-sm">
+                  <div className="flex items-center gap-2">
+                    <SignedIn>
+                      {!isMember ? (
+                        <button
+                          type="button"
+                          onClick={openJoinDialog}
+                          className="inline-flex items-center rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+                        >
+                          Join Community
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={openJoinDialog}
+                          className="inline-flex items-center rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                        >
+                          Edit Group Name
+                        </button>
+                      )}
+                    </SignedIn>
+                    <SignedOut>
+                      <SignInButton mode="modal">
+                        <button
+                          type="button"
+                          className="inline-flex items-center rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+                        >
+                          Sign in to Join
+                        </button>
+                      </SignInButton>
+                    </SignedOut>
+                  </div>
+                </div>
+              </section>
+
+              <section className="mb-5 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
                 <SignedOut>
-                  <div className="text-xs text-gray-600">
-                    You can read this community without signing in. Sign in and
-                    join the community to start messaging, posting GIFs, emojis,
-                    and files.
+                  <div className="rounded-2xl bg-slate-100 px-4 py-3 text-sm text-slate-600">
+                    You can read this group without signing in. Join the
+                    community to post text, GIFs, and files.
                   </div>
                 </SignedOut>
+
                 <SignedIn>
                   {!isMember ? (
-                    <div className="text-xs text-gray-600">
-                      You&apos;re not a member yet. Join the community above to
-                      start messaging.
+                    <div className="rounded-2xl bg-slate-100 px-4 py-3 text-sm text-slate-600">
+                      Join the community first. You can keep your current name
+                      or change it for this group only.
                     </div>
                   ) : (
-                    <form onSubmit={handleSend} className="space-y-2">
+                    <form onSubmit={handleSend} className="space-y-3">
                       <textarea
                         rows={3}
                         value={text}
                         onChange={(e) => setText(e.target.value)}
-                        placeholder="What's on your mind?"
-                        className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                        placeholder="Share a thought with the community"
+                        className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-900 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
                       />
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="flex items-center gap-2 text-xs text-gray-600">
-                          <label className="cursor-pointer inline-flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-1.5 hover:bg-gray-50 bg-white transition">
-                            <svg
-                              className="h-4 w-4 text-gray-600"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                            >
-                              <path d="M13.5 6.75L7.5 12.75C6.67157 13.5784 6.67157 14.9216 7.5 15.75C8.32843 16.5784 9.67157 16.5784 10.5 15.75L17 9.25" />
-                              <path d="M16 6L18 4C19.1046 2.89543 20.8954 2.89543 22 4C23.1046 5.10457 23.1046 6.89543 22 8L12.5 17.5C10.8431 19.1569 8.15686 19.1569 6.5 17.5C4.84315 15.8431 4.84315 13.1569 6.5 11.5L12 6" />
-                            </svg>
-                            <span>Attach</span>
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <div className="flex items-center gap-2 text-xs">
+                          <label className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-slate-300 bg-white px-3 py-1.5 font-medium text-slate-700 hover:bg-slate-50">
+                            Choose File
                             <input
                               type="file"
                               className="hidden"
@@ -425,35 +471,24 @@ export default function CommunityPage() {
                             />
                           </label>
                           {file && (
-                            <span className="truncate max-w-[160px] text-gray-500">
+                            <span className="max-w-[180px] truncate text-slate-500">
                               {file.name}
                             </span>
                           )}
                           <button
                             type="button"
                             onClick={() => setShowGifPicker(true)}
-                            className="inline-flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-1.5 bg-white hover:bg-gray-50 transition"
+                            className="inline-flex items-center rounded-full border border-slate-300 bg-white px-3 py-1.5 font-medium text-slate-700 hover:bg-slate-50"
                           >
-                            <svg
-                              className="h-4 w-4 text-fuchsia-500"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                            >
-                              <rect x="3" y="4" width="18" height="16" rx="2" />
-                              <path d="M7 15V9L10 15L13 9V15" />
-                              <path d="M15 9H18" />
-                            </svg>
-                            <span>GIF</span>
+                            GIF
                           </button>
                         </div>
                         <button
                           type="submit"
                           disabled={(!text.trim() && !file) || sending}
-                          className="inline-flex items-center rounded-lg bg-blue-600 px-5 py-1.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300 transition"
+                          className="inline-flex items-center rounded-full bg-blue-600 px-6 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
                         >
-                          {sending ? "Sending…" : "Send"}
+                          {sending ? "Posting..." : "Post"}
                         </button>
                       </div>
                     </form>
@@ -461,158 +496,223 @@ export default function CommunityPage() {
                 </SignedIn>
               </section>
 
-              {/* Messages list */}
-              <section className="flex flex-col gap-3">
+              <section className="space-y-4">
                 {loadingMessages && messages.length === 0 && (
-                  <div className="py-8 text-center text-sm text-gray-500">
-                    Loading messages…
+                  <div className="rounded-2xl border border-slate-200 bg-white px-4 py-6 text-center text-sm text-slate-500">
+                    Loading messages...
                   </div>
                 )}
 
                 {!loadingMessages && messages.length === 0 && (
-                  <div className="py-8 text-center text-sm text-gray-500">
-                    No messages yet. Be the first to say hi once you&apos;re a
-                    member.
+                  <div className="rounded-2xl border border-slate-200 bg-white px-4 py-6 text-center text-sm text-slate-500">
+                    No messages yet. Be the first one to post.
                   </div>
                 )}
 
-                {messages.length > 0 && (
-                  <ul className="flex flex-col gap-2">
-                    {messages.map((m) => {
-                      const canDelete =
-                        user && (m.authorId === user.id || isOwner);
-                      return (
-                        <li
-                          key={m._id}
-                          className="rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm hover:border-gray-300 transition"
-                        >
-                          <div className="mb-2 flex items-center justify-between text-xs text-gray-600">
-                            <span className="font-semibold text-gray-800">
-                              {m.authorDisplayName || "Anonymous"}
-                            </span>
-                            <span>
-                              {new Date(m.createdAt).toLocaleString(undefined, {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                                day: "2-digit",
-                                month: "short",
-                              })}
-                            </span>
-                          </div>
-                          {m.contentType === "text" && (
-                            <p className="whitespace-pre-wrap text-gray-800 leading-relaxed">
-                              {m.text}
+                {messages.map((message) => {
+                  const canDelete =
+                    user && (message.authorId === user.id || isOwner);
+                  return (
+                    <article
+                      key={message._id}
+                      className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm"
+                    >
+                      <div className="mb-3 flex items-center justify-between">
+                        <div>
+                          <p className="text-lg font-semibold text-slate-900">
+                            {message.authorDisplayName || "Anonymous"}
+                          </p>
+                          <p className="text-xs text-slate-500">
+                            {formatMessageTime(message.createdAt)}
+                          </p>
+                        </div>
+                      </div>
+
+                      {message.contentType === "text" && (
+                        <p className="whitespace-pre-wrap text-base leading-relaxed text-slate-700">
+                          {message.text}
+                        </p>
+                      )}
+
+                      {message.contentType === "emoji" && (
+                        <div className="text-3xl">{message.emoji}</div>
+                      )}
+
+                      {message.contentType === "gif" && message.gifUrl && (
+                        <div className="space-y-3">
+                          {message.text ? (
+                            <p className="whitespace-pre-wrap text-base leading-relaxed text-slate-700">
+                              {message.text}
                             </p>
-                          )}
-                          {m.contentType === "emoji" && (
-                            <div className="text-3xl">{m.emoji}</div>
-                          )}
-                          {m.contentType === "gif" && m.gifUrl && (
-                            <div className="space-y-2">
-                              {m.text ? (
-                                <p className="whitespace-pre-wrap text-gray-800">
-                                  {m.text}
-                                </p>
-                              ) : null}
-                              <span className="inline-flex items-center rounded-full bg-purple-100 px-2.5 py-1 text-xs font-medium text-purple-700 border border-purple-200">
-                                GIF
-                              </span>
-                              <img
-                                src={m.gifUrl}
-                                alt="GIF"
-                                className="max-h-64 rounded-lg object-contain border border-gray-200"
-                              />
-                            </div>
-                          )}
-                          {m.contentType === "file" && m.fileUrl && (
-                            <div className="space-y-2">
-                              {m.text ? (
-                                <p className="whitespace-pre-wrap text-gray-800">
-                                  {m.text}
-                                </p>
-                              ) : null}
-                              <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-700 border border-blue-200">
-                                📎 File
-                              </span>
-                              <a
-                                href={m.fileUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 text-xs text-blue-600 font-medium hover:underline"
-                              >
-                                Download file
-                              </a>
-                            </div>
-                          )}
-                          <div className="mt-3 flex items-center justify-between text-xs text-gray-500">
-                            <div className="flex items-center gap-4">
-                              <button
-                                type="button"
-                                onClick={() => handleLike(m._id)}
-                                className="inline-flex items-center gap-1.5 text-gray-600 hover:text-blue-600 font-medium transition"
-                              >
-                                <span>👍</span>
-                                <span>{m.likesCount || 0}</span>
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => handleReport(m._id)}
-                                className="inline-flex items-center gap-1.5 text-gray-500 hover:text-red-600 font-medium transition"
-                              >
-                                <span>🚩</span>
-                                <span>Report</span>
-                                {m.reportsCount ? (
-                                  <span>({m.reportsCount})</span>
-                                ) : null}
-                              </button>
-                            </div>
-                            {canDelete && (
-                              <button
-                                type="button"
-                                onClick={() => handleDeleteMessage(m._id)}
-                                className="text-red-600 hover:text-red-700 font-medium hover:underline transition"
-                              >
-                                Delete
-                              </button>
-                            )}
-                          </div>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )}
+                          ) : null}
+                          <img
+                            src={message.gifUrl}
+                            alt="GIF"
+                            className="max-h-[440px] w-full rounded-2xl object-cover"
+                          />
+                        </div>
+                      )}
+
+                      {message.contentType === "file" && message.fileUrl && (
+                        <div className="space-y-2">
+                          {message.text ? (
+                            <p className="whitespace-pre-wrap text-base leading-relaxed text-slate-700">
+                              {message.text}
+                            </p>
+                          ) : null}
+                          <a
+                            href={message.fileUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-700 hover:bg-blue-100"
+                          >
+                            Open Attachment
+                          </a>
+                        </div>
+                      )}
+
+                      <div className="mt-4 flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-4 text-slate-600">
+                          <button
+                            type="button"
+                            onClick={() => handleLike(message._id)}
+                            className="font-semibold hover:text-blue-600"
+                          >
+                            Like ({message.likesCount || 0})
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleReport(message._id)}
+                            className="font-semibold hover:text-red-600"
+                          >
+                            Report
+                            {message.reportsCount
+                              ? ` (${message.reportsCount})`
+                              : ""}
+                          </button>
+                        </div>
+
+                        {canDelete && (
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteMessage(message._id)}
+                            className="font-semibold text-red-600 hover:text-red-700"
+                          >
+                            Delete
+                          </button>
+                        )}
+                      </div>
+                    </article>
+                  );
+                })}
 
                 {nextCursor && (
-                  <button
-                    type="button"
-                    onClick={handleLoadMore}
-                    disabled={loadingMore}
-                    className="mt-4 self-center rounded-full border border-gray-300 px-4 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-60 transition"
-                  >
-                    {loadingMore ? "Loading…" : "Load older messages"}
-                  </button>
+                  <div className="pt-2 text-center">
+                    <button
+                      type="button"
+                      onClick={handleLoadMore}
+                      disabled={loadingMore}
+                      className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-60"
+                    >
+                      {loadingMore ? "Loading..." : "Load older messages"}
+                    </button>
+                  </div>
                 )}
               </section>
             </>
           )}
         </main>
+
+        <aside className="hidden space-y-4 md:block">
+          <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4 shadow-sm">
+            <p className="mb-2 text-sm font-semibold text-slate-900">
+              Top Curators
+            </p>
+            <div className="space-y-2 text-sm text-slate-700">
+              {topCurators.length === 0 && (
+                <p className="text-xs text-slate-500">
+                  Curator stats will appear once people post.
+                </p>
+              )}
+              {topCurators.map((curator) => (
+                <div
+                  key={curator.name}
+                  className="flex items-center justify-between rounded-2xl bg-white px-3 py-2"
+                >
+                  <span className="font-medium">{curator.name}</span>
+                  <span className="text-xs text-slate-500">
+                    {curator.count} posts
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </aside>
       </div>
 
+      {showJoinDialog && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-slate-950/40 px-4">
+          <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-5 shadow-2xl">
+            <h2 className="text-xl font-semibold text-slate-900">
+              Join with your group name
+            </h2>
+            <p className="mt-2 text-sm text-slate-600">
+              Keep your current name or set a different name for this community
+              only.
+            </p>
+
+            <label className="mt-4 block text-sm font-medium text-slate-700">
+              Name in this group
+              <input
+                type="text"
+                value={joinDisplayName}
+                onChange={(e) => setJoinDisplayName(e.target.value)}
+                maxLength={40}
+                className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                placeholder="Your display name"
+              />
+            </label>
+
+            <div className="mt-5 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setShowJoinDialog(false)}
+                className="rounded-full border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleJoinWithName}
+                disabled={joining}
+                className="rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:bg-blue-300"
+              >
+                {joining
+                  ? "Saving..."
+                  : isMember
+                    ? "Save Name"
+                    : "Join Community"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showGifPicker && (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/30">
-          <div className="w-full max-w-lg rounded-lg bg-white p-5 shadow-2xl">
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-slate-950/40 px-4">
+          <div className="w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-5 shadow-2xl">
             <div className="mb-4 flex items-center gap-2">
               <input
                 type="text"
                 value={gifQuery}
                 onChange={(e) => setGifQuery(e.target.value)}
-                placeholder="Search GIFs…"
-                className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Search GIFs"
+                className="flex-1 rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
               />
               <button
                 type="button"
                 onClick={searchGifs}
-                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition"
+                className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
               >
                 Search
               </button>
@@ -623,34 +723,35 @@ export default function CommunityPage() {
                   setGifResults([]);
                   setGifQuery("");
                 }}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition"
+                className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
               >
                 Close
               </button>
             </div>
             <div className="grid max-h-64 grid-cols-4 gap-2 overflow-y-auto">
-              {gifResults.map((g) => {
+              {gifResults.map((gif) => {
                 const url =
-                  g.images?.fixed_height_small?.url || g.images?.downsized?.url;
+                  gif.images?.fixed_height_small?.url ||
+                  gif.images?.downsized?.url;
                 if (!url) return null;
                 return (
                   <button
                     type="button"
-                    key={g.id}
+                    key={gif.id}
                     onClick={() => sendGif(url)}
-                    className="overflow-hidden rounded-lg border border-gray-300 hover:border-blue-500 transition"
+                    className="overflow-hidden rounded-xl border border-slate-200 hover:border-blue-400"
                   >
                     <img
                       src={url}
-                      alt={g.title || "GIF"}
-                      className="h-20 w-full object-cover hover:opacity-80"
+                      alt={gif.title || "GIF"}
+                      className="h-20 w-full object-cover"
                     />
                   </button>
                 );
               })}
               {gifResults.length === 0 && (
-                <div className="col-span-4 py-4 text-center text-xs text-gray-500">
-                  Search for a keyword to see GIFs from Giphy.
+                <div className="col-span-4 py-4 text-center text-xs text-slate-500">
+                  Search for a keyword to load GIFs from Giphy.
                 </div>
               )}
             </div>

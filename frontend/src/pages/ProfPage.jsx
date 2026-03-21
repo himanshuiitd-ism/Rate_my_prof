@@ -1034,6 +1034,13 @@ export default function ProfPage() {
   const [rating, setRating] = useState(0);
   const [submitted, setSubmitted] = useState(false);
   const [toast, setToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("✓ Thanks for your rating!");
+
+  const showToast = (message) => {
+    setToastMessage(message);
+    setToast(true);
+    setTimeout(() => setToast(false), 3000);
+  };
 
   // Initialize messages from Redux when they load
   useEffect(() => {
@@ -1107,13 +1114,26 @@ export default function ProfPage() {
       await dispatch(submitProfessorRating({ id, rating })).unwrap();
 
       setSubmitted(true);
-      setToast(true);
-      setTimeout(() => setToast(false), 3000);
+      showToast("✓ Thanks for your rating!");
 
       // Update leaderboard
       dispatch(updateLeaderboardFromProfessors(allProfessors));
     } catch (err) {
       console.error("Rating submission failed:", err);
+      const errorText =
+        typeof err === "string"
+          ? err
+          : err?.message || "Failed to submit rating";
+
+      if (errorText.toLowerCase().includes("already rated")) {
+        showToast(
+          "You've already rated this professor from this device/network.",
+        );
+        setSubmitted(true);
+      } else {
+        showToast("Failed to submit rating: " + errorText);
+      }
+
       // Revert optimistic update on error
       dispatch(loadProfessor(id));
     }
@@ -1141,9 +1161,7 @@ export default function ProfPage() {
       <style>{styles}</style>
 
       {/* Toast */}
-      <div className={`toast ${toast ? "" : "hidden"}`}>
-        ✓ Thanks for your rating!
-      </div>
+      <div className={`toast ${toast ? "" : "hidden"}`}>{toastMessage}</div>
 
       {/* Nav */}
       <div className="top-nav">

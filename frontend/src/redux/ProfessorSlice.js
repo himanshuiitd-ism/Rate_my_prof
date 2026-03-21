@@ -42,7 +42,11 @@ export const submitProfessorRating = createAsyncThunk(
         messages: data.messages || [],
       };
     } catch (error) {
-      return rejectWithValue(error.message);
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to submit rating";
+      return rejectWithValue(message);
     }
   },
 );

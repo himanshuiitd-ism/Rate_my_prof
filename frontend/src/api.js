@@ -57,9 +57,32 @@ export async function createCommunity(payload, token) {
   return res.data;
 }
 
-export async function joinCommunity(id, token) {
+export async function joinCommunity(id, token, payload = {}) {
   const res = await API.post(
     `/communities/${id}/join`,
+    payload,
+    getAuthConfig(token),
+  );
+  return res.data;
+}
+
+export async function createFeatureSuggestion(payload, token) {
+  const res = await API.post(
+    "/feature-suggestions",
+    payload,
+    getAuthConfig(token),
+  );
+  return res.data;
+}
+
+export async function fetchFeatureSuggestions() {
+  const res = await API.get("/feature-suggestions");
+  return res.data;
+}
+
+export async function voteFeatureSuggestion(id, token) {
+  const res = await API.post(
+    `/feature-suggestions/${id}/vote`,
     null,
     getAuthConfig(token),
   );

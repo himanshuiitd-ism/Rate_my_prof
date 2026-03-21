@@ -20,6 +20,7 @@ import Footer from "./Footer";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import SignInPage from "./pages/SignInPage";
 import SignUpPage from "./pages/SignUpPage";
+import MakeupPage from "./pages/MakeupPage";
 
 const ADMIN_EMAIL = "priyadarshihimanshu6@gmail.com";
 
@@ -31,6 +32,7 @@ function Shell({ children }) {
   const onRateMode =
     location.pathname === "/" || location.pathname.startsWith("/prof");
   const onCommunityMode = location.pathname.startsWith("/media");
+  const onMakeupMode = location.pathname.startsWith("/makeup");
 
   return (
     <div className="min-h-screen flex flex-col bg-white text-gray-900">
@@ -61,6 +63,16 @@ function Shell({ children }) {
               >
                 Community mode
               </Link>
+              <Link
+                to="/makeup"
+                className={`rounded-full px-3 py-1 font-medium ${
+                  onMakeupMode
+                    ? "bg-white text-gray-900 shadow-sm"
+                    : "text-gray-600 hover:text-gray-900"
+                }`}
+              >
+                Makeup
+              </Link>
             </div>
             <SignedIn>
               {isAdmin && (
@@ -83,15 +95,27 @@ function Shell({ children }) {
         <div className="flex gap-2 px-3 py-3">
           <Link
             to="/"
+            aria-label="Home"
+            title="Home"
             className="flex-1 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg text-center hover:bg-blue-700 transition"
           >
-            🏠 Home
+            🏠
           </Link>
           <Link
             to="/media"
+            aria-label="Community"
+            title="Community"
             className="flex-1 px-4 py-2 bg-green-600 text-white font-medium rounded-lg text-center hover:bg-green-700 transition"
           >
-            💬 About Community
+            💬
+          </Link>
+          <Link
+            to="/makeup"
+            aria-label="Makeup"
+            title="Makeup"
+            className="flex-1 px-4 py-2 bg-cyan-600 text-white font-medium rounded-lg text-center hover:bg-cyan-700 transition"
+          >
+            ✨
           </Link>
         </div>
       </div>
@@ -113,6 +137,7 @@ export default function App() {
             <Route path="/prof/:id" element={<ProfPage />} />
             <Route path="/media" element={<CommunityHome />} />
             <Route path="/media/community/:id" element={<CommunityPage />} />
+            <Route path="/makeup" element={<MakeupPage />} />
             <Route path="/sign-in" element={<SignInPage />} />
             <Route path="/sign-up" element={<SignUpPage />} />
             <Route path="/admin/ads" element={<AdminAds />} />
