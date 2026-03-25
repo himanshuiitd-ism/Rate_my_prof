@@ -11,6 +11,25 @@ import AdSidebar from "./AdSidebar.jsx";
 import MobileAdCarousel from "./MobileAdCarousel.jsx";
 import "./ProfList.css";
 
+const getCollegeKeywords = (selectedCollegeName) => {
+  const selected = (selectedCollegeName || "").toLowerCase();
+
+  if (selected.includes("dhanbad") || selected.includes("ism")) {
+    return ["dhanbad", "ism"];
+  }
+  if (selected.includes("madras")) {
+    return ["madras"];
+  }
+  if (selected.includes("guwahati")) {
+    return ["guwahati"];
+  }
+  if (selected.includes("bhu") || selected.includes("varanasi")) {
+    return ["bhu", "varanasi"];
+  }
+
+  return selected ? [selected] : [];
+};
+
 /* ── Prof Card ─────────────────────────────────────────── */
 const ProfCard = memo(({ p }) => {
   const avg = p;
@@ -152,15 +171,13 @@ export default function ProfList() {
 
       // Frontend-only college filter based on selected college name
       const collegeLower = (p.college || "").toLowerCase();
-      const selectedLower = collegeName.toLowerCase();
       let matchCollege = true;
+      const collegeKeywords = getCollegeKeywords(collegeName);
 
-      if (selectedLower.includes("dhanbad")) {
-        // Handles "IIT ISM Dhanbad", "IIT (ISM) Dhanbad", etc.
-        matchCollege =
-          collegeLower.includes("dhanbad") || collegeLower.includes("ism");
-      } else if (selectedLower.includes("madras")) {
-        matchCollege = collegeLower.includes("madras");
+      if (collegeKeywords.length > 0) {
+        matchCollege = collegeKeywords.some((keyword) =>
+          collegeLower.includes(keyword),
+        );
       }
 
       return matchSearch && matchDept && matchCollege;

@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
-    "scrape": "node src/scrape.js"
+    "scrape": "node src/scrape.js",
+    "import:faculty": "node scripts/importFacultyJson.js"
   },
   "dependencies": {
     "@clerk/express": "^1.0.0",

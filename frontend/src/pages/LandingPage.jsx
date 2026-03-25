@@ -7,6 +7,8 @@ import "./LandingPage.css";
 const COLLEGES = [
   { id: "iit-ism", name: "IIT (ISM) Dhanbad" },
   { id: "iit-madras", name: "IIT Madras" },
+  { id: "iit-guwahati", name: "IIT Guwahati" },
+  { id: "iit-bhu", name: "IIT (BHU) Varanasi" },
   // { id: "iit-delhi",  name: "IIT Delhi" },
   // { id: "iit-bombay", name: "IIT Bombay" },
   // { id: "nit-trichy", name: "NIT Trichy" },
@@ -17,6 +19,8 @@ const COLLEGES = [
 export const COLLEGE_NAMES = {
   "iit-ism": "IIT (ISM) Dhanbad",
   "iit-madras": "IIT Madras",
+  "iit-guwahati": "IIT Guwahati",
+  "iit-bhu": "IIT (BHU) Varanasi",
   // "iit-delhi":  "IIT Delhi",
   // "iit-bombay": "IIT Bombay",
   // "nit-trichy": "NIT Trichy",

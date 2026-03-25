@@ -9,7 +9,13 @@ const API = axios.create({
 
 const ADMIN_EMAIL = "priyadarshihimanshu6@gmail.com";
 
-const PAGES = ["home", "IIT (ISM) Dhanbad", "IIT Madras"];
+const PAGES = [
+  "home",
+  "IIT (ISM) Dhanbad",
+  "IIT Madras",
+  "IIT Guwahati",
+  "IIT (BHU) Varanasi",
+];
 const POSITIONS = ["left", "right", "top", "bottom"];
 
 export default function AdminAds() {
