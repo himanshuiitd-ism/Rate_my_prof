@@ -34,21 +34,28 @@ function Shell({ children }) {
   const onCommunityMode = location.pathname.startsWith("/media");
   const onMakeupMode = location.pathname.startsWith("/makeup");
 
+  const mobileTabClass = (isActive) =>
+    `flex-1 px-4 py-2 font-medium rounded-lg text-center transition border ${
+      isActive
+        ? "bg-sky-600 text-white border-sky-500 shadow-sm"
+        : "bg-slate-800 text-slate-200 border-slate-700 hover:bg-slate-700"
+    }`;
+
   return (
     <div className="min-h-screen flex flex-col bg-white text-gray-900">
-      <header className="hidden md:block w-full border-b border-gray-200 bg-white/80 backdrop-blur z-20">
+      <header className="hidden md:block w-full border-b border-slate-800 bg-slate-950/90 backdrop-blur z-20">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-          <div className="font-semibold text-lg tracking-tight">
+          <div className="font-semibold text-lg tracking-tight text-slate-100">
             Rate My Prof &amp; College Media
           </div>
           <div className="flex items-center gap-4">
-            <div className="inline-flex rounded-full bg-gray-100 p-1 text-xs">
+            <div className="inline-flex rounded-full bg-slate-800 p-1 text-xs border border-slate-700">
               <Link
                 to="/"
                 className={`rounded-full px-3 py-1 font-medium ${
                   onRateMode
-                    ? "bg-white text-gray-900 shadow-sm"
-                    : "text-gray-600 hover:text-gray-900"
+                    ? "bg-sky-600 text-white shadow-sm"
+                    : "text-slate-300 hover:text-white"
                 }`}
               >
                 Rate mode
@@ -57,8 +64,8 @@ function Shell({ children }) {
                 to="/media"
                 className={`rounded-full px-3 py-1 font-medium ${
                   onCommunityMode
-                    ? "bg-white text-gray-900 shadow-sm"
-                    : "text-gray-600 hover:text-gray-900"
+                    ? "bg-sky-600 text-white shadow-sm"
+                    : "text-slate-300 hover:text-white"
                 }`}
               >
                 Community mode
@@ -67,8 +74,8 @@ function Shell({ children }) {
                 to="/makeup"
                 className={`rounded-full px-3 py-1 font-medium ${
                   onMakeupMode
-                    ? "bg-white text-gray-900 shadow-sm"
-                    : "text-gray-600 hover:text-gray-900"
+                    ? "bg-sky-600 text-white shadow-sm"
+                    : "text-slate-300 hover:text-white"
                 }`}
               >
                 Makeup
@@ -78,7 +85,7 @@ function Shell({ children }) {
               {isAdmin && (
                 <Link
                   to="/admin/ads"
-                  className="inline-flex items-center rounded-full bg-purple-100 px-3 py-1.5 text-xs font-semibold text-purple-700 hover:bg-purple-200 transition"
+                  className="inline-flex items-center rounded-full bg-slate-800 border border-slate-700 px-3 py-1.5 text-xs font-semibold text-sky-300 hover:bg-slate-700 transition"
                 >
                   ⚙️ Admin
                 </Link>
@@ -91,13 +98,13 @@ function Shell({ children }) {
       <div className="flex-grow pb-0 md:pb-0">{children}</div>
 
       {/* Mobile Navigation Bar */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 w-full border-t border-gray-200 bg-white">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 w-full border-t border-slate-800 bg-slate-950/95 backdrop-blur">
         <div className="flex gap-2 px-3 py-3">
           <Link
             to="/"
             aria-label="Home"
             title="Home"
-            className="flex-1 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg text-center hover:bg-blue-700 transition"
+            className={mobileTabClass(onRateMode)}
           >
             🏠
           </Link>
@@ -105,7 +112,7 @@ function Shell({ children }) {
             to="/media"
             aria-label="Community"
             title="Community"
-            className="flex-1 px-4 py-2 bg-green-600 text-white font-medium rounded-lg text-center hover:bg-green-700 transition"
+            className={mobileTabClass(onCommunityMode)}
           >
             💬
           </Link>
@@ -113,7 +120,7 @@ function Shell({ children }) {
             to="/makeup"
             aria-label="Makeup"
             title="Makeup"
-            className="flex-1 px-4 py-2 bg-cyan-600 text-white font-medium rounded-lg text-center hover:bg-cyan-700 transition"
+            className={mobileTabClass(onMakeupMode)}
           >
             ✨
           </Link>

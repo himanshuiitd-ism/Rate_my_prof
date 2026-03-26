@@ -116,11 +116,6 @@ export default function CommunityPage() {
     return profile?.displayName || "";
   }, [user, community]);
 
-  const allCommunities = useMemo(
-    () => [...communitiesJoined, ...communitiesOthers],
-    [communitiesJoined, communitiesOthers],
-  );
-
   const topCurators = useMemo(() => {
     const counts = new Map();
     for (const message of messages) {
@@ -315,45 +310,95 @@ export default function CommunityPage() {
   };
 
   return (
-    <div className="min-h-[80vh] bg-gradient-to-b from-slate-100 via-slate-50 to-white text-slate-900">
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-5 px-4 py-6 md:grid-cols-[230px_minmax(0,1fr)_250px]">
-        <aside className="hidden md:sticky md:top-6 md:flex md:h-[calc(100vh-7rem)] md:flex-col md:rounded-3xl md:border md:border-slate-200 md:bg-slate-50 md:p-4 md:shadow-sm">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
-            Your Communities
+    <div className="relative min-h-[80vh] overflow-hidden bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-slate-100">
+      <div className="pointer-events-none absolute -left-20 top-0 h-72 w-72 rounded-full bg-sky-600/20 blur-3xl" />
+      <div className="pointer-events-none absolute -right-20 top-24 h-80 w-80 rounded-full bg-indigo-600/20 blur-3xl" />
+
+      <div className="relative mx-auto grid max-w-7xl grid-cols-1 gap-5 px-4 py-6 md:grid-cols-[230px_minmax(0,1fr)_250px]">
+        <aside className="hidden md:sticky md:top-6 md:flex md:h-[calc(100vh-7rem)] md:flex-col md:rounded-3xl md:border md:border-slate-700 md:bg-slate-900/80 md:p-4 md:shadow-sm md:backdrop-blur">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-400">
+            Communities
           </p>
-          <nav className="flex flex-1 flex-col gap-1 overflow-y-auto pr-1">
-            {allCommunities.map((entry) => {
-              const selected = entry._id === id;
-              const joined = communitiesJoined.some((j) => j._id === entry._id);
-              return (
-                <Link
-                  key={entry._id}
-                  to={`/media/community/${entry._id}`}
-                  className={`flex items-center justify-between rounded-2xl px-3 py-2.5 text-sm transition ${
-                    selected
-                      ? "bg-blue-600 text-white shadow-md"
-                      : "text-slate-700 hover:bg-white"
-                  }`}
-                >
-                  <span className="truncate font-medium">{entry.name}</span>
-                  <span
-                    className={`ml-2 rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+
+          <div className="mb-3 rounded-2xl border border-slate-700 bg-slate-800/60 p-2">
+            <p className="px-1 pb-2 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+              Joined
+            </p>
+            <nav className="flex max-h-44 flex-col gap-1 overflow-y-auto pr-1">
+              {communitiesJoined.length === 0 && (
+                <p className="px-2 py-2 text-xs text-slate-500">
+                  Join a group to pin it here.
+                </p>
+              )}
+              {communitiesJoined.map((entry) => {
+                const selected = entry._id === id;
+                return (
+                  <Link
+                    key={entry._id}
+                    to={`/media/community/${entry._id}`}
+                    className={`flex items-center justify-between rounded-2xl px-3 py-2.5 text-sm transition ${
                       selected
-                        ? "bg-white/20 text-white"
-                        : joined
-                          ? "bg-emerald-100 text-emerald-700"
-                          : "bg-slate-200 text-slate-600"
+                        ? "bg-sky-600 text-white shadow-md"
+                        : "text-slate-200 hover:bg-slate-700"
                     }`}
                   >
-                    {joined ? "Joined" : "New"}
-                  </span>
-                </Link>
-              );
-            })}
-          </nav>
+                    <span className="truncate font-medium">{entry.name}</span>
+                    <span
+                      className={`ml-2 rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                        selected
+                          ? "bg-white/20 text-white"
+                          : "bg-emerald-500/20 text-emerald-300"
+                      }`}
+                    >
+                      Joined
+                    </span>
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
+
+          <div className="flex-1 rounded-2xl border border-slate-700 bg-slate-800/60 p-2">
+            <p className="px-1 pb-2 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+              Discover
+            </p>
+            <nav className="flex max-h-[calc(100vh-23rem)] flex-col gap-1 overflow-y-auto pr-1">
+              {communitiesOthers.length === 0 && (
+                <p className="px-2 py-2 text-xs text-slate-500">
+                  No new communities right now.
+                </p>
+              )}
+              {communitiesOthers.map((entry) => {
+                const selected = entry._id === id;
+                return (
+                  <Link
+                    key={entry._id}
+                    to={`/media/community/${entry._id}`}
+                    className={`flex items-center justify-between rounded-2xl px-3 py-2.5 text-sm transition ${
+                      selected
+                        ? "bg-sky-600 text-white shadow-md"
+                        : "text-slate-200 hover:bg-slate-700"
+                    }`}
+                  >
+                    <span className="truncate font-medium">{entry.name}</span>
+                    <span
+                      className={`ml-2 rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                        selected
+                          ? "bg-white/20 text-white"
+                          : "bg-slate-700 text-slate-300"
+                      }`}
+                    >
+                      New
+                    </span>
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
+
           <Link
             to="/media"
-            className="mt-auto inline-flex items-center justify-center rounded-full bg-emerald-400 px-4 py-2 text-sm font-semibold text-emerald-950 hover:bg-emerald-300"
+            className="mt-3 inline-flex items-center justify-center rounded-full bg-sky-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-500"
           >
             Join New Community
           </Link>
@@ -361,30 +406,33 @@ export default function CommunityPage() {
 
         <main>
           {error && (
-            <div className="mb-3 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+            <div className="mb-3 rounded-xl border border-red-900/60 bg-red-950/40 px-3 py-2 text-sm text-red-300">
               {error}
             </div>
           )}
 
           {!community && !loadingMessages && (
-            <div className="rounded-2xl border border-slate-200 bg-white px-5 py-8 text-center text-sm text-slate-500">
+            <div className="rounded-2xl border border-slate-700 bg-slate-900 px-5 py-8 text-center text-sm text-slate-400">
               Community not found.
             </div>
           )}
 
           {community && (
             <>
-              <section className="mb-4 rounded-3xl border border-slate-200 bg-white px-5 py-5 shadow-sm">
+              <section className="mb-3 rounded-3xl border border-slate-700 bg-slate-900/90 px-4 py-4 shadow-sm">
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div>
-                    <h1 className="text-4xl font-semibold tracking-tight text-slate-900">
+                    <p className="mb-2 inline-flex rounded-full border border-sky-500/40 bg-sky-500/20 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-sky-300">
+                      Community Hub
+                    </p>
+                    <h1 className="text-2xl font-semibold tracking-tight text-white md:text-3xl">
                       {community.name}
                     </h1>
-                    <p className="mt-2 max-w-2xl text-base text-slate-600">
+                    <p className="mt-1 max-w-2xl text-sm text-slate-300 md:text-[15px]">
                       {community.description ||
                         "A space for sharing and discussing ideas in this community."}
                     </p>
-                    <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-slate-600">
+                    <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-slate-300 md:text-sm">
                       <span className="font-semibold">
                         {community.memberCount || 0} members
                       </span>
@@ -393,7 +441,7 @@ export default function CommunityPage() {
                       {isMember && memberDisplayName && (
                         <>
                           <span className="h-1 w-1 rounded-full bg-slate-400" />
-                          <span className="font-medium text-blue-700">
+                          <span className="font-medium text-sky-300">
                             Posting as {memberDisplayName}
                           </span>
                         </>
@@ -407,7 +455,7 @@ export default function CommunityPage() {
                         <button
                           type="button"
                           onClick={openJoinDialog}
-                          className="inline-flex items-center rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+                          className="inline-flex items-center rounded-full bg-sky-600 px-4 py-1.5 text-sm font-semibold text-white hover:bg-sky-500"
                         >
                           Join Community
                         </button>
@@ -415,7 +463,7 @@ export default function CommunityPage() {
                         <button
                           type="button"
                           onClick={openJoinDialog}
-                          className="inline-flex items-center rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                          className="inline-flex items-center rounded-full border border-slate-600 bg-slate-800 px-4 py-2 text-sm font-semibold text-slate-100 hover:bg-slate-700"
                         >
                           Edit Group Name
                         </button>
@@ -425,7 +473,7 @@ export default function CommunityPage() {
                       <SignInButton mode="modal">
                         <button
                           type="button"
-                          className="inline-flex items-center rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+                          className="inline-flex items-center rounded-full bg-sky-600 px-4 py-1.5 text-sm font-semibold text-white hover:bg-sky-500"
                         >
                           Sign in to Join
                         </button>
@@ -435,9 +483,9 @@ export default function CommunityPage() {
                 </div>
               </section>
 
-              <section className="mb-5 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
+              <section className="mb-3 rounded-3xl border border-slate-700 bg-slate-900/90 p-3 shadow-sm md:sticky md:top-6">
                 <SignedOut>
-                  <div className="rounded-2xl bg-slate-100 px-4 py-3 text-sm text-slate-600">
+                  <div className="rounded-2xl bg-slate-800 px-4 py-3 text-sm text-slate-300">
                     You can read this group without signing in. Join the
                     community to post text, GIFs, and files.
                   </div>
@@ -445,7 +493,7 @@ export default function CommunityPage() {
 
                 <SignedIn>
                   {!isMember ? (
-                    <div className="rounded-2xl bg-slate-100 px-4 py-3 text-sm text-slate-600">
+                    <div className="rounded-2xl bg-slate-800 px-4 py-3 text-sm text-slate-300">
                       Join the community first. You can keep your current name
                       or change it for this group only.
                     </div>
@@ -456,11 +504,11 @@ export default function CommunityPage() {
                         value={text}
                         onChange={(e) => setText(e.target.value)}
                         placeholder="Share a thought with the community"
-                        className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-900 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                        className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-slate-100 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/30"
                       />
                       <div className="flex flex-wrap items-center justify-between gap-3">
                         <div className="flex items-center gap-2 text-xs">
-                          <label className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-slate-300 bg-white px-3 py-1.5 font-medium text-slate-700 hover:bg-slate-50">
+                          <label className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-slate-600 bg-slate-800 px-3 py-1.5 font-medium text-slate-200 hover:bg-slate-700">
                             Choose File
                             <input
                               type="file"
@@ -478,7 +526,7 @@ export default function CommunityPage() {
                           <button
                             type="button"
                             onClick={() => setShowGifPicker(true)}
-                            className="inline-flex items-center rounded-full border border-slate-300 bg-white px-3 py-1.5 font-medium text-slate-700 hover:bg-slate-50"
+                            className="inline-flex items-center rounded-full border border-slate-600 bg-slate-800 px-3 py-1.5 font-medium text-slate-200 hover:bg-slate-700"
                           >
                             GIF
                           </button>
@@ -486,7 +534,7 @@ export default function CommunityPage() {
                         <button
                           type="submit"
                           disabled={(!text.trim() && !file) || sending}
-                          className="inline-flex items-center rounded-full bg-blue-600 px-6 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
+                          className="inline-flex items-center rounded-full bg-sky-600 px-5 py-1.5 text-sm font-semibold text-white hover:bg-sky-500 disabled:cursor-not-allowed disabled:bg-sky-800"
                         >
                           {sending ? "Posting..." : "Post"}
                         </button>
@@ -496,15 +544,15 @@ export default function CommunityPage() {
                 </SignedIn>
               </section>
 
-              <section className="space-y-4">
+              <section className="space-y-3">
                 {loadingMessages && messages.length === 0 && (
-                  <div className="rounded-2xl border border-slate-200 bg-white px-4 py-6 text-center text-sm text-slate-500">
+                  <div className="rounded-2xl border border-slate-700 bg-slate-900 px-4 py-6 text-center text-sm text-slate-400">
                     Loading messages...
                   </div>
                 )}
 
                 {!loadingMessages && messages.length === 0 && (
-                  <div className="rounded-2xl border border-slate-200 bg-white px-4 py-6 text-center text-sm text-slate-500">
+                  <div className="rounded-2xl border border-slate-700 bg-slate-900 px-4 py-6 text-center text-sm text-slate-400">
                     No messages yet. Be the first one to post.
                   </div>
                 )}
@@ -515,11 +563,11 @@ export default function CommunityPage() {
                   return (
                     <article
                       key={message._id}
-                      className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm"
+                      className="rounded-2xl border border-slate-700 bg-slate-900 p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
                     >
-                      <div className="mb-3 flex items-center justify-between">
+                      <div className="mb-2 flex items-center justify-between">
                         <div>
-                          <p className="text-lg font-semibold text-slate-900">
+                          <p className="text-sm font-semibold text-slate-100 md:text-base">
                             {message.authorDisplayName || "Anonymous"}
                           </p>
                           <p className="text-xs text-slate-500">
@@ -529,26 +577,26 @@ export default function CommunityPage() {
                       </div>
 
                       {message.contentType === "text" && (
-                        <p className="whitespace-pre-wrap text-base leading-relaxed text-slate-700">
+                        <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-200">
                           {message.text}
                         </p>
                       )}
 
                       {message.contentType === "emoji" && (
-                        <div className="text-3xl">{message.emoji}</div>
+                        <div className="text-2xl">{message.emoji}</div>
                       )}
 
                       {message.contentType === "gif" && message.gifUrl && (
                         <div className="space-y-3">
                           {message.text ? (
-                            <p className="whitespace-pre-wrap text-base leading-relaxed text-slate-700">
+                            <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-200">
                               {message.text}
                             </p>
                           ) : null}
                           <img
                             src={message.gifUrl}
                             alt="GIF"
-                            className="max-h-[440px] w-full rounded-2xl object-cover"
+                            className="max-h-64 w-full rounded-xl object-cover"
                           />
                         </div>
                       )}
@@ -556,7 +604,7 @@ export default function CommunityPage() {
                       {message.contentType === "file" && message.fileUrl && (
                         <div className="space-y-2">
                           {message.text ? (
-                            <p className="whitespace-pre-wrap text-base leading-relaxed text-slate-700">
+                            <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-200">
                               {message.text}
                             </p>
                           ) : null}
@@ -564,26 +612,26 @@ export default function CommunityPage() {
                             href={message.fileUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-700 hover:bg-blue-100"
+                            className="inline-flex items-center rounded-full border border-sky-500/30 bg-sky-500/10 px-3 py-1 text-xs font-medium text-sky-300 hover:bg-sky-500/20"
                           >
                             Open Attachment
                           </a>
                         </div>
                       )}
 
-                      <div className="mt-4 flex items-center justify-between text-xs">
-                        <div className="flex items-center gap-4 text-slate-600">
+                      <div className="mt-3 flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-2 text-slate-600">
                           <button
                             type="button"
                             onClick={() => handleLike(message._id)}
-                            className="font-semibold hover:text-blue-600"
+                            className="rounded-full border border-slate-600 bg-slate-800 px-2.5 py-1 font-semibold hover:border-sky-500 hover:bg-sky-500/20 hover:text-sky-300"
                           >
-                            Like ({message.likesCount || 0})
+                            👍 {message.likesCount || 0}
                           </button>
                           <button
                             type="button"
                             onClick={() => handleReport(message._id)}
-                            className="font-semibold hover:text-red-600"
+                            className="rounded-full border border-slate-600 bg-slate-800 px-2.5 py-1 font-semibold hover:border-rose-500 hover:bg-rose-500/15 hover:text-rose-300"
                           >
                             Report
                             {message.reportsCount
@@ -596,7 +644,7 @@ export default function CommunityPage() {
                           <button
                             type="button"
                             onClick={() => handleDeleteMessage(message._id)}
-                            className="font-semibold text-red-600 hover:text-red-700"
+                            className="rounded-full border border-red-200 bg-red-50 px-3 py-1 font-semibold text-red-600 hover:bg-red-100"
                           >
                             Delete
                           </button>
@@ -612,7 +660,7 @@ export default function CommunityPage() {
                       type="button"
                       onClick={handleLoadMore}
                       disabled={loadingMore}
-                      className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-60"
+                      className="rounded-full border border-slate-600 bg-slate-900 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800 disabled:opacity-60"
                     >
                       {loadingMore ? "Loading..." : "Load older messages"}
                     </button>
@@ -624,11 +672,31 @@ export default function CommunityPage() {
         </main>
 
         <aside className="hidden space-y-4 md:block">
-          <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4 shadow-sm">
-            <p className="mb-2 text-sm font-semibold text-slate-900">
+          <div className="rounded-3xl border border-slate-700 bg-slate-900 p-4 shadow-sm">
+            <p className="mb-2 text-sm font-semibold text-slate-100">
+              Community Insights
+            </p>
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              <div className="rounded-2xl border border-slate-700 bg-slate-800 px-3 py-2">
+                <p className="text-xs text-slate-500">Total Messages</p>
+                <p className="text-lg font-semibold text-slate-100">
+                  {messages.length}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-slate-700 bg-slate-800 px-3 py-2">
+                <p className="text-xs text-slate-500">Members</p>
+                <p className="text-lg font-semibold text-slate-100">
+                  {community?.memberCount || 0}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-3xl border border-slate-700 bg-slate-900 p-4 shadow-sm">
+            <p className="mb-2 text-sm font-semibold text-slate-100">
               Top Curators
             </p>
-            <div className="space-y-2 text-sm text-slate-700">
+            <div className="space-y-2 text-sm text-slate-300">
               {topCurators.length === 0 && (
                 <p className="text-xs text-slate-500">
                   Curator stats will appear once people post.
@@ -637,7 +705,7 @@ export default function CommunityPage() {
               {topCurators.map((curator) => (
                 <div
                   key={curator.name}
-                  className="flex items-center justify-between rounded-2xl bg-white px-3 py-2"
+                  className="flex items-center justify-between rounded-2xl bg-slate-800 px-3 py-2"
                 >
                   <span className="font-medium">{curator.name}</span>
                   <span className="text-xs text-slate-500">
@@ -652,23 +720,23 @@ export default function CommunityPage() {
 
       {showJoinDialog && (
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-slate-950/40 px-4">
-          <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-5 shadow-2xl">
-            <h2 className="text-xl font-semibold text-slate-900">
+          <div className="w-full max-w-md rounded-3xl border border-slate-700 bg-slate-900 p-5 shadow-2xl">
+            <h2 className="text-xl font-semibold text-slate-100">
               Join with your group name
             </h2>
-            <p className="mt-2 text-sm text-slate-600">
+            <p className="mt-2 text-sm text-slate-300">
               Keep your current name or set a different name for this community
               only.
             </p>
 
-            <label className="mt-4 block text-sm font-medium text-slate-700">
+            <label className="mt-4 block text-sm font-medium text-slate-300">
               Name in this group
               <input
                 type="text"
                 value={joinDisplayName}
                 onChange={(e) => setJoinDisplayName(e.target.value)}
                 maxLength={40}
-                className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-slate-100 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/30"
                 placeholder="Your display name"
               />
             </label>
@@ -677,7 +745,7 @@ export default function CommunityPage() {
               <button
                 type="button"
                 onClick={() => setShowJoinDialog(false)}
-                className="rounded-full border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                className="rounded-full border border-slate-600 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800"
               >
                 Cancel
               </button>
@@ -685,7 +753,7 @@ export default function CommunityPage() {
                 type="button"
                 onClick={handleJoinWithName}
                 disabled={joining}
-                className="rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:bg-blue-300"
+                className="rounded-full bg-sky-600 px-5 py-2 text-sm font-semibold text-white hover:bg-sky-500 disabled:bg-sky-800"
               >
                 {joining
                   ? "Saving..."
@@ -700,19 +768,19 @@ export default function CommunityPage() {
 
       {showGifPicker && (
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-slate-950/40 px-4">
-          <div className="w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-5 shadow-2xl">
+          <div className="w-full max-w-lg rounded-3xl border border-slate-700 bg-slate-900 p-5 shadow-2xl">
             <div className="mb-4 flex items-center gap-2">
               <input
                 type="text"
                 value={gifQuery}
                 onChange={(e) => setGifQuery(e.target.value)}
                 placeholder="Search GIFs"
-                className="flex-1 rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                className="flex-1 rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/30"
               />
               <button
                 type="button"
                 onClick={searchGifs}
-                className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+                className="rounded-xl bg-sky-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-500"
               >
                 Search
               </button>
@@ -723,7 +791,7 @@ export default function CommunityPage() {
                   setGifResults([]);
                   setGifQuery("");
                 }}
-                className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                className="rounded-xl border border-slate-600 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800"
               >
                 Close
               </button>
@@ -739,7 +807,7 @@ export default function CommunityPage() {
                     type="button"
                     key={gif.id}
                     onClick={() => sendGif(url)}
-                    className="overflow-hidden rounded-xl border border-slate-200 hover:border-blue-400"
+                    className="overflow-hidden rounded-xl border border-slate-700 hover:border-sky-500"
                   >
                     <img
                       src={url}

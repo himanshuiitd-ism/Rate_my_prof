@@ -110,12 +110,44 @@ const SPONSOR_ADS = {
       logoUrl: null,
     },
   ],
+  "IIT (ISM) Dhanbad": [
+    {
+      _id: "4",
+      title: "Chargeback.io",
+      description: "Prevent chargebacks on autopilot",
+      linkUrl: "https://www.chargeback.io/",
+      position: "left",
+      bgColor: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+      logoUrl: "https://via.placeholder.com/40x40?text=C",
+    },
+    {
+      _id: "5",
+      title: "ZeroLeaks",
+      description: "Red-team your AI agents for prompt injection",
+      linkUrl: "https://zeroleaks.ai/",
+      position: "right",
+      bgColor: "linear-gradient(135deg, #1f2937 0%, #111827 100%)",
+      logoUrl: "https://via.placeholder.com/40x40?text=Z",
+    },
+    {
+      _id: "9",
+      title: "himanshu.dev",
+      description: "Join the entrepreneurship journey with me",
+      linkUrl: "https://himanshuiid-ism.vercel.app/",
+      position: "left",
+      bgColor: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+      logoUrl: null,
+    },
+  ],
+  "IIT Guwahati": [],
+  "IIT (BHU) Varanasi": [],
 };
 
 function AdCard({
   ad,
   isPlaceholder = false,
   placeholderColor = "#ccc",
+  showPlaceholderText = true,
   isHorizontal = false,
   slotId = "",
   slotPosition = "left",
@@ -156,9 +188,9 @@ function AdCard({
     boxShadow: isHorizontal
       ? "0 3px 8px rgba(0,0,0,0.15)"
       : "0 10px 15px rgba(0, 0, 0, 0.1)",
-    border: isPlaceholder ? `1px solid ${placeholderColor}` : "none",
+    border: isPlaceholder ? `1px dashed ${placeholderColor}` : "none",
     background: isPlaceholder
-      ? "rgba(0, 0, 0, 0.5)"
+      ? "rgba(248, 250, 252, 0.65)"
       : ad.bgColor || "rgba(0,0,0,0.05)",
     position: "relative",
     scrollSnapAlign: isHorizontal ? "start" : "auto",
@@ -186,29 +218,20 @@ function AdCard({
         >
           {slotId}
         </div> */}
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: "rgba(0,0,0,0.5)",
-            borderRadius: "0.5rem",
-          }}
-        ></div>
-        <div style={{ position: "relative", zIndex: 1, textAlign: "center" }}>
-          <div
-            style={{
-              fontSize: "0.875rem",
-              fontWeight: "bold",
-              marginBottom: "0.25rem",
-              color: "#fff",
-            }}
-          >
-            Your ad goes here
+        {showPlaceholderText && (
+          <div style={{ position: "relative", zIndex: 1, textAlign: "center" }}>
+            <div
+              style={{
+                fontSize: "0.8rem",
+                fontWeight: "600",
+                marginBottom: "0.25rem",
+                color: "#64748b",
+              }}
+            >
+              Your ad goes here
+            </div>
           </div>
-        </div>
+        )}
       </div>
     );
   }
@@ -357,7 +380,7 @@ function AutoScrollRow({ children, style, className }) {
         scrollBehavior: "smooth",
       }}
     >
-      ;{children}
+      {children}
     </div>
   );
 }
@@ -390,10 +413,11 @@ export default function AdSidebar({
   };
 
   // Get ads for this page
-  const pageAds = SPONSOR_ADS[page] || SPONSOR_ADS["home"] || [];
+  const pageAds = SPONSOR_ADS[page] || [];
   const ads = horizontal
     ? pageAds
     : pageAds.filter((ad) => ad.position === position);
+  const showPlaceholderText = pageAds.length > 0;
 
   const buildCardsForLane = (lanePosition, isHorizontalLane) => {
     if (isHorizontalLane) {
@@ -441,6 +465,7 @@ export default function AdSidebar({
               key={`${lanePosition}-placeholder-${i}`}
               isPlaceholder
               placeholderColor={placeholderColors[i - ads.length]}
+              showPlaceholderText={showPlaceholderText}
               isHorizontal={false}
               slotId={`${page}:${lanePosition}:${i}`}
               slotPosition={lanePosition}

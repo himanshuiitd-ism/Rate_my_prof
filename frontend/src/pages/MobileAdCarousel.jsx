@@ -103,12 +103,44 @@ const SPONSOR_ADS = {
       imageUrl: null,
     },
   ],
+  "IIT (ISM) Dhanbad": [
+    {
+      _id: "4",
+      title: "Chargeback.io",
+      description: "Prevent chargebacks on autopilot",
+      linkUrl: "https://www.chargeback.io/",
+      position: "left",
+      bgColor: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+      imageUrl: "https://via.placeholder.com/40x40?text=C",
+    },
+    {
+      _id: "5",
+      title: "ZeroLeaks",
+      description: "Red-team your AI agents for prompt injection",
+      linkUrl: "https://zeroleaks.ai/",
+      position: "right",
+      bgColor: "linear-gradient(135deg, #1f2937 0%, #111827 100%)",
+      imageUrl: "https://via.placeholder.com/40x40?text=Z",
+    },
+    {
+      _id: "9",
+      title: "himanshu.dev",
+      description: "Join the entrepreneurship journey with me",
+      linkUrl: "https://himanshuiid-ism.vercel.app/",
+      position: "left",
+      bgColor: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+      imageUrl: null,
+    },
+  ],
+  "IIT Guwahati": [],
+  "IIT (BHU) Varanasi": [],
 };
 
 function MobileAdBox({
   ad,
   onAdClick,
   isPlaceholder = false,
+  showPlaceholderText = true,
   page,
   position,
   slotIndex,
@@ -144,9 +176,9 @@ function MobileAdBox({
       title={isPlaceholder ? "Available ad slot" : ad.title}
     >
       {/* Logo */}
-      {!isPlaceholder && ad.imageUrl ? (
+      {!isPlaceholder && (ad.imageUrl || ad.logoUrl) ? (
         <img
-          src={ad.imageUrl}
+          src={ad.imageUrl || ad.logoUrl}
           alt={ad.title}
           className="w-5 h-5 object-contain flex-shrink-0"
           onError={(e) => {
@@ -155,14 +187,20 @@ function MobileAdBox({
         />
       ) : (
         <div className="w-5 h-5 rounded bg-gray-300 flex-shrink-0 flex items-center justify-center text-xs">
-          {isPlaceholder ? "+" : ad.title?.charAt(0)}
+          {isPlaceholder
+            ? showPlaceholderText
+              ? "+"
+              : ""
+            : ad.title?.charAt(0)}
         </div>
       )}
 
       {/* Title */}
-      <span className="text-xs font-semibold whitespace-nowrap truncate">
-        {isPlaceholder ? "Your ad here" : ad.title}
-      </span>
+      {(!isPlaceholder || showPlaceholderText) && (
+        <span className="text-xs font-semibold whitespace-nowrap truncate">
+          {isPlaceholder ? "Your ad here" : ad.title}
+        </span>
+      )}
     </button>
   );
 }
@@ -173,7 +211,7 @@ export default function MobileAdCarousel({ page = "home", position = "top" }) {
 
   useEffect(() => {
     // Use hardcoded sponsor ads like desktop version
-    const pageAds = SPONSOR_ADS[page] || SPONSOR_ADS["home"] || [];
+    const pageAds = SPONSOR_ADS[page] || [];
 
     // Filter ads by position: top = left ads, bottom = right ads
     const positionMap = { top: "left", bottom: "right" };
@@ -213,6 +251,8 @@ export default function MobileAdCarousel({ page = "home", position = "top" }) {
   if (loading) {
     return null;
   }
+
+  const showPlaceholderText = ads.some((ad) => !ad.isPlaceholder);
 
   // CSS for auto-scroll animation (right-to-left)
   const scrollAnimationStyle = `
@@ -274,6 +314,7 @@ export default function MobileAdCarousel({ page = "home", position = "top" }) {
               page={page}
               position={position}
               slotIndex={idx}
+              showPlaceholderText={showPlaceholderText}
             />
           ))}
           {/* Duplicate ads at end for infinite scroll effect */}
@@ -286,6 +327,7 @@ export default function MobileAdCarousel({ page = "home", position = "top" }) {
               page={page}
               position={position}
               slotIndex={idx + 5}
+              showPlaceholderText={showPlaceholderText}
             />
           ))}
         </div>

@@ -78,19 +78,19 @@ export default function CommunityHome() {
   };
 
   return (
-    <div className="min-h-[80vh] bg-gradient-to-b from-black via-black to-slate-900 text-black">
-      <main className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8 md:flex-row">
+    <div className="min-h-[80vh] bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-slate-100">
+      <main className="mx-auto flex max-w-6xl flex-col gap-5 px-4 py-6 md:flex-row">
         {/* Left intro panel */}
         <section className="md:w-2/5">
-          <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-indigo-500/20 via-sky-500/10 to-emerald-500/10 px-5 py-6 shadow-xl shadow-black/40">
+          <div className="rounded-2xl border border-slate-700 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 px-5 py-5 shadow-xl shadow-black/40">
             <h1 className="mb-2 text-3xl font-semibold tracking-tight text-white">
               College Communities
             </h1>
-            <p className="text-sm text-slate-200/80">
+            <p className="text-sm text-slate-300">
               Discover focused groups for your campus. Read all conversations
               without signing in, or join a community to start posting.
             </p>
-            <div className="mt-4 space-y-2 text-xs text-slate-200/80">
+            <div className="mt-4 space-y-2 text-xs text-slate-300">
               <p className="inline-flex items-center gap-2">
                 <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-300">
                   ✓
@@ -111,7 +111,7 @@ export default function CommunityHome() {
         <section className="md:w-3/5">
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="relative w-full sm:max-w-md">
-              <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-slate-400">
+              <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-slate-500">
                 <svg
                   className="h-4 w-4"
                   viewBox="0 0 24 24"
@@ -128,14 +128,14 @@ export default function CommunityHome() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search communities…"
-                className="w-full rounded-full border border-slate-600/70 bg-slate-900/80 pl-9 pr-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full rounded-full border border-slate-700 bg-slate-900 pl-9 pr-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500/40 focus:border-sky-500"
               />
             </div>
             <SignedIn>
               <button
                 type="button"
                 onClick={() => setShowCreate(true)}
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-indigo-500 px-4 py-2 text-sm font-medium text-white shadow-md shadow-indigo-900/60 hover:bg-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 focus:ring-offset-slate-950"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-sky-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-400"
               >
                 <span className="text-lg leading-none">＋</span>
                 <span>Create community</span>
@@ -144,7 +144,7 @@ export default function CommunityHome() {
             <SignedOut>
               <a
                 href="/sign-in"
-                className="inline-flex items-center justify-center rounded-full border border-slate-600/80 px-4 py-2 text-sm font-medium text-slate-100 bg-slate-900/60 hover:bg-slate-800/80"
+                className="inline-flex items-center justify-center rounded-full border border-slate-600 px-4 py-2 text-sm font-medium text-slate-100 bg-slate-900 hover:bg-slate-800"
               >
                 Sign in to create
               </a>
@@ -158,13 +158,13 @@ export default function CommunityHome() {
           )}
 
           {loading && (
-            <div className="py-8 text-center text-sm text-slate-300/80">
+            <div className="py-8 text-center text-sm text-slate-400">
               Loading communities…
             </div>
           )}
 
           {!loading && allCommunities.length === 0 && (
-            <div className="py-10 text-center text-sm text-slate-300/80">
+            <div className="rounded-2xl border border-slate-700 bg-slate-900 py-10 text-center text-sm text-slate-300">
               No communities yet.{" "}
               {user
                 ? "Create the first one for your campus."
@@ -173,7 +173,7 @@ export default function CommunityHome() {
           )}
 
           {!loading && allCommunities.length > 0 && (
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-3 sm:grid-cols-2">
               {joined.map((c) => (
                 <CommunityCard key={c._id} community={c} joined />
               ))}
@@ -188,11 +188,13 @@ export default function CommunityHome() {
       {/* Simple create dialog */}
       {showCreate && (
         <div className="fixed inset-0 z-30 flex items-center justify-center bg-black/30">
-          <div className="w-full max-w-md rounded-lg bg-white p-5 shadow-lg">
-            <h2 className="mb-3 text-lg font-semibold">Create community</h2>
+          <div className="w-full max-w-md rounded-lg border border-slate-700 bg-slate-900 p-5 shadow-lg">
+            <h2 className="mb-3 text-lg font-semibold text-white">
+              Create community
+            </h2>
             <form onSubmit={handleCreate} className="space-y-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium text-slate-300">
                   Name
                 </label>
                 <input
@@ -201,12 +203,12 @@ export default function CommunityHome() {
                   onChange={(e) =>
                     setCreateForm((f) => ({ ...f, name: e.target.value }))
                   }
-                  className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  className="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium text-slate-300">
                   Description
                 </label>
                 <textarea
@@ -218,20 +220,20 @@ export default function CommunityHome() {
                       description: e.target.value,
                     }))
                   }
-                  className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  className="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
                 />
               </div>
               <div className="flex justify-end gap-2 pt-1">
                 <button
                   type="button"
                   onClick={() => setShowCreate(false)}
-                  className="rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
+                  className="rounded-md border border-slate-600 px-3 py-1.5 text-sm text-slate-200 hover:bg-slate-800"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700"
+                  className="rounded-md bg-sky-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-sky-500"
                 >
                   Create
                 </button>
@@ -248,22 +250,22 @@ function CommunityCard({ community, joined }) {
   return (
     <Link
       to={`/media/community/${community._id}`}
-      className="flex h-full flex-col rounded-lg border border-gray-200 bg-white px-3 py-3 text-sm shadow-sm hover:border-indigo-400 hover:shadow-md transition"
+      className="flex h-full flex-col rounded-xl border border-slate-700 bg-slate-900 px-3 py-3 text-sm shadow-sm hover:border-sky-500 hover:shadow-md transition"
     >
       <div className="mb-1 flex items-center justify-between">
-        <h3 className="font-semibold text-gray-900 line-clamp-1">
+        <h3 className="font-semibold text-slate-100 line-clamp-1">
           {community.name}
         </h3>
         {joined && (
-          <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700 border border-emerald-200">
+          <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[11px] font-medium text-emerald-300 border border-emerald-500/30">
             Joined
           </span>
         )}
       </div>
-      <p className="mb-2 line-clamp-2 text-xs text-gray-600">
+      <p className="mb-2 line-clamp-2 text-xs text-slate-400">
         {community.description || "No description yet."}
       </p>
-      <div className="mt-auto flex items-center justify-between text-[11px] text-gray-500">
+      <div className="mt-auto flex items-center justify-between text-[11px] text-slate-500">
         <span>{community.memberCount || 0} members</span>
         <span>{community.collegeId || "All colleges"}</span>
       </div>
