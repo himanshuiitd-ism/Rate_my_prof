@@ -17,6 +17,7 @@ const MOODS = ["😭", "😠", "😟", "😕", "😐", "🙂", "😊", "😄", "
 const ABUSE_LIST = [
   "madherchod",
   "chutiya",
+  "madarchod",
   "muthi",
   "takle",
   "takla",

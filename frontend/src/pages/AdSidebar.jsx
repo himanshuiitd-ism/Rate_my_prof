@@ -417,7 +417,8 @@ export default function AdSidebar({
   const ads = horizontal
     ? pageAds
     : pageAds.filter((ad) => ad.position === position);
-  const showPlaceholderText = pageAds.length > 0;
+  const showPlaceholderText =
+    pageAds.length > 0 || page === "IIT (BHU) Varanasi";
 
   const buildCardsForLane = (lanePosition, isHorizontalLane) => {
     if (isHorizontalLane) {

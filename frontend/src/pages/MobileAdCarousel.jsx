@@ -198,7 +198,7 @@ function MobileAdBox({
       {/* Title */}
       {(!isPlaceholder || showPlaceholderText) && (
         <span className="text-xs font-semibold whitespace-nowrap truncate">
-          {isPlaceholder ? "Your ad here" : ad.title}
+          {isPlaceholder ? "Your ad goes here" : ad.title}
         </span>
       )}
     </button>
@@ -252,7 +252,8 @@ export default function MobileAdCarousel({ page = "home", position = "top" }) {
     return null;
   }
 
-  const showPlaceholderText = ads.some((ad) => !ad.isPlaceholder);
+  const showPlaceholderText =
+    ads.some((ad) => !ad.isPlaceholder) || page === "IIT (BHU) Varanasi";
 
   // CSS for auto-scroll animation (right-to-left)
   const scrollAnimationStyle = `
