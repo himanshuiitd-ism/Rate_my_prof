@@ -1,8 +1,12 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { ClerkProvider } from "@clerk/clerk-react";
+import { inject } from "@vercel/analytics/react";
 import App from "./App";
 import "./styles.css";
+
+// Initialize Vercel Analytics
+inject();
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
