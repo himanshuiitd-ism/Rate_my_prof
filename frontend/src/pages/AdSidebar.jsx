@@ -406,10 +406,7 @@ export default function AdSidebar({
         slotId,
         adId: adId || null,
       });
-      console.log(`📊 Tracked click on slot: ${slotId}`);
-    } catch (err) {
-      console.error("Failed to track slot click:", err);
-    }
+    } catch {}
   };
 
   // Get ads for this page

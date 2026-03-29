@@ -35,12 +35,10 @@ export const AppProvider = ({ children }) => {
 
         if (mounted) {
           const profArray = Array.isArray(data) ? data : data.professors || [];
-          console.log("Loaded professors:", profArray.length);
           setProfessors(profArray);
           setError(null);
         }
       } catch (err) {
-        console.error("Error loading professors:", err);
         if (mounted) {
           setError(err.message);
         }
@@ -67,7 +65,6 @@ export const AppProvider = ({ children }) => {
       setProfessors(profArray);
       setError(null);
     } catch (err) {
-      console.error("Error refreshing professors:", err);
       setError(err.message);
     } finally {
       setLoading(false);

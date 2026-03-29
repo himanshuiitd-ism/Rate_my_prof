@@ -243,9 +243,7 @@ export default function MobileAdCarousel({ page = "home", position = "top" }) {
         adId,
         slotId,
       });
-    } catch (err) {
-      console.error("Failed to track ad click:", err);
-    }
+    } catch {}
   };
 
   if (loading) {

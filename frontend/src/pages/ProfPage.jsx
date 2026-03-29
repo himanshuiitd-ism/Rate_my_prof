@@ -1067,21 +1067,15 @@ export default function ProfPage() {
   const sendMsg = async () => {
     if (!comment.trim()) return;
     try {
-      console.log("Submitting message:", comment.trim());
       const result = await submitMessage(id, comment.trim());
       setComment("");
       // reload messages via redux (will also update prof data)
 
-      if (result.success) {
-        console.log("Message submitted successfully");
-      }
       if (result.error) {
-        console.error("Message submission error:", result.error);
         alert("Failed to send message: " + result.error);
       }
       dispatch(loadProfessor(id));
     } catch (err) {
-      console.error("Failed to post message", err);
       alert("Failed to send message: " + (err.message || err));
     }
   };
@@ -1120,7 +1114,6 @@ export default function ProfPage() {
       // Update leaderboard
       dispatch(updateLeaderboardFromProfessors(allProfessors));
     } catch (err) {
-      console.error("Rating submission failed:", err);
       const errorText =
         typeof err === "string"
           ? err

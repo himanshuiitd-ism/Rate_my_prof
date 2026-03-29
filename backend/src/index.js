@@ -1,6 +1,8 @@
 import "dotenv/config";
 import express, { json } from "express";
 import cors from "cors";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 import { connect } from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import { clerkMiddleware } from "@clerk/express";
@@ -8,6 +10,33 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 const app = express();
+app.disable("x-powered-by");
+
+if (process.env.NODE_ENV === "production") {
+  app.set("trust proxy", 1);
+}
+
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: Number(process.env.RATE_LIMIT_MAX) || 900,
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+  message: {
+    error: "Too many requests",
+    message: "Please try again in a few minutes.",
+  },
+});
+
+const writeLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  max: Number(process.env.WRITE_RATE_LIMIT_MAX) || 120,
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+  message: {
+    error: "Too many write requests",
+    message: "Please slow down and try again shortly.",
+  },
+});
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -17,6 +46,12 @@ let dbReady = false;
 export { dbReady };
 
 // ✅ Fix CORS - allow your Vercel domain
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  }),
+);
+
 app.use(
   cors({
     origin: [
@@ -29,23 +64,14 @@ app.use(
     credentials: true,
   }),
 );
-app.use(json());
+app.use(json({ limit: "100kb" }));
 
 // Clerk auth middleware – attaches req.auth when a valid Clerk session is present
 // Requires CLERK_PUBLISHABLE_KEY and CLERK_SECRET_KEY in backend .env
 app.use(clerkMiddleware());
 
-// Add logging middleware to see ALL requests
-app.use((req, res, next) => {
-  console.log(
-    `📥 ${req.method} ${req.url} - ${new Date().toLocaleTimeString()}`,
-  );
-  next();
-});
-
 // Basic route
 app.get("/", (req, res) => {
-  console.log("🏠 Root route hit");
   res.send("rate_my_prof backend running");
 });
 
@@ -61,6 +87,8 @@ app.get("/health", (req, res) => {
 });
 
 // 🛡️ Database readiness middleware – guard all /api routes
+app.use("/api", apiLimiter);
+
 app.use("/api", (req, res, next) => {
   if (!dbReady) {
     console.warn(`⚠️ DB not ready, blocking ${req.method} ${req.url}`);
@@ -72,6 +100,17 @@ app.use("/api", (req, res, next) => {
   }
   next();
 });
+
+app.use(
+  [
+    "/api/professors/:id/rate",
+    "/api/professors/:id/message",
+    "/api/communities/:id/messages",
+    "/api/feature-suggestions",
+    "/api/ads/slots/click",
+  ],
+  writeLimiter,
+);
 
 // Routes
 import profRoutes from "./routes/professors.js";

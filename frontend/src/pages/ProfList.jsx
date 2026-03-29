@@ -33,7 +33,6 @@ const getCollegeKeywords = (selectedCollegeName) => {
 /* ── Prof Card ─────────────────────────────────────────── */
 const ProfCard = memo(({ p }) => {
   const avg = p;
-  console.log(`Professor ${p.name} has average rating:`, avg);
   const ratingColor =
     avg >= 8 ? "#22c55e" : avg >= 5 ? "#f59e0b" : avg > 0 ? "#ef4444" : null;
   return (

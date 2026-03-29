@@ -16,17 +16,14 @@ const saveState = (state) => {
       },
     });
     localStorage.setItem("reduxState", serialized);
-  } catch (e) {
-    console.error("Failed to save state:", e);
-  }
+  } catch {}
 };
 
 const loadState = () => {
   try {
     const serialized = localStorage.getItem("reduxState");
     return serialized ? JSON.parse(serialized) : undefined;
-  } catch (e) {
-    console.error("Failed to load state:", e);
+  } catch {
     return undefined;
   }
 };
