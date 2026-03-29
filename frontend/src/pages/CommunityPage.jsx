@@ -566,10 +566,13 @@ export default function CommunityPage() {
                       className="rounded-2xl border border-slate-700 bg-slate-900 p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
                     >
                       <div className="mb-2 flex items-center justify-between">
-                        <div>
-                          <p className="text-sm font-semibold text-slate-100 md:text-base">
-                            {message.authorDisplayName || "Anonymous"}
-                          </p>
+                        <div className="flex flex-col gap-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg">👤</span>
+                            <p className="text-xs font-medium text-slate-200">
+                              {message.authorDisplayName || "Anonymous"}
+                            </p>
+                          </div>
                           <p className="text-xs text-slate-500">
                             {formatMessageTime(message.createdAt)}
                           </p>
