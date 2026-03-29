@@ -1275,15 +1275,15 @@ export default function ProfPage() {
       {/* Promo Banner */}
       <div className="promo-banner">
         <p className="promo-text">
-          Planning trips with friends? We built TripiiTrip to split expenses,
-          plan routes & travel together 👀 Click 👉{" "}
+          Join community for founders, creators and startups related query from
+          here :{" "}
           <a
-            href="https://tripii-trip-psi.vercel.app/"
+            href="https://himanshuiid-ism.vercel.app"
             target="_blank"
             rel="noopener noreferrer"
             className="promo-link"
           >
-            Tripiitrip
+            build_in_public
           </a>
         </p>
       </div>
@@ -1434,17 +1434,16 @@ export default function ProfPage() {
     //   >
     //     see this
     //   </a>{" "}
-    //   btw don't forget to come and post on tripiitrip and also join the
-    //   tripiitrip community on it{" "}
+    //   join founders, creators and startups community from here{" "}
     //   <p className="promo-text">
     //     <a
-    //       href="https://tripii-trip-psi.vercel.app/"
+    //       href="https://himanshuiid-ism.vercel.app"
     //       target="_blank"
     //       rel="noopener noreferrer"
     //       className="promo-link"
     //       style={{ color: "red", fontSize: "60px" }}
     //     >
-    //       Tripiitrip😉
+    //       build_in_public
     //     </a>
     //     and don't forget to reach me if you need anything
     //   </p>

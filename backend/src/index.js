@@ -196,15 +196,16 @@ async function seedAds() {
         },
 
         {
-          title: "TripiiTrip",
+          title: "build_in_public",
           description:
-            "Plan trips & split expenses with friends. Built for students.",
-          imageUrl: "https://api.dicebear.com/7.x/shapes/svg?seed=trip",
-          linkUrl: "https://tripii-trip-psi.vercel.app/",
+            "Join community for founders, creators and startups related query.",
+          imageUrl:
+            "https://api.dicebear.com/7.x/shapes/svg?seed=build-in-public-home",
+          linkUrl: "https://himanshuiid-ism.vercel.app",
           page: "home",
           position: "right",
           order: 1,
-          badge: "TRY IT",
+          badge: "JOIN",
           bgColor: "#0d3349",
         },
         {
@@ -308,15 +309,16 @@ async function seedAds() {
         },
 
         {
-          title: "TripiiTrip",
+          title: "build_in_public",
           description:
-            "Plan trips & split expenses with friends. Built for students.",
-          imageUrl: "https://api.dicebear.com/7.x/shapes/svg?seed=trip2",
-          linkUrl: "https://tripii-trip-psi.vercel.app/",
+            "Join community for founders, creators and startups related query.",
+          imageUrl:
+            "https://api.dicebear.com/7.x/shapes/svg?seed=build-in-public-ism",
+          linkUrl: "https://himanshuiid-ism.vercel.app",
           page: "IIT (ISM) Dhanbad",
           position: "right",
           order: 1,
-          badge: "TRY IT",
+          badge: "JOIN",
           bgColor: "#0d3349",
         },
         {
@@ -417,15 +419,16 @@ async function seedAds() {
         },
 
         {
-          title: "TripiiTrip",
+          title: "build_in_public",
           description:
-            "Plan trips & split expenses with friends. Built for students.",
-          imageUrl: "https://api.dicebear.com/7.x/shapes/svg?seed=trip3",
-          linkUrl: "https://tripii-trip-psi.vercel.app/",
+            "Join community for founders, creators and startups related query.",
+          imageUrl:
+            "https://api.dicebear.com/7.x/shapes/svg?seed=build-in-public-madras",
+          linkUrl: "https://himanshuiid-ism.vercel.app",
           page: "IIT Madras",
           position: "right",
           order: 1,
-          badge: "TRY IT",
+          badge: "JOIN",
           bgColor: "#0d3349",
         },
         {

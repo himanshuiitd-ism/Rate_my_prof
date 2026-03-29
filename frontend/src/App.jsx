@@ -34,6 +34,8 @@ function Shell({ children }) {
     location.pathname === "/" || location.pathname.startsWith("/prof");
   const onCommunityMode = location.pathname.startsWith("/media");
   const onMakeupMode = location.pathname.startsWith("/makeup");
+  const hasTopMobileAdRail =
+    location.pathname === "/profs" || location.pathname.startsWith("/prof/");
 
   const mobileTabClass = (isActive) =>
     `flex-1 px-4 py-2 font-medium rounded-lg text-center transition border ${
@@ -96,6 +98,24 @@ function Shell({ children }) {
           </div>
         </div>
       </header>
+      <div
+        className={`w-full bg-amber-50 border-b border-amber-200 ${
+          hasTopMobileAdRail ? "mt-14 md:mt-0" : "mt-0"
+        }`}
+      >
+        <div className="mx-auto max-w-6xl px-4 py-2 text-center text-sm text-amber-900">
+          Join community for founders, creators and startups related query from
+          here :{" "}
+          <a
+            href="https://himanshuiid-ism.vercel.app"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold underline decoration-amber-700 underline-offset-2 hover:text-amber-700"
+          >
+            build_in_public
+          </a>
+        </div>
+      </div>
       <div className="flex-grow pb-0 md:pb-0">{children}</div>
 
       {/* Mobile Navigation Bar */}

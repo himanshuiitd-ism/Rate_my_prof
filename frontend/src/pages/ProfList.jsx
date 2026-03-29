@@ -297,15 +297,15 @@ export default function ProfList() {
           {/* Promo banner */}
           <div className="promo-banner">
             <p className="promo-text">
-              Planning trips with friends? We built TripiiTrip to split
-              expenses, plan routes &amp; travel together 👀{" "}
+              Join community for founders, creators and startups related query
+              from here :{" "}
               <a
-                href="https://tripii-trip-psi.vercel.app/"
+                href="https://himanshuiid-ism.vercel.app"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="promo-link"
               >
-                tripiitrip.com →
+                build_in_public →
               </a>
             </p>
           </div>
