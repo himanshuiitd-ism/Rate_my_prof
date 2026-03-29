@@ -1,0 +1,72 @@
+.iechm-page {
+  min-height: calc(100vh - 140px);
+  background: linear-gradient(180deg, #f6f8ff 0%, #eef2ff 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px 16px 90px;
+}
+
+.iechm-card {
+  width: min(980px, 100%);
+  background: #ffffff;
+  border: 1px solid #d7def5;
+  border-radius: 20px;
+  box-shadow: 0 18px 40px rgba(25, 30, 60, 0.15);
+  padding: 16px;
+}
+
+.iechm-banner {
+  width: 100%;
+  display: block;
+  border-radius: 14px;
+  border: 1px solid #d7def5;
+}
+
+.iechm-actions {
+  margin-top: 16px;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.iechm-btn {
+  text-decoration: none;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-weight: 700;
+  text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.iechm-btn:hover {
+  transform: translateY(-1px);
+}
+
+.iechm-btn--primary {
+  background: #1f2f8f;
+  color: #ffffff;
+  box-shadow: 0 8px 20px rgba(31, 47, 143, 0.3);
+}
+
+.iechm-btn--primary:hover {
+  background: #16256f;
+}
+
+.iechm-btn--secondary {
+  background: #edf2ff;
+  color: #1e293b;
+  border: 1px solid #cfd8ff;
+}
+
+@media (max-width: 640px) {
+  .iechm-card {
+    padding: 12px;
+    border-radius: 16px;
+  }
+
+  .iechm-btn {
+    width: 100%;
+  }
+}

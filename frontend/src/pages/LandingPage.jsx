@@ -1,7 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import AdSidebar from "./AdSidebar";
-import MobileAdCarousel from "./MobileAdCarousel";
+import { Link, useNavigate } from "react-router-dom";
 import "./LandingPage.css";
 
 const COLLEGES = [
@@ -48,19 +46,8 @@ export default function LandingPage() {
 
   return (
     <div className="landing-root">
-      {/* ── Mobile Top Ads ── */}
-      <div className="md:hidden">
-        <MobileAdCarousel page="home" position="top" />
-      </div>
-
-      {/* ── Three-column layout ── */}
+      {/* ── Main layout ── */}
       <div className="landing-layout">
-        {/* Left ads – desktop only */}
-        <div className="landing-sidebar landing-sidebar--left">
-          <AdSidebar page="home" position="left" />
-        </div>
-
-        {/* Centre content */}
         <div className="landing-content">
           <div className="logo-icon">
             <svg
@@ -80,21 +67,6 @@ export default function LandingPage() {
           <p className="subtitle">
             Real-time anonymous ratings, chat & reviews for India's top
             colleges.
-          </p>
-          <p>
-            contact us for your ads:{" "}
-            <a href="mailto:startupfactory303@gmail.com">
-              startupfactory303@gmail.com
-            </a>
-            or insta{" "}
-            <a
-              href="https://www.instagram.com/startup.factory_iit/"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {" "}
-              @ratemyprof
-            </a>
           </p>
 
           <form className="selection-box" onSubmit={handleEnter}>
@@ -146,6 +118,27 @@ export default function LandingPage() {
             </button>
           </form>
 
+          <section className="partner-card" aria-label="ICHM Collaboration">
+            <img
+              src="/IECHM.jpeg"
+              alt="ICHM logo"
+              className="partner-logo"
+            />
+            <div className="partner-content">
+              <h2 className="partner-title">In Collaboration with ICHM</h2>
+              <p className="partner-description">
+                IECHM is a hardware innovation studio helping founders,
+                startups, and enterprises turn ideas into market-ready products.
+                From concept and engineering to mass manufacturing, we deliver
+                seamless, end-to-end solutions built on precision, quality, and
+                reliability bringing innovation to life, faster.
+              </p>
+              <Link to="/iechm-banner" className="partner-btn">
+                View IECHM Banner
+              </Link>
+            </div>
+          </section>
+
           <div className="stats">
             <div className="stat-item">
               <span className="stat-value">500+</span>
@@ -161,16 +154,6 @@ export default function LandingPage() {
             </div>
           </div>
         </div>
-
-        {/* Right ads – desktop only */}
-        <div className="landing-sidebar landing-sidebar--right">
-          <AdSidebar page="home" position="right" />
-        </div>
-      </div>
-
-      {/* ── Mobile Bottom Ads ── */}
-      <div className="md:hidden">
-        <MobileAdCarousel page="home" position="bottom" />
       </div>
     </div>
   );
