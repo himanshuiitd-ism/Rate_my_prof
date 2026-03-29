@@ -119,11 +119,7 @@ export default function LandingPage() {
           </form>
 
           <section className="partner-card" aria-label="ICHM Collaboration">
-            <img
-              src="/IECHM.jpeg"
-              alt="ICHM logo"
-              className="partner-logo"
-            />
+            <img src="/IECHM.jpeg" alt="ICHM logo" className="partner-logo" />
             <div className="partner-content">
               <h2 className="partner-title">In Collaboration with ICHM</h2>
               <p className="partner-description">
