@@ -37,6 +37,9 @@ function normalizeCollegeName(rawCollege) {
   if (college.includes("dhanbad") || college.includes("ism")) {
     return "IIT (ISM) Dhanbad";
   }
+  if (college.includes("nitte") || college.includes("nmam")) {
+    return "NITTE";
+  }
 
   return normalizeSpace(rawCollege);
 }

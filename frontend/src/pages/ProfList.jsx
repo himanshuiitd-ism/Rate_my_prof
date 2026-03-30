@@ -26,6 +26,13 @@ const getCollegeKeywords = (selectedCollegeName) => {
   if (selected.includes("bhu") || selected.includes("varanasi")) {
     return ["bhu", "varanasi"];
   }
+  if (
+    selected.includes("nitte") ||
+    selected.includes("nmam") ||
+    selected.includes("nmamit")
+  ) {
+    return ["nitte", "nmam", "nmamit"];
+  }
 
   return selected ? [selected] : [];
 };

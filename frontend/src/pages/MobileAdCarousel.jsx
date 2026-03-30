@@ -134,6 +134,7 @@ const SPONSOR_ADS = {
   ],
   "IIT Guwahati": [],
   "IIT (BHU) Varanasi": [],
+  NITTE: [],
 };
 
 function MobileAdBox({
