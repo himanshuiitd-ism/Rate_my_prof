@@ -298,7 +298,7 @@ export default function ProfList() {
           <div className="promo-banner">
             <p className="promo-text">
               Join community for founders, creators and startups related query
-              from here :{" "}
+              from community section of this website:{" "}
               <a
                 href="https://himanshuiid-ism.vercel.app"
                 target="_blank"

@@ -1276,7 +1276,7 @@ export default function ProfPage() {
       <div className="promo-banner">
         <p className="promo-text">
           Join community for founders, creators and startups related query from
-          here :{" "}
+          community section of this website:{" "}
           <a
             href="https://himanshuiid-ism.vercel.app"
             target="_blank"
