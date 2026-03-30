@@ -105,7 +105,7 @@ function Shell({ children }) {
       >
         <div className="mx-auto max-w-6xl px-4 py-2 text-center text-sm text-amber-900">
           Join community for founders, creators and startups related query from
-          here :{" "}
+          community section of this website:{" "}
           <a
             href="https://himanshuiid-ism.vercel.app"
             target="_blank"
