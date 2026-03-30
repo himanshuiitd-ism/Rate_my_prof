@@ -252,7 +252,9 @@ export default function MobileAdCarousel({ page = "home", position = "top" }) {
   }
 
   const showPlaceholderText =
-    ads.some((ad) => !ad.isPlaceholder) || page === "IIT (BHU) Varanasi";
+    ads.some((ad) => !ad.isPlaceholder) ||
+    page === "IIT (BHU) Varanasi" ||
+    page === "NITTE";
 
   // CSS for auto-scroll animation (right-to-left)
   const scrollAnimationStyle = `

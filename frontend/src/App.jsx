@@ -34,8 +34,7 @@ function Shell({ children }) {
     location.pathname === "/" || location.pathname.startsWith("/prof");
   const onCommunityMode = location.pathname.startsWith("/media");
   const onMakeupMode = location.pathname.startsWith("/makeup");
-  const hasTopMobileAdRail =
-    location.pathname === "/profs" || location.pathname.startsWith("/prof/");
+  const hasTopMobileAdRail = location.pathname === "/profs";
 
   const mobileTabClass = (isActive) =>
     `flex-1 px-4 py-2 font-medium rounded-lg text-center transition border ${
