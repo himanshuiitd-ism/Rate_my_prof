@@ -129,9 +129,9 @@ export default function LandingPage() {
                 seamless, end-to-end solutions built on precision, quality, and
                 reliability bringing innovation to life, faster.
               </p>
-              <Link to="/iechm-banner" className="partner-btn">
+              {/* <Link to="/iechm-banner" className="partner-btn">
                 View IECHM Banner
-              </Link>
+              </Link> */}
             </div>
           </section>
 

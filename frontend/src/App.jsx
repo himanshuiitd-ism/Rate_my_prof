@@ -21,7 +21,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import SignInPage from "./pages/SignInPage";
 import SignUpPage from "./pages/SignUpPage";
 import MakeupPage from "./pages/MakeupPage";
-import IechmBannerPage from "./pages/IechmBannerPage";
+// import IechmBannerPage from "./pages/IechmBannerPage";
 
 const ADMIN_EMAIL = "priyadarshihimanshu6@gmail.com";
 
@@ -166,7 +166,7 @@ export default function App() {
             <Route path="/media" element={<CommunityHome />} />
             <Route path="/media/community/:id" element={<CommunityPage />} />
             <Route path="/makeup" element={<MakeupPage />} />
-            <Route path="/iechm-banner" element={<IechmBannerPage />} />
+            {/* <Route path="/iechm-banner" element={<IechmBannerPage />} /> */}
             <Route path="/sign-in" element={<SignInPage />} />
             <Route path="/sign-up" element={<SignUpPage />} />
             <Route path="/admin/ads" element={<AdminAds />} />
