@@ -129,9 +129,14 @@ export default function LandingPage() {
                 seamless, end-to-end solutions built on precision, quality, and
                 reliability bringing innovation to life, faster.
               </p>
-              {/* <Link to="/iechm-banner" className="partner-btn">
-                View IECHM Banner
-              </Link> */}
+              <a
+                href="https://docs.google.com/forms/d/e/1FAIpQLSfNbM4DP27SnXW3dkBwdz-YFuJtMVHrmBMpzKh7seZrfJendg/viewform?usp=pp_url&entry.1834220927=Rate+My+Prof"
+                className="partner-btn"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Build with IECHM
+              </a>
             </div>
           </section>
 
