@@ -1043,6 +1043,8 @@ export default function ProfPage() {
     setTimeout(() => setToast(false), 3000);
   };
 
+  const isNitteProfile = /nitte|nmamit|nmam/i.test(prof?.college || "");
+
   // Initialize messages from Redux when they load
   useEffect(() => {
     if (messagesFromRedux && messagesFromRedux.length > 0) {
@@ -1065,6 +1067,10 @@ export default function ProfPage() {
   }, [id, dispatch]);
 
   const sendMsg = async () => {
+    if (isNitteProfile) {
+      showToast("Comments are disabled for NITTE profiles.");
+      return;
+    }
     if (!comment.trim()) return;
     try {
       const result = await submitMessage(id, comment.trim());
@@ -1298,47 +1304,49 @@ export default function ProfPage() {
         {/* Main content */}
         <div className="content-wrap">
           {/* Chat column */}
-          <div className="col-main">
-            <div className="section-head">
-              <span className="dot"></span>
-              Anonymous Chat (Suvival guide against this prof for your
-              descendents)
-            </div>
+          {!isNitteProfile && (
+            <div className="col-main">
+              <div className="section-head">
+                <span className="dot"></span>
+                Anonymous Chat (Suvival guide against this prof for your
+                descendents)
+              </div>
 
-            <div className="chat-box">
-              <div className="chat-messages">
-                {messages.length === 0 ? (
-                  <div className="chat-empty">
-                    No messages yet. Be the first to chat!
-                  </div>
-                ) : (
-                  messages.map((m, i) => (
-                    <div className="chat-msg" key={i}>
-                      <div className="chat-msg-time">
-                        {new Date(m.createdAt).toLocaleTimeString()}
-                      </div>
-                      <div className="chat-msg-text">
-                        {censorText(m.message)}
-                      </div>
+              <div className="chat-box">
+                <div className="chat-messages">
+                  {messages.length === 0 ? (
+                    <div className="chat-empty">
+                      No messages yet. Be the first to chat!
                     </div>
-                  ))
-                )}
-              </div>
+                  ) : (
+                    messages.map((m, i) => (
+                      <div className="chat-msg" key={i}>
+                        <div className="chat-msg-time">
+                          {new Date(m.createdAt).toLocaleTimeString()}
+                        </div>
+                        <div className="chat-msg-text">
+                          {censorText(m.message)}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
 
-              <div className="chat-input-row">
-                <input
-                  className="chat-input"
-                  value={comment}
-                  onChange={(e) => setComment(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder="Message anonymously... (Enter to send)"
-                />
-                <button className="send-btn" onClick={sendMsg}>
-                  Send
-                </button>
+                <div className="chat-input-row">
+                  <input
+                    className="chat-input"
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Message anonymously... (Enter to send)"
+                  />
+                  <button className="send-btn" onClick={sendMsg}>
+                    Send
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Rating column */}
           <div className="col-side">
