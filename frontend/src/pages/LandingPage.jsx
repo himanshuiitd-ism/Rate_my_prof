@@ -120,7 +120,7 @@ export default function LandingPage() {
             </button>
           </form>
 
-          <section className="partner-card" aria-label="ICHM Collaboration">
+          {/* <section className="partner-card" aria-label="ICHM Collaboration">
             <img src="/IECHM.jpeg" alt="ICHM logo" className="partner-logo" />
             <div className="partner-content">
               <h2 className="partner-title">In Collaboration with ICHM</h2>
@@ -140,7 +140,7 @@ export default function LandingPage() {
                 Build with IECHM
               </a>
             </div>
-          </section>
+          </section> */}
 
           <div className="stats">
             <div className="stat-item">
